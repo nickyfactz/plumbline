@@ -1,0 +1,6 @@
+interface:
+  display_name: "Plumbline Closeout"
+  short_description: "Reconcile accepted work and finish cleanly"
+  default_prompt: "Close out accepted Plumbline work with current documentation."
+policy:
+  allow_implicit_invocation: false

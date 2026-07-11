@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title>Plumbline</title>
+  <rect width="64" height="64" rx="16" fill="#0F172A"/>
+  <path d="M32 10v32" stroke="#60A5FA" stroke-width="6" stroke-linecap="round"/>
+  <path d="M20 42h24" stroke="#DBEAFE" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="32" cy="49" r="6" fill="#2563EB" stroke="#DBEAFE" stroke-width="3"/>
+</svg>

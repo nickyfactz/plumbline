@@ -1,0 +1,6 @@
+interface:
+  display_name: "Plumbline Review"
+  short_description: "Audit behavior and completeness without editing"
+  default_prompt: "Review these changes independently and report evidence-bound findings."
+policy:
+  allow_implicit_invocation: false

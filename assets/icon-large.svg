@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Plumbline</title>
+  <desc id="desc">A blue plumb bob aligned on a vertical line.</desc>
+  <rect width="512" height="512" rx="112" fill="#0F172A"/>
+  <path d="M256 78v288" stroke="#60A5FA" stroke-width="36" stroke-linecap="round"/>
+  <path d="M158 366h196" stroke="#DBEAFE" stroke-width="30" stroke-linecap="round"/>
+  <path d="M256 356l-60 60 60 72 60-72z" fill="#2563EB" stroke="#DBEAFE" stroke-width="18" stroke-linejoin="round"/>
+</svg>

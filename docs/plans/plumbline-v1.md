@@ -2,10 +2,10 @@
 status: active
 feature: Plumbline v1
 specification: docs/specs/plumbline-v1.md
-source: C:/Users/nickd/Downloads/plumbline-v1-handoff-bundle.zip
-base_commit: kickoff
-current_checkpoint: CP-01
-last_verified_commit: null
+source: docs/source-provenance.md
+base_commit: 5ed0796
+current_checkpoint: CP-08
+last_verified_commit: 5ed0796
 ready_for_acceptance: false
 ---
 

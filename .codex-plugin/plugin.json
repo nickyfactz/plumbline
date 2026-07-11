@@ -1,0 +1,39 @@
+{
+  "name": "plumbline",
+  "version": "0.1.0",
+  "description": "Proportional, evidence-driven engineering workflows for Codex.",
+  "author": {
+    "name": "Plumbline contributors"
+  },
+  "license": "MIT",
+  "keywords": [
+    "engineering-workflow",
+    "planning",
+    "review",
+    "debugging",
+    "subagents",
+    "repository-alignment"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Plumbline",
+    "shortDescription": "Aligned engineering workflows for agentic development",
+    "longDescription": "Plumbline helps Codex move from product intent to implementation, verification, acceptance, and current repository documentation with only the process the work needs. Installation is inert; repository routing begins only after explicit initialization.",
+    "developerName": "Plumbline contributors",
+    "category": "Coding",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use Plumbline to shape this feature before implementation.",
+      "Use Plumbline to plan and execute this feature.",
+      "Use Plumbline to review these changes for behavior and completeness."
+    ],
+    "brandColor": "#2563EB",
+    "composerIcon": "./assets/icon-small.svg",
+    "logo": "./assets/icon-large.svg",
+    "screenshots": []
+  }
+}
