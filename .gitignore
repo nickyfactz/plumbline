@@ -1,0 +1,18 @@
+# Local development output
+.pytest_cache/
+__pycache__/
+*.py[cod]
+.coverage
+htmlcov/
+.venv/
+dist/
+build/
+*.egg-info/
+
+# Local Codex/editor state
+.codex/
+.agents/skills/plumbline-router/
+.worktreeinclude
+
+# Scratch material copied from the handoff bundle
+.scratch/
