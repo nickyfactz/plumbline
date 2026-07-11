@@ -5,7 +5,7 @@ specification: docs/specs/plumbline-v1.md
 source: docs/source-provenance.md
 base_commit: 5ed0796
 current_checkpoint: CP-08
-last_verified_commit: 5ed0796
+last_verified_commit: fdf652c
 ready_for_acceptance: false
 ---
 
