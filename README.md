@@ -6,10 +6,8 @@ It is a skills-only plugin: no MCP server, connector, session-start hook, global
 
 ## Install from GitHub
 
-After pushing this repository, replace `OWNER/REPOSITORY` with its GitHub shorthand:
-
 ```bash
-codex plugin marketplace add OWNER/REPOSITORY --ref main
+codex plugin marketplace add nickyfactz/plumbline --ref main
 codex
 /plugins
 ```
