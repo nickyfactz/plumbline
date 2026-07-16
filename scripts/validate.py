@@ -35,6 +35,48 @@ ENGINES = {f"{name}-engine" for name in {
 }}
 EXPECTED_SKILLS = PUBLIC | ENGINES
 EXPLICIT = PUBLIC
+AGENT_ROLES = {
+    "researcher",
+    "backend-architect",
+    "frontend-architect",
+    "implementer",
+    "qa-auditor",
+}
+AGENT_SANDBOXES = {
+    "researcher": "read-only",
+    "backend-architect": "read-only",
+    "frontend-architect": "read-only",
+    "implementer": "workspace-write",
+    "qa-auditor": "read-only",
+}
+CONTRACT_MARKERS = {
+    "plumbline-init": (
+        "wait for explicit approval",
+        "personal/global custom-agent files",
+        "max_depth = 1",
+        "scripts/install_agent_team.py",
+        ".worktreeinclude",
+    ),
+    "plumbline-agent-team": (
+        ".codex/agents/",
+        "personal/global agent files",
+        "max_depth = 1",
+        "spawn children",
+        "scripts/install_agent_team.py",
+    ),
+    "plumbline-execute-engine": (
+        ".codex/agents/",
+        "personal/global custom agents",
+        "delegated: <role>",
+        "workers never spawn children",
+    ),
+    "plumbline-review-engine": (
+        "qa-auditor",
+        "personal/global qa agent",
+        "direct: qa-auditor unavailable",
+        "workers never spawn children",
+    ),
+}
 WRAPPERS = {
     "plumbline-shape",
     "plumbline-spec",
@@ -162,6 +204,9 @@ def validate_skills(errors: list[str]) -> None:
                 error(errors, f"{name}: missing referenced file {reference}")
         if "must use TDD" in text or "always use TDD" in text:
             error(errors, f"{name}: contains universal TDD language")
+        for marker in CONTRACT_MARKERS.get(name, ()):
+            if marker.lower() not in text.lower():
+                error(errors, f"{name}: missing contract marker {marker}")
 
 
 def validate_references_and_templates(errors: list[str]) -> None:
@@ -174,22 +219,69 @@ def validate_references_and_templates(errors: list[str]) -> None:
         error(errors, "router exceeds the 180-word budget")
     if "plumbline-router" not in router.read_text(encoding="utf-8"):
         error(errors, "router template is missing its activation identity")
-    for path in sorted((ROOT / "templates" / "agents").glob("*.toml")):
+    agents_root = ROOT / "templates" / "agents"
+    actual_roles = {path.stem for path in agents_root.glob("*.toml") if path.name != "config.toml"}
+    if actual_roles != AGENT_ROLES:
+        error(errors, f"agent template set differs; missing={sorted(AGENT_ROLES - actual_roles)}, extra={sorted(actual_roles - AGENT_ROLES)}")
+    for role in sorted(AGENT_ROLES):
+        path = agents_root / f"{role}.toml"
+        if not path.is_file():
+            error(errors, f"missing agent template: {path.relative_to(ROOT)}")
+            continue
         try:
             data = tomllib.loads(path.read_text(encoding="utf-8"))
         except tomllib.TOMLDecodeError as exc:
             error(errors, f"{path.relative_to(ROOT)}: invalid TOML: {exc}")
             continue
-        for key in ("name", "description", "developer_instructions"):
+        for key in ("name", "description", "developer_instructions", "model", "model_reasoning_effort", "sandbox_mode"):
             if not isinstance(data.get(key), str) or not data[key].strip():
                 error(errors, f"{path.relative_to(ROOT)}: missing {key}")
+        source = path.read_text(encoding="utf-8")
+        if data.get("name") != role:
+            error(errors, f"{path.relative_to(ROOT)}: name must be {role}")
+        if data.get("model") != "{{MODEL}}" or "{{MODEL}}" not in source:
+            error(errors, f"{path.relative_to(ROOT)}: model placeholder is required")
+        if data.get("model_reasoning_effort") != "{{REASONING_EFFORT}}" or "{{REASONING_EFFORT}}" not in source:
+            error(errors, f"{path.relative_to(ROOT)}: reasoning placeholder is required")
+        if data.get("sandbox_mode") != AGENT_SANDBOXES[role]:
+            error(errors, f"{path.relative_to(ROOT)}: sandbox must be {AGENT_SANDBOXES[role]}")
+        if "never spawn child agents" not in data.get("developer_instructions", "").lower():
+            error(errors, f"{path.relative_to(ROOT)}: child-spawn boundary is required")
+
+    config_path = agents_root / "config.toml"
+    try:
+        config = tomllib.loads(config_path.read_text(encoding="utf-8"))
+    except (OSError, tomllib.TOMLDecodeError) as exc:
+        error(errors, f"{config_path.relative_to(ROOT)}: invalid or missing TOML: {exc}")
+    else:
+        if config.get("features", {}).get("multi_agent") is not True:
+            error(errors, "templates/agents/config.toml: multi_agent must be true")
+        if config.get("agents", {}).get("max_threads") != 6:
+            error(errors, "templates/agents/config.toml: max_threads must be 6")
+        if config.get("agents", {}).get("max_depth") != 1:
+            error(errors, "templates/agents/config.toml: max_depth must be 1")
+
+    worktreeinclude = agents_root / "worktreeinclude"
+    try:
+        include_text = worktreeinclude.read_text(encoding="utf-8")
+    except OSError as exc:
+        error(errors, f"{worktreeinclude.relative_to(ROOT)}: missing: {exc}")
+    else:
+        for pattern in (".codex/config.toml", ".codex/agents/*.toml", ".agents/skills/plumbline-router/**"):
+            if pattern not in include_text:
+                error(errors, f"{worktreeinclude.relative_to(ROOT)}: missing {pattern}")
 
 
 def validate_scripts(errors: list[str]) -> None:
-    for name in ("validate.py", "install_router.py"):
+    for name in ("validate.py", "install_router.py", "install_agent_team.py", "test_install_agent_team.py"):
         path = ROOT / "scripts" / name
         try:
-            compile(path.read_text(encoding="utf-8"), str(path), "exec")
+            source = path.read_text(encoding="utf-8")
+            compile(source, str(path), "exec")
+            if name == "install_agent_team.py":
+                for marker in ("MODES = (\"initialize\", \"audit\", \"retune\")", "class InstallReport", "def _retune", "update_instructions"):
+                    if marker not in source:
+                        error(errors, f"scripts/{name}: missing preservation marker {marker}")
         except (OSError, SyntaxError) as exc:
             error(errors, f"scripts/{name}: {exc}")
 

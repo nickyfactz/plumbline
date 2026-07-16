@@ -291,8 +291,8 @@ An explicit invocation provides consent for the current task only.
 One-off use may:
 
 - Inspect the current repository.
-- Use existing project or global agents.
-- Use bounded built-in read-only subagents when useful.
+- Use existing project-local agents when available.
+- Stay on the main thread when no approved local role is available; do not use global/personal or built-in fallback agents.
 - Create tracked transient artifacts for substantial work.
 - Use a managed worktree for scoped or designed implementation.
 - Carry a feature through closeout.
@@ -1242,6 +1242,8 @@ Untracked local router and agent files may be propagated through the repository'
 
 Tracked files must not be listed. Existing worktrees are not assumed to update retroactively.
 
+The `.worktreeinclude` manifest itself must be present in the starting commit for future Codex-managed worktrees to see it. The manifest may therefore be the one tracked setup file; the config, role TOMLs, and router listed in it remain ignored and untracked.
+
 ---
 
 ## 23. Acceptance and UAT
@@ -1432,6 +1434,8 @@ Project agents live in:
 
 They are untracked by default and added to `.git/info/exclude` where appropriate. They are user-owned and remain useful without Plumbline.
 
+Initialization may also create project-local `.codex/config.toml` and update the project's `AGENTS.md`. These files carry the local team settings and delegation rules; they are not copied to global configuration. The five role TOMLs, config, and installed router remain untracked by default; `AGENTS.md` is durable repository guidance and should be reviewed and committed when appropriate.
+
 ### 26.2 Default archetypes
 
 Plumbline ships quality archetypes for:
@@ -1477,6 +1481,8 @@ Agent TOMLs preserve or ask for:
 
 Plumbline never silently replaces a valid user-selected model or reasoning level.
 
+For a new team, the initialization proposal must show a model slug, reasoning effort, and sandbox for every selected role. Once approved, those values are written explicitly into each local TOML so the team does not inherit a hidden global agent profile.
+
 ### 26.5 Agent-team operations
 
 `$plumbline-agent-team` supports:
@@ -1486,16 +1492,18 @@ Plumbline never silently replaces a valid user-selected model or reasoning level
 - Retune.
 - Add a specialist.
 
-Initialization includes the same workflow as a selectable part of `$plumbline-init`; the user does not need to invoke a second command.
+Initialization includes the same workflow as a selectable part of `$plumbline-init`; the user does not need to invoke a second command. The proposal must be approved before the router, project config, AGENTS guidance, ignore rules, propagation manifest, or role files are written.
 
 ### 26.6 Hybrid refresh policy
 
 For existing agents:
 
 - Preserve identity, model, effort, sandbox, permissions, and healthy custom behavior.
+- Audit is read-only and does not require or accept `--replace`.
+- Retune preserves present TOML fields and custom instructions; it may add only approved missing fields or explicitly update `developer_instructions`.
 - Surgically patch healthy role definitions.
 - Replace the instruction body only when stale repository truth and obsolete workflow rules are too entangled.
-- Show the proposed diff before writing.
+- Show the proposed diff and exact changed-field report before writing.
 
 ### 26.7 Capability audit
 
@@ -1504,22 +1512,22 @@ Agent-team setup checks:
 - `features.multi_agent` availability.
 - `agents.max_depth` and thread settings.
 - Managed policy restrictions.
-- Project and global role overlap.
+- Global config capability and project/global role overlap, without selecting or copying global/personal role files.
 - TOML validity.
 - Model and sandbox suitability.
 - Worktree propagation.
 - Actual role discovery through a bounded smoke test.
 
-Configuration changes are proposed precisely and require approval. Missing settings that already use healthy defaults are not written.
+Configuration changes are proposed precisely and require approval. The project-local config must enable multi-agent support and keep `agents.max_depth = 1`; missing settings that already use healthy defaults are not written. A worker may never spawn a child worker.
 
 ### 26.8 Runtime selection order
 
-Plumbline prefers:
+Plumbline uses:
 
-1. Matching project-local custom agent.
-2. Matching personal custom agent.
-3. Bounded built-in read-only agent for research or review.
-4. Main-thread execution when no safe custom implementer exists.
+1. A matching project-local custom agent under `.codex/agents/` when its project config is valid.
+2. Main-thread execution when no safe local role exists.
+
+The global config may be inspected for host capability and a current model candidate, but personal/global custom agents and built-in/global fallbacks are never selected. The main thread states `Delegated: <role>` or `Direct: <reason>` for each planned dispatch. Project `agents.max_depth = 1` prevents worker recursion.
 
 Agent-team setup remains optional. One-off Plumbline work must degrade gracefully when subagents are disabled.
 
@@ -1874,11 +1882,11 @@ Implementation must retain applicable license notices and attribution for any te
 
 ### Agent team
 
-53. Initialization can audit, refresh, or create a project-local agent team as a selectable option.
-54. Existing model slugs, reasoning levels, sandboxes, and useful preferences are preserved by default.
+53. Initialization can audit, refresh, or create a project-local agent team, project config, AGENTS guidance, and optional worktree propagation as one selectable option, with approval before any write; audit itself is read-only.
+54. Every proposed role shows and then writes an explicit model slug, reasoning level, sandbox, and write-access boundary; existing healthy preferences are preserved by default.
 55. Generated agents reference canonical docs rather than embedding mutable architecture truth.
-56. Agent-team setup detects disabled multi-agent configuration and proposes an exact approved patch.
-57. A bounded smoke test proves project-agent discovery without modifying the repository.
+56. Agent-team setup detects disabled or incompatible project-local multi-agent configuration, recommends `multi_agent=true` and `max_depth=1`, and proposes an exact approved patch; global config is capability evidence only.
+57. A bounded smoke test proves project-local role discovery, the no-child boundary, and the ignored-file worktree manifest without modifying global configuration; audit/retune preserve deliberately different per-role models, reasoning, sandboxes, and custom fields.
 58. Agent-drift recommendations appear only for concrete, significant drift.
 
 ### Context and polish
@@ -1982,4 +1990,3 @@ Design influences and platform constraints were informed by:
 - OpenAI Codex worktree documentation: https://learn.chatgpt.com/docs/environments/git-worktrees
 - OpenAI Codex `AGENTS.md` documentation: https://learn.chatgpt.com/docs/agent-configuration/agents-md
 - OpenAI Codex configuration reference: https://learn.chatgpt.com/docs/config-file/config-reference
-

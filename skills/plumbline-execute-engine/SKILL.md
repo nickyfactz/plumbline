@@ -11,6 +11,8 @@ Use Codex-managed worktrees for scoped/designed feature work when the host provi
 
 The main thread is the only Git writer. Subagents receive bounded briefs with disjoint write sets, a named contract, expected evidence, and a no-Git/no-active-plan-edit rule. Serialize any shared-file or shared-contract work. Pause if a worker expands its write set.
 
+Before each checkpoint that could benefit from delegation, inspect the project-local `.codex/agents/` and `.codex/config.toml`. Select the matching local `researcher`, architect, `implementer`, or `qa-auditor` only when the brief is bounded and the local configuration is valid. State `Delegated: <role>` before dispatch; otherwise state `Direct: <reason>`. Never select personal/global custom agents or any global fallback. Workers never spawn children; `agents.max_depth = 1` is the project recommendation.
+
 At each checkpoint: re-read the relevant contract, implement the smallest vertical slice, run the narrowest meaningful checks, apply the runtime-value test gate from `references/runtime-value-testing.md`, integrate worker changes, record evidence and deviations in the plan, then commit once. A test is valuable when it protects stable public behavior or a plausible regression; a non-test check, manual UAT, static validation, or justified no-test outcome is allowed. Do not add tests that freeze prose, private structure, or literal configuration defaults.
 
 Stop for product decisions, destructive uncertainty, missing environment capability, or failed validation. Report the exact blocker and preserve the current checkpoint state.

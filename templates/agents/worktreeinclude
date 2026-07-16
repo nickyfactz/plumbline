@@ -1,0 +1,4 @@
+# Plumbline project-local files. The files themselves remain untracked.
+.codex/config.toml
+.codex/agents/*.toml
+.agents/skills/plumbline-router/**

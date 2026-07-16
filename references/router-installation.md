@@ -6,7 +6,9 @@ The router is intentionally repository-local and tiny. Copy `templates/router/SK
 .agents/skills/plumbline-router/SKILL.md
 ```
 
-Only do this after explicit `$plumbline-init` approval. The plugin install itself must not create this path. Prefer adding the router directory to `.git/info/exclude` when the repository's managed worktrees do not need it. If worktrees need the router and local propagation is not supported, show the smallest tracked propagation change and wait for approval.
+Only do this after explicit `$plumbline-init` approval. The plugin install itself must not create this path. The same approved setup may create project-local `.codex/config.toml`, `.codex/agents/*.toml`, and an `AGENTS.md` delegation section. Keep the config, role TOMLs, and router untracked through `.git/info/exclude`; review and commit `AGENTS.md` as durable repository guidance when the team should reach future worktrees. Never use personal/global agent definitions as fallback.
+
+When new Codex-managed worktrees need the team, approve and track the smallest `.worktreeinclude` manifest containing the ignored project paths. The manifest is the propagation mechanism; the config, agent TOMLs, and router remain ignored and untracked. Propagation is not retroactive to existing worktrees, and the manifest must be present in the starting commit for future worktrees to see it.
 
 To use the supplied helper from a checkout of this plugin:
 

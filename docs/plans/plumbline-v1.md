@@ -257,8 +257,10 @@ The installed plugin owns all reusable skills, references, templates, metadata, 
 
 ```text
 .agents/skills/plumbline-router/       # activation and kill switch
+.codex/config.toml                     # optional, user-owned project settings
 .codex/agents/*.toml                   # optional, user-owned agent team
-.worktreeinclude                       # optional, only when approved and needed
+.worktreeinclude                       # optional propagation manifest; may be tracked
+.git/info/exclude                      # local-only ignore entries, never committed
 ```
 
 Do not copy the plugin's full skill tree into user repositories.
@@ -377,8 +379,8 @@ Begin read-only. Determine whether the repository is new or established, then in
 - canonical document ownership and current conventions
 - build, validation, UAT, and managed-worktree needs
 - active specification and plan conventions
-- project and personal custom agents
-- multi-agent configuration and managed constraints
+- project-local custom agents and the global config for capability/model evidence only
+- project multi-agent configuration and managed constraints
 - competing workflow controllers
 
 Adopt an established repository's structure. Do not scaffold a parallel docs hierarchy merely because Plumbline has not been used there.
@@ -553,7 +555,7 @@ For plan-based work, confirm the kickoff commit exists. Before each checkpoint r
 Execute the checkpoint's dependency topology:
 
 - stabilize shared contracts serially before parallel consumers
-- prefer matching project agents, then personal agents, then bounded built-ins
+- prefer a matching project-local agent, then keep execution on the main thread; never use personal/global agent fallbacks
 - give every implementer a precise deliverable, read set, disjoint write set, prohibited files, validation, and report contract
 - never allow subagents to stage, commit, move Git state, or edit the specification and plan
 - pause affected work when ownership or dependency assumptions change
@@ -694,7 +696,7 @@ description: Initialize, audit, retune, or extend an untracked project-local Cod
 
 Support four operations: initialize, audit, retune, and add a specialist.
 
-Begin read-only. Inspect project and personal custom agents, project instructions, the documentation router, current technical surfaces, multi-agent configuration, managed policy, and worktree propagation.
+Begin read-only. Inspect project-local custom agents, project instructions, the documentation router, current technical surfaces, project multi-agent configuration, the global config for host capability/model evidence only, managed policy, and worktree propagation. Never select, copy, or inherit personal/global custom-agent files.
 
 Prefer project-local agents under `.codex/agents/`. Treat bundled archetypes as quality rubrics and generation scaffolds, not managed copies. Generated agents must combine:
 
@@ -702,11 +704,13 @@ Prefer project-local agents under `.codex/agents/`. Treat bundled archetypes as 
 - repository vocabulary, real technical surfaces, and canonical-document pointers
 - user-controlled model, reasoning, sandbox, and tool choices
 
+Every proposed role must show its model slug, reasoning effort, sandbox, and write access before approval. The approved values are explicit in the generated TOML. The project-local config must enable `features.multi_agent`, set an approved `agents.max_threads`, and keep `agents.max_depth = 1`; workers never spawn children.
+
 Do not embed mutable ownership maps, target architecture, or copied canonical documents in agent prompts.
 
 When auditing existing agents, evaluate role selection, overlap, stale repository truth, Plumbline compatibility, operational configuration, context cost, and output quality. Preserve healthy custom behavior and all intentional model settings by default. Patch surgically; replace the instruction body only when old workflow rules and stale repository truth are too entangled to clean safely.
 
-Present one reviewable proposal before writing. Configure local ignore rules and managed-worktree propagation only with approval. Change `.codex/config.toml` only when a concrete incompatible value exists, such as disabled multi-agent support or zero spawn depth.
+Present one reviewable proposal before writing. Include `.codex/config.toml`, `AGENTS.md`, local ignore rules, role files, and managed-worktree propagation in that proposal. Configure local ignore rules and propagation only with approval. The installer has separate `initialize`, read-only `audit`, and preserving `retune` modes. Retune preserves present model, reasoning, sandbox, custom fields, and instructions unless `--fill-missing` or explicitly approved `--update-instructions` is selected; report exact changed fields and do not require `--replace`. Change `.codex/config.toml` only through the approved local installer when a concrete incompatible value exists, such as disabled multi-agent support or zero spawn depth. If no local role is available after setup, state `Direct` rather than selecting a personal/global fallback.
 
 After applying changes, parse every TOML and run one bounded read-only smoke test proving role discovery and configuration without modifying repository files.
 ```
@@ -899,7 +903,7 @@ Outcomes may be: new failing regression test, extension of an existing test, exi
 
 Define:
 
-- project agent → personal agent → built-in fallback;
+- project-local agent → main-thread execution; never select a personal/global fallback;
 - main thread as sole Git writer;
 - write-set ownership;
 - serial shared-contract changes;
@@ -943,7 +947,7 @@ Define the single kill switch, optional cleanup, preservation defaults, conflict
 
 ## 9. Project agent archetype templates
 
-Store plugin-owned templates under `templates/agents/` or `skills/plumbline-agent-team/assets/archetypes/`. Use placeholders for repository adaptation and user-selected model settings. The generated TOMLs are user-owned after creation.
+Store plugin-owned templates under `templates/agents/` or `skills/plumbline-agent-team/assets/archetypes/`. Use placeholders for repository adaptation and user-selected model settings. Keep project-local `config.toml` and `worktreeinclude` templates beside the five role TOMLs. The generated TOMLs and config are user-owned after creation; the propagation manifest may need to be committed so future managed worktrees can see ignored files.
 
 Common placeholders:
 
@@ -1548,12 +1552,12 @@ CP-02 invocation model stable.
 - Present one individually selectable proposal and mutate nothing before approval.
 - Generate the local router under `.agents/skills/plumbline-router/`.
 - Prefer untracked local integration. Use `.git/info/exclude` for local-only agent files and router paths where appropriate.
-- Validate whether an untracked `.worktreeinclude` is honored; if not, explain and request approval for the smallest tracked propagation file.
+- Validate the `.worktreeinclude` propagation manifest for new managed worktrees; keep the copied config, role TOMLs, and router ignored/untracked, and explain that the manifest must be present in the starting commit and is not retroactive.
 - Implement `$plumbline-agent-team` initialize/audit/retune/add behavior.
 - Preserve existing model slugs, reasoning, sandbox, permissions, and healthy custom preferences by default.
 - Inspect `features.multi_agent`, `agents.max_depth`, and relevant managed-policy constraints. Offer exact approved patches only when needed.
 - Implement the five repository-adapted archetypes and bounded discovery smoke test.
-- Detect global/project role overlap without deleting either copy.
+- Detect global/project role overlap without selecting, copying, or deleting global/personal definitions.
 - Implement workflow conflict classification and reversible disable proposals.
 - Validate the current Codex format for disabling individual skills/plugins before offering patches.
 - Implement `$plumbline-offboard` as read-only by default with optional selected cleanup.
@@ -2049,7 +2053,7 @@ Resolve these during implementation and record evidence:
 4. Whether the root-level plugin can be referenced from a repo marketplace with `source.path: "./"`.
 5. The minimum metadata required for polished per-skill presentation.
 6. The exact current configuration format for skill/plugin disablement.
-7. Whether an untracked `.worktreeinclude` is honored.
+7. How a committed `.worktreeinclude` manifest copies ignored project-local team files into new managed worktrees.
 8. How existing managed worktrees receive newly created router and agent files.
 9. How to smoke-test custom-agent model selection without repository mutation.
 10. Cross-platform safe-link and shared-venv import-origin behavior.

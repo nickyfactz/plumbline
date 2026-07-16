@@ -1,0 +1,17 @@
+# Plumbline repository guidance
+
+This repository contains the Plumbline Codex plugin. Keep the plugin skills-only and repository-local: installation must not create global skills, global agent files, hooks, MCP servers, or a custom worktree system.
+
+## Project-local agent team
+
+Use only agent definitions under `.codex/agents/` when this checkout is explicitly initialized for delegated work. The global Codex config may be inspected for host capability and a model candidate, but personal/global agent definitions are never selected or used as fallback. Keep `.codex/config.toml`, `.codex/agents/`, and any installed local router untracked unless the user explicitly chooses otherwise.
+
+The main thread owns product decisions, specifications, plans, integration, and Git. Give workers bounded briefs and disjoint write sets. Workers are read-only unless their local TOML explicitly grants the approved implementer write set; they never spawn child agents. Project `agents.max_depth = 1` is the recommendation. State `Delegated: <role>` or `Direct: <reason>` before proceeding.
+
+Use `$plumbline-init` for the combined router/team setup and `$plumbline-agent-team` explicitly for initialize, audit, retune, or add requests. Do not invoke setup for ordinary feature work.
+
+When changing initialization or agent-team behavior, keep the flow read-only until explicit approval, show the role/model/reasoning/sandbox/config proposal, update the installer and validator together, and verify new managed-worktree propagation without copying secrets or dependencies.
+
+## Verification
+
+Run `python scripts/validate.py` and `python scripts/test_install_agent_team.py` for setup or packaging changes. Use `git diff --check` before handoff. Do not commit or push unless the user asks.

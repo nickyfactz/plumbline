@@ -43,6 +43,12 @@ $plumbline-offboard
 
 For ordinary automatic routing, run `$plumbline-init` in the target repository. It audits first, presents one selectable proposal, and creates the tiny `.agents/skills/plumbline-router/` skill only after approval. Delete that directory to stop automatic Plumbline routing. The plugin can also be disabled in the Codex plugin browser.
 
+### Project-local agent team
+
+`$plumbline-init` can include the complete agent-team setup in the same approval: a role-by-role table with the proposed model slug, reasoning effort, sandbox, and write access; project `.codex/config.toml` with `multi_agent = true` and `agents.max_depth = 1`; the Plumbline section in `AGENTS.md`; and local ignore/worktree propagation. The approved files under `.codex/` and the router stay untracked. A future managed worktree can receive them through an approved, committed `.worktreeinclude` manifest; existing worktrees are not retroactive.
+
+Plumbline checks the global config only for host capability and a model candidate. It never selects personal/global custom-agent files as a fallback. A matching project-local role is reported as `Delegated: <role>`; otherwise the main thread reports `Direct: <reason>`. Workers never spawn children.
+
 Plumbline keeps one feature outcome, one active specification, and one live checkpoint plan. It adopts an established repository's docs and agent conventions. Active specs and plans are transient execution memory; canonical project docs remain the long-lived current truth.
 
 ## Development
@@ -50,9 +56,10 @@ Plumbline keeps one feature outcome, one active specification, and one live chec
 ```bash
 python scripts/validate.py
 python scripts/install_router.py --root <target-repository>
+python scripts/install_agent_team.py --root <target-repository> --mode initialize --model <approved-slug> --reasoning-effort <approved-effort> --update-agents
 ```
 
-The validation script uses only the Python standard library. GitHub Actions runs it on pushes and pull requests. The approved specification and implementation plan remain available at [`docs/specs/plumbline-v1.md`](docs/specs/plumbline-v1.md) and [`docs/plans/plumbline-v1.md`](docs/plans/plumbline-v1.md) until explicit release acceptance.
+The installer commands are explicit post-approval helpers. Use `--mode audit` for a read-only report, or `--mode retune` with `--fill-missing` and/or the explicitly approved `--update-instructions`; retune preserves existing model, reasoning, sandbox, and custom fields without `--replace`. Add `--propagate` only when future managed worktrees need the ignored files. The validation script uses only the Python standard library. GitHub Actions runs it on pushes and pull requests. The approved specification and implementation plan remain available at [`docs/specs/plumbline-v1.md`](docs/specs/plumbline-v1.md) and [`docs/plans/plumbline-v1.md`](docs/plans/plumbline-v1.md) until explicit release acceptance.
 
 ## Repository map
 
@@ -61,8 +68,8 @@ The validation script uses only the Python standard library. GitHub Actions runs
 - `skills/` — explicit public skills plus narrow internal routing engines.
 - `references/` — progressive-disclosure workflow policy.
 - `templates/router/` — the repository-local activation boundary.
-- `templates/agents/` — optional project-owned agent archetypes.
-- `scripts/` — validation and explicit router installation helper.
+- `templates/agents/` — project-owned role, config, and worktree templates.
+- `scripts/` — validation and explicit router/agent-team installation helpers.
 - `docs/` and `evals/` — design authority, migration guidance, and behavioral checks.
 
 ## Scope boundary

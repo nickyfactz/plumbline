@@ -5,36 +5,47 @@ description: Initialize or reassess Plumbline for a repository through a read-on
 
 # Initialize Plumbline
 
-This skill is explicit only. It is the consent boundary for repository-local automatic behavior.
+This skill is explicit only. It is the consent boundary for repository-local routing and the project-local agent team. Treat initialization as one guarded setup transaction, not as background bootstrap.
 
 ## Guard and assessment
 
 Before inspecting files, check whether this conversation already contains unrelated active implementation work. If it does, recommend a fresh task and stop unless the user explicitly says `continue here`.
 
-Start read-only. Determine whether the repository is new or established. Inspect only enough to understand:
+Start read-only. Inspect enough to understand:
 
 - `AGENTS.md`, README files, documentation routing, and canonical document ownership;
-- build, validation, UAT, and managed-worktree conventions;
-- active specifications, plans, and current Git state;
-- project and personal custom-agent locations and relevant Codex settings;
-- existing local skills, workflow plugins, and competing automatic controllers.
+- build, validation, UAT, Git, and managed-worktree conventions;
+- `.codex/config.toml`, `.codex/agents/`, `.gitignore`, `.git/info/exclude`, and `.worktreeinclude`;
+- `git worktree list --porcelain` and whether the target is a normal checkout or worktree;
+- installed local skills, workflow plugins, and competing automatic controllers.
 
-Adopt an established repository's terminology and document structure. Do not create a parallel docs taxonomy just because Plumbline is new.
+Read the global Codex `config.toml` only to report host capability and the current model/reasoning candidate. It is not an agent source or fallback. Never read, select, copy, or inherit personal/global custom-agent files. Project-local `.codex/config.toml` and `.codex/agents/` are the only team configuration considered. Do not modify global settings or disable another plugin during initialization.
 
-For a new project, ask only for a concise product baseline: purpose, users, important behavior, priority, constraints, and non-goals. Resolve the technical baseline autonomously.
+Adopt an established repository's terminology and document structure. Do not create a parallel docs taxonomy just because Plumbline is new. For a new project, ask only for a concise product baseline: purpose, users, important behavior, priority, constraints, and non-goals.
 
-## One proposal
+## Required proposal
 
-Present one selectable proposal with each file or setting named:
+Present one reviewable proposal and wait for explicit approval before writing anything. Show the proposed agent set in a table with one row per role and these columns:
+
+`role | why it is needed | model slug | reasoning effort | sandbox | write access`
+
+Use the current project/main model when available; otherwise show the global model only as a candidate to approve. Do not invent a model slug. The approved model and reasoning values become explicit fields in every generated TOML, rather than an implicit global fallback. Recommend `max_depth = 1`, `multi_agent = true`, and a small approved `max_threads` (six is the template default). Explain that workers never spawn children.
+
+The same proposal must name every selected change:
 
 - install `.agents/skills/plumbline-router/SKILL.md` from `templates/router/SKILL.md`;
-- create or audit project agents under `.codex/agents/`;
-- propose small ignored-file propagation for managed worktrees only when needed;
+- create or audit the selected project agents under `.codex/agents/`;
+- create or patch project `.codex/config.toml` with `multi_agent`, `max_threads`, and `max_depth`;
+- add or update the Plumbline section in `AGENTS.md` with delegation and no-child rules;
+- add local `.git/info/exclude` entries so the agent/config/router files stay untracked;
+- add `.worktreeinclude` and the smallest tracked ignore/propagation change only when future managed worktrees need these ignored files;
 - repair documentation routing only if the repository already needs it;
-- offer reversible conflict settings for overlapping workflow plugins.
+- identify competing controllers and offer reversible conflict actions without applying them.
 
-Apply nothing before approval. Do not disable another plugin or rewrite project guidance silently.
+State whether each item is `Create`, `Keep`, `Patch`, or `Skip`, and show the exact model, reasoning, sandbox, config, ignore, and propagation values. Do not treat missing global agents as a reason to create or select them.
 
 ## After approval
 
-Create only the selected items. The router is the only automatic activation mechanism and its deletion is the kill switch. Prefer local-only `.git/info/exclude` entries for router files; if propagation needs a tracked file, show it and obtain approval. Validate discovery, paths, and `git diff --check`, then report the exact router path and how to remove it. End initialization and recommend a fresh task for feature work.
+Apply only the approved items. Use `scripts/install_agent_team.py --mode initialize` with the approved roles, model, reasoning, thread cap, and explicit `--update-agents`/`--propagate` choices. For existing teams, run `--mode audit` first; it is read-only and does not need `--replace`. A normal `--mode retune` preserves existing model, reasoning, sandbox, custom fields, and instructions; use `--fill-missing` or the explicitly approved `--update-instructions` flag for narrow changes. `--replace` is reserved for an explicitly approved initialize replacement. The helper refuses a differing project config unless the approved command includes `--replace-config`. Then use `scripts/install_router.py` for the approved router. Never write global or personal agent files.
+
+Validate TOML parsing, required model/reasoning/sandbox/no-child fields, `multi_agent=true`, `max_depth=1`, AGENTS guidance, local discovery paths, ignore rules, exact changed-field output, `git diff --check`, and the `.worktreeinclude` contents. Explain that propagation affects new Codex-managed worktrees only; the `.worktreeinclude` manifest must be committed for future worktrees to see it, and existing worktrees need explicit refresh or local copy. A selected worker must report `Delegated: <role>`; otherwise report `Direct: <reason>` and continue on the main thread. End initialization and recommend a fresh task for feature work.
