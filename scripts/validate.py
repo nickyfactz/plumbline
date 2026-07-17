@@ -75,11 +75,16 @@ CONTRACT_MARKERS = {
     "plumbline-execute-engine": (
         ".codex/agents/",
         "personal/global custom agents",
-        "delegated: <role>",
+        "delegated wave:",
+        "model slug",
+        "reasoning effort",
         "workers never spawn children",
         "report-only roles",
         "effective sandbox",
         "no write set",
+        "last_verified_commit",
+        "known unrelated baseline failure",
+        "one lifecycle owner",
     ),
     "plumbline-review-engine": (
         "qa-auditor",
@@ -97,6 +102,10 @@ CONTRACT_MARKERS = {
         "not yet specified",
         "one question at a time",
         "personal or global agent",
+    ),
+    "plumbline": (
+        "one lifecycle owner",
+        "do not stack a second lifecycle controller",
     ),
 }
 WRAPPERS = {
@@ -307,7 +316,7 @@ def validate_scripts(errors: list[str]) -> None:
             source = path.read_text(encoding="utf-8")
             compile(source, str(path), "exec")
             if name == "install_agent_team.py":
-                for marker in ("MODES = (\"initialize\", \"audit\", \"retune\")", "class InstallReport", "def _retune", "update_instructions"):
+                for marker in ("MODES = (\"initialize\", \"audit\", \"retune\")", "class InstallReport", "def _retune", "update_instructions", "Delegated wave:", "model slugs", "reasoning efforts"):
                     if marker not in source:
                         error(errors, f"scripts/{name}: missing preservation marker {marker}")
         except (OSError, SyntaxError) as exc:

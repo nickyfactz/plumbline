@@ -20,4 +20,4 @@ Read the request and minimum repository context. Select exactly one path:
 
 Honor explicit overrides. Never auto-initialize, set up teams, or load downstream doctrine. If disabled or unavailable, use the normal workflow.
 
-Before non-direct work, check local roles/config and delegate only a match. State `Delegated: <role>` or `Direct: <reason>`. Report-only roles get no write set; sandbox intent may be affected by a writable parent. Inspect diffs. Never use global agents or child workers; `agents.max_depth = 1`.
+Before non-direct work, check local roles/config and delegate only a match. At each delegation wave, report selected roles with configured model slugs and reasoning efforts in one compact line; state `Direct: <reason>` when no local role is available. Report-only roles get no write set; sandbox intent may be affected by a writable parent. Inspect diffs. Never use global agents or child workers; `agents.max_depth = 1`.

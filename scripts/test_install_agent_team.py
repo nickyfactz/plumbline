@@ -46,8 +46,11 @@ def main() -> None:
             assert "spawn child" in data["developer_instructions"].lower()
         guidance = (root / "AGENTS.md").read_text(encoding="utf-8")
         assert "## Local agent team" in guidance
-        assert "Delegated: <role>" in guidance
+        assert "Delegated wave:" in guidance
         assert "Direct: <reason>" in guidance
+        assert "model slugs" in guidance
+        assert "reasoning efforts" in guidance
+        assert "one compact line" in guidance
         assert "max_depth = 1" in guidance
         assert "personal or global agent files" in guidance
         assert "report-only roles" in guidance

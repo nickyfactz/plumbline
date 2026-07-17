@@ -35,3 +35,5 @@ Use one feature and one plan. Each checkpoint should use:
 ```
 
 Checkpoints are coherent milestones, not micro-task transcripts. `Blocked` and `Reopened` stop advancement. Update the plan before changing the active checkpoint, after evidence, and after every correction. A fresh task should recover from this file, the spec/source, `git status`, `git log`, and the last verified commit.
+
+Treat `last_verified_commit` and checkpoint completion evidence as the baseline until a material trigger invalidates them. At the next checkpoint, inspect the current delta and referenced paths first. Reuse unchanged evidence instead of rereading whole documents or rerunning broad checks. Reassess when a task or checkout resumes, relevant source/spec/plan/config/agent files change, a new or failed check matters, a contract boundary changes, a defect appears, or the prior evidence may be stale.

@@ -52,7 +52,7 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 6. Disable Plumbline in the plugin browser and confirm no Plumbline skill runs.
 7. In a disposable repository, run `$plumbline-init`, review the role/model/reasoning/sandbox table, and approve the full project-local team plus router.
 8. Confirm `.codex/config.toml`, `.codex/agents/*.toml`, and the router are ignored/untracked. Review and commit `AGENTS.md`, `.gitignore`, and the optional `.worktreeinclude` manifest when the team should reach future worktrees.
-9. Start a delegated feature task and confirm the main thread states `Delegated: <role>`; remove that local role and confirm it states `Direct` rather than selecting a global agent.
+9. Start a delegated feature task and confirm the main thread reports one compact delegation-wave line with the selected role, configured model slug, and reasoning effort; remove that local role and confirm it states `Direct` rather than selecting a global agent.
 10. Run `$plumbline-agent-team --mode audit` against custom per-role TOMLs and confirm no file changes.
 11. Run `$plumbline-agent-team --mode retune` without update flags, then with explicit `--update-instructions`; confirm only the instruction field changes and the custom model/reasoning/sandbox values survive.
 12. Run `$plumbline-offboard` and confirm it proposes only Plumbline-owned integration for removal.

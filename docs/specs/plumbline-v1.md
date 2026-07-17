@@ -1527,7 +1527,7 @@ Plumbline uses:
 1. A matching project-local custom agent under `.codex/agents/` when its project config is valid.
 2. Main-thread execution when no safe local role exists.
 
-The global config may be inspected for host capability and a current model candidate, but personal/global custom agents and built-in/global fallbacks are never selected. The main thread states `Delegated: <role>` or `Direct: <reason>` for each planned dispatch. Project `agents.max_depth = 1` prevents worker recursion.
+The global config may be inspected for host capability and a current model candidate, but personal/global custom agents and built-in/global fallbacks are never selected. Each delegation wave reports selected project-local roles with configured model slugs and reasoning efforts in one compact line, or `Direct: <reason>` when no local role is available. Project `agents.max_depth = 1` prevents worker recursion.
 
 Agent-team setup remains optional. One-off Plumbline work must degrade gracefully when subagents are disabled.
 

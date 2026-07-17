@@ -58,15 +58,18 @@ Use `$plumbline-init` for the combined router/team setup and `$plumbline-agent-t
 - `implementer` only for an approved bounded write set.
 - `qa-auditor` for independent read-only review.
 
-Keep direct low-risk edits in the main thread. The main thread owns product decisions, active specs and plans, integration, and Git. The report-only roles (researcher, architect, and QA) receive no write set. Their `sandbox_mode = "read-only"` is intent; a writable parent is normal for a goal and may affect the child's effective sandbox. State the configured/effective boundary when the host exposes it, inspect Git status/diff after the child returns, and never silently integrate unexpected edits. Only the approved implementer receives a bounded write set. Workers never spawn child agents. Do not use personal or global agent files as fallbacks. State either `Delegated: <role>` or `Direct: <reason>` before continuing.
+Keep direct low-risk edits in the main thread. The main thread owns product decisions, active specs and plans, integration, and Git. The report-only roles (researcher, architect, and QA) receive no write set. Their `sandbox_mode = "read-only"` is intent; a writable parent is normal for a goal and may affect the child's effective sandbox. At each delegation wave, emit one compact line such as `Delegated wave: researcher [model=<slug>, reasoning=<effort>]`; report selected role names with configured model slugs and reasoning efforts, include configured/effective sandbox values when observable, and state the report-only/no-write-set/no-child boundary. Inspect Git status/diff after the child returns, and never silently integrate unexpected edits. Only the approved implementer receives a bounded write set. Workers never spawn child agents. Do not use personal or global agent files as fallbacks. If no local role is available, state `Direct: <reason>` and continue on the main thread.
 Keep `features.multi_agent = true` and `agents.max_depth = 1` in project `.codex/config.toml`. Every role TOML must carry explicit `model`, `model_reasoning_effort`, and `sandbox_mode` values approved during setup.
 """
 AGENT_GUIDANCE_MARKERS = (
     ".codex/agents/",
     "Workers never spawn child agents",
     "personal or global agent files",
-    "Delegated: <role>",
+    "Delegated wave:",
     "Direct: <reason>",
+    "model slugs",
+    "reasoning efforts",
+    "one compact line",
     "max_depth = 1",
     "report-only roles",
     "no write set",
