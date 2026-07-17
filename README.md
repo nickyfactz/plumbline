@@ -51,6 +51,8 @@ Plumbline checks the global config only for host capability and a model candidat
 
 Plumbline keeps one feature outcome, one active specification, and one live checkpoint plan. It adopts an established repository's docs and agent conventions. Active specs and plans are transient execution memory; canonical project docs remain the long-lived current truth.
 
+During Shape, Plumbline researches external capability and design options when the request leaves the option space open, then presents concise cited findings before asking the user to choose. For clearly long-running work, it may offer one transient in-repository shaping handoff containing decisions, research implications, open questions, fog, and non-goals. Small work stays conversation-only; Plumbline does not create a handoff for every question or use an external issue tracker.
+
 ## Development
 
 ```bash

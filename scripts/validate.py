@@ -91,6 +91,13 @@ CONTRACT_MARKERS = {
         "effective sandbox",
         "direct: delegation prohibited or effective read-only isolation unavailable",
     ),
+    "plumbline-shape-engine": (
+        "external research",
+        "shaping handoff",
+        "not yet specified",
+        "one question at a time",
+        "personal or global agent",
+    ),
 }
 WRAPPERS = {
     "plumbline-shape",
