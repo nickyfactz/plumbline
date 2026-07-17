@@ -18,6 +18,6 @@ Read the request and minimum repository context. Select exactly one path:
 - `$plumbline-review-engine` for an independent audit;
 - `$plumbline-closeout-engine` for accepted work.
 
-Preserve explicit user overrides. Never invoke initialization, team setup, or offboarding automatically. Do not load downstream doctrine before selecting. If Plumbline is disabled or the engine is unavailable, leave the request in the normal workflow.
+Honor explicit overrides. Never auto-initialize, set up teams, or load downstream doctrine. If disabled or unavailable, use the normal workflow.
 
-Before a non-direct path, the engine checks project-local `.codex/agents/` and `.codex/config.toml`. Delegate bounded work only to a matching local role and state `Delegated: <role>`. Never select personal/global agents. If no local role exists, state `Direct: <reason>`. Workers never spawn children; `agents.max_depth = 1` is the ceiling.
+Before non-direct work, check local roles/config and delegate only a match. State `Delegated: <role>` or `Direct: <reason>`. Report-only roles get no write set; sandbox intent may be affected by a writable parent. Inspect diffs. Never use global agents or child workers; `agents.max_depth = 1`.

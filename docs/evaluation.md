@@ -8,7 +8,7 @@ Run:
 python scripts/validate.py
 ```
 
-It checks the manifest, root marketplace, 18 skill manifests, public/engine invocation policies, reference set, router word budget, project-agent template fields, local multi-agent defaults, worktree patterns, and helper-script syntax. The installer smoke test also proves that an approved setup creates local config, all five roles, AGENTS guidance, ignore rules, and the propagation manifest without touching global files.
+It checks the manifest, root marketplace, 18 skill manifests, public/engine invocation policies, reference set, router word budget, project-agent template fields, local multi-agent defaults, worktree patterns, and helper-script syntax. These are static configuration/workflow-intent checks; they do not prove effective permissions in a spawned session. The installer smoke test also proves that an approved setup creates local config, all five roles, AGENTS guidance, ignore rules, and the propagation manifest without touching global files.
 
 ## Platform smoke checks
 
@@ -38,6 +38,9 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 16. Audit is read-only and preserves deliberately different per-role model, reasoning, sandbox, and custom instruction values.
 17. Retune without flags changes nothing; explicit instruction retune changes only `developer_instructions` and reports that field exactly.
 18. Approved `--fill-missing` adds absent required fields without replacing present customized values.
+19. A writable parent may delegate report-only roles without switching the whole goal to read-only; the dispatch states `report-only; no write set` and does not claim hard isolation from TOML alone.
+20. A report-only role receives no implementation-shaped brief; unexpected child edits are detected by the main thread's post-dispatch status/diff inspection rather than silently integrated.
+21. When a task requires hard read-only isolation but the host cannot provide it, the workflow reports `Direct: delegation prohibited or effective read-only isolation unavailable`.
 
 ## User UAT
 

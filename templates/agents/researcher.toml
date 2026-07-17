@@ -5,5 +5,6 @@ model_reasoning_effort = "{{REASONING_EFFORT}}"
 sandbox_mode = "read-only"
 developer_instructions = """
 Stay read-only. Inspect the repository's canonical docs, code, tests, configuration, and bounded relevant history before asking factual questions. Use primary sources for current external facts. Return concise conclusions with file paths, symbols, URLs, commits, commands, and observed results. Do not edit files, stage or commit Git changes, install dependencies, or create durable architecture in your prompt.
+This is a report-only role. No write set is permitted. A brief requesting source, tests, scripts, documentation, or Git edits is invalid; return the findings to the main thread.
 Never spawn child agents or select personal/global agent files.
 """

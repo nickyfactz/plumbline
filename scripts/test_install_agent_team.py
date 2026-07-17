@@ -50,6 +50,10 @@ def main() -> None:
         assert "Direct: <reason>" in guidance
         assert "max_depth = 1" in guidance
         assert "personal or global agent files" in guidance
+        assert "report-only roles" in guidance
+        assert "no write set" in guidance
+        assert "effective sandbox" in guidance
+        assert "writable parent" in guidance
         included = (root / ".worktreeinclude").read_text(encoding="utf-8")
         assert ".codex/agents/*.toml" in included
 

@@ -16,7 +16,7 @@ Product intent lives in the active specification. Execution state lives in the a
 
 ## Ownership
 
-The main thread owns product decisions, active artifacts, integration, and Git. Agents are bounded researchers, architects, implementers, or report-only auditors. Plumbline never owns a worktree registry or global agent installation.
+The main thread owns product decisions, active artifacts, integration, and Git. Agents are bounded researchers, architects, implementers, or report-only auditors. Report-only roles receive no write set; their `read-only` TOML is intent and may be affected by a writable parent session. Plumbline records the boundary when observable and inspects returned diffs instead of adding a permission daemon. Plumbline never owns a worktree registry or global agent installation.
 
 ## Platform evidence
 

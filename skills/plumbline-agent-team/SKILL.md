@@ -11,7 +11,7 @@ This skill is explicit only. It is the project-local team setup and audit bounda
 
 Project-local `.codex/agents/*.toml` and `.codex/config.toml` are the only agent definitions and team settings Plumbline may select. The global `config.toml` may be inspected for host capability and the current main model candidate, but personal/global agent files are never selected, copied, or used as fallbacks. Do not edit global settings, install a global team, or delete an old competing role.
 
-Set or verify project-local `features.multi_agent = true`, an approved `agents.max_threads`, and `agents.max_depth = 1`. A depth of one lets the main thread use direct workers while preventing worker-created children. Every worker instruction must say it cannot spawn children, own Git, or edit the active spec/plan.
+Set or verify project-local `features.multi_agent = true`, an approved `agents.max_threads`, and `agents.max_depth = 1`. A depth of one lets the main thread use direct workers while preventing worker-created children. Every worker instruction must say it cannot spawn children, own Git, or edit the active spec/plan. Report-only roles (researcher, architect, and QA) receive no write set. Their `sandbox_mode = "read-only"` is intent; a writable parent is normal for a goal and may affect the effective sandbox. State the boundary when observable and inspect returned diffs; only the approved implementer receives a write set.
 
 ## Operations
 

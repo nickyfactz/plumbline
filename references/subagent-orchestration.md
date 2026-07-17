@@ -8,6 +8,15 @@ Use only a matching project-local definition under `.codex/agents/` after checki
 
 Project `agents.max_depth = 1` is the recommended ceiling. The main thread may create direct workers; workers must never create children, delegate further, or form a second agent hierarchy.
 
+## Capability versus assignment
+
+A role has two separate boundaries:
+
+- **Assignment:** researcher, architect, and QA roles are report-only and receive no write set. A brief asking them to edit source, tests, scripts, documentation, or Git state is invalid and returns to the main thread.
+- **Capability:** `sandbox_mode = "read-only"` is the role's intent. The parent goal may remain writable; the host can apply the parent's live permission state to the child. Do not claim hard read-only isolation from the TOML alone.
+
+State `Delegated: <role>` with `Boundary: report-only; no write set` for report-only workers. Record configured and effective sandbox values when the host exposes both. After a child returns, inspect Git status and the diff; unexpected edits are not silently integrated. Use `Direct: delegation prohibited or effective read-only isolation unavailable` only when the task requires a hard read-only boundary that the host cannot provide.
+
 Give each worker:
 
 - the checkpoint outcome and acceptance criteria;

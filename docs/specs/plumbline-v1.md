@@ -1535,6 +1535,10 @@ Agent-team setup remains optional. One-off Plumbline work must degrade gracefull
 
 The default QA agent is independent, adversarial, evidence-bound, report-only, and read-only with permission to run targeted non-mutating probes. It must not act as an implementer.
 
+### 26.10 Runtime boundary model
+
+Report-only is an assignment boundary, while `sandbox_mode = "read-only"` is a configuration intent. A normal goal may keep a writable parent session; the host may apply the parent's live permission state to a child. Plumbline must not give researcher, architect, or QA roles a write set or an implementation-shaped brief, and must not claim hard read-only isolation from the TOML alone. When the host exposes effective sandbox data, report it alongside the configured value. After delegation, the main thread inspects Git status and the diff; unexpected edits are not silently integrated. If hard read-only isolation is required but unavailable, continue directly with `Direct: delegation prohibited or effective read-only isolation unavailable`.
+
 ---
 
 ## 27. Workflow-plugin conflict management

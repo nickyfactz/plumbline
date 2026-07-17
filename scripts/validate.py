@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Run the minimal structural and content checks for the Plumbline plugin."""
+"""Run static structural and content checks for the Plumbline plugin.
+
+This validates configuration and workflow intent; it does not prove effective
+permissions or sandbox state in a spawned Codex session.
+"""
 
 from __future__ import annotations
 
@@ -56,6 +60,7 @@ CONTRACT_MARKERS = {
         "max_depth = 1",
         "scripts/install_agent_team.py",
         ".worktreeinclude",
+        "writable parent",
     ),
     "plumbline-agent-team": (
         ".codex/agents/",
@@ -63,18 +68,28 @@ CONTRACT_MARKERS = {
         "max_depth = 1",
         "spawn children",
         "scripts/install_agent_team.py",
+        "report-only roles",
+        "effective sandbox",
+        "no write set",
     ),
     "plumbline-execute-engine": (
         ".codex/agents/",
         "personal/global custom agents",
         "delegated: <role>",
         "workers never spawn children",
+        "report-only roles",
+        "effective sandbox",
+        "no write set",
     ),
     "plumbline-review-engine": (
         "qa-auditor",
         "personal/global qa agent",
         "direct: qa-auditor unavailable",
         "workers never spawn children",
+        "report-only",
+        "no write set",
+        "effective sandbox",
+        "direct: delegation prohibited or effective read-only isolation unavailable",
     ),
 }
 WRAPPERS = {
@@ -247,6 +262,12 @@ def validate_references_and_templates(errors: list[str]) -> None:
             error(errors, f"{path.relative_to(ROOT)}: sandbox must be {AGENT_SANDBOXES[role]}")
         if "never spawn child agents" not in data.get("developer_instructions", "").lower():
             error(errors, f"{path.relative_to(ROOT)}: child-spawn boundary is required")
+        if role != "implementer":
+            instructions = data.get("developer_instructions", "").lower()
+            if "report-only" not in instructions:
+                error(errors, f"{path.relative_to(ROOT)}: report-only boundary is required")
+            if "no write set" not in instructions:
+                error(errors, f"{path.relative_to(ROOT)}: no-write-set boundary is required")
 
     config_path = agents_root / "config.toml"
     try:
@@ -302,6 +323,7 @@ def main() -> int:
     print(f"- skills: {len(EXPECTED_SKILLS)} ({len(PUBLIC)} public, {len(ENGINES)} internal engines)")
     print(f"- references: {len(REFERENCES)}")
     print("- marketplace: root plugin path ./")
+    print("- scope: static configuration/workflow intent; not effective child-permission enforcement")
     return 0
 
 
