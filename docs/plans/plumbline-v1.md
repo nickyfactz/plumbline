@@ -560,9 +560,9 @@ Execute the checkpoint's dependency topology:
 - never allow subagents to stage, commit, move Git state, or edit the specification and plan
 - pause affected work when ownership or dependency assumptions change
 
-The main thread inspects and integrates all returned work. Run checkpoint-level targeted validation, apply the runtime-value test decision, update plan status and evidence, record deviations and canonical impact, then create one coherent checkpoint commit. Do not advance while the checkpoint is Blocked or Reopened.
+The main thread inspects and integrates all returned work. Run checkpoint-level targeted validation, apply the runtime-value test decision, update plan status and evidence, record deviations and canonical impact, then create one coherent implementation commit by default. Evidence-only follow-up commits are allowed when the repository topology requires them and must not silently change the verified code boundary. Do not advance while the checkpoint is Blocked or Reopened.
 
-When all checkpoints are complete, prepare the smallest meaningful acceptance surface. Run the planned completion checks and dispatch a fresh standard QA audit unless the user overrides it. Repair confirmed findings through focused corrective commits and reopened checkpoints.
+When all checkpoints are complete, prepare the smallest meaningful acceptance surface. Run the planned completion checks and perform a risk-proportional independent audit; dispatch a fresh QA auditor for high-risk or explicitly independent review, while small direct work may remain on the main thread. Repair confirmed findings through focused corrective commits and reopened checkpoints.
 
 End at Ready for Acceptance. Do not delete transient artifacts or integrate accepted work until the user completes UAT, explicitly approves the result, or instructs closeout.
 ```
@@ -1330,7 +1330,7 @@ Do not parallelize:
 - Git operations;
 - active plan updates.
 
-Each checkpoint normally ends in one main-thread commit. Intermediate commits are allowed only for a stable prerequisite that would otherwise make the checkpoint unsafe to continue, such as proving a required Codex invocation architecture before drafting all phase skills.
+Each checkpoint normally ends in one coherent main-thread implementation commit. Evidence-only follow-up commits are allowed when a receipt or documentation update must bind the verified code boundary. Intermediate commits remain limited to stable prerequisites or unusually large checkpoints.
 
 ---
 
@@ -1713,8 +1713,8 @@ The main thread owns the final orchestration flow and all Git-related instructio
 - Enforce main-thread-only Git operations.
 - Define disjoint write sets and stable contracts before parallel implementation.
 - Pause work on ownership expansion instead of allowing “small” out-of-scope edits.
-- Re-read spec/plan/docs before each checkpoint.
-- Integrate subagent changes, run checkpoint validation, update plan evidence, then commit once per checkpoint.
+- Inspect the current delta and exact referenced spec/plan sections before each checkpoint; reuse unchanged evidence and reread broad documents only after a material trigger.
+- Integrate subagent changes, run checkpoint validation, update plan evidence, then create one coherent implementation commit by default.
 - Implement the runtime-value test gate and explicitly allow non-test verification outcomes.
 - Do not advance while a checkpoint is Blocked or Reopened.
 - Prepare the smallest meaningful UAT surface rather than assuming a full-stack boot.

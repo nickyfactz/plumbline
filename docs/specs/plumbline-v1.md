@@ -475,10 +475,9 @@ An optional `agents/openai.yaml` may be added only if Codex invocation metadata 
 The router must contain only:
 
 - Confirmation that the repository opted in.
-- Direct/scoped/designed classification.
-- Phase selection.
-- User-override precedence.
-- A handoff to the selected plugin-owned phase.
+- A handoff to the installed `plumbline` front door.
+- User-override precedence and the local kill switch.
+- A reminder that the selected front-door phase owns lifecycle and delegation.
 
 It must not copy the full Plumbline methodology into the repository.
 
@@ -931,18 +930,19 @@ Before advancing to the next checkpoint, the main thread:
 5. Records deviations and evidence.
 6. Updates canonical-document impact.
 7. Marks the checkpoint complete only when its criterion is met.
-8. Creates one coherent checkpoint commit.
+8. Creates one coherent implementation commit by default, allowing evidence-only follow-up commits when the repository topology requires them.
 
 ### 17.6 Commit policy
 
 Default plan-based history:
 
 1. Kickoff commit.
-2. One coherent commit per completed checkpoint.
-3. Focused corrective commits for QA or UAT findings.
-4. Closeout commit.
+2. One coherent implementation commit per completed checkpoint by default.
+3. Evidence, receipt, or documentation-only follow-up commits when required by repository topology.
+4. Focused corrective commits for QA or UAT findings.
+5. Closeout commit.
 
-Intermediate commits are allowed only when a checkpoint is unusually large or a stable prerequisite deserves separate preservation.
+Intermediate commits are allowed when a checkpoint is unusually large, a stable prerequisite deserves separate preservation, or evidence/documentation must bind a verified code boundary. Repository conventions remain authoritative.
 
 Subagent assignments do not define commit boundaries.
 
@@ -1061,7 +1061,7 @@ Small bug fixes remain direct. A repair escalates to scoped or designed feature 
 
 ### 20.2 Automatic completion audit
 
-Any feature with an active specification or plan receives a fresh `qa-auditor` completion audit before Ready for Acceptance, unless the user explicitly overrides that default.
+Features with an active specification or plan receive an independent completion audit before Ready for Acceptance when risk, the plan, or the user warrants it. Small, low-risk, direct, documentation-only, and process work may use a main-thread audit without dispatching QA merely for ceremony.
 
 Direct and no-plan work do not automatically spawn QA. The user may request a second opinion for any change, including a sticky bug implemented directly on `main`.
 
@@ -1551,6 +1551,8 @@ Initialization distinguishes:
 - Adjacent disciplines.
 - Competing testing or review policies.
 - Competing workflow controllers.
+
+Installed or enabled plugins are available capabilities, not active controllers. Active ownership requires explicit user selection or repository-local runtime evidence. The initialization proposal must name the lifecycle owner and prevent two controllers from advancing the same task.
 
 A plugin such as Superpowers conflicts materially when it also owns feature discovery, planning, TDD, worktrees, subagent execution, review, and branch finishing.
 

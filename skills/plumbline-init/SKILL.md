@@ -19,7 +19,7 @@ Start read-only. Inspect enough to understand:
 - `git worktree list --porcelain` and whether the target is a normal checkout or worktree;
 - installed local skills, workflow plugins, and competing automatic controllers.
 
-Read the global Codex `config.toml` only to report host capability and the current model/reasoning candidate. It is not an agent source or fallback. Never read, select, copy, or inherit personal/global custom-agent files. Project-local `.codex/config.toml` and `.codex/agents/` are the only team configuration considered. Do not modify global settings or disable another plugin during initialization.
+Read the global Codex `config.toml` only to report host capability and the current model/reasoning candidate. It is not an agent source or fallback. Never read, select, copy, or inherit personal/global custom-agent files. Project-local `.codex/config.toml` and `.codex/agents/` are the only team configuration considered. Treat an installed workflow plugin as available, not active, unless the user explicitly selected it or repository-local runtime evidence shows it owns the task. Do not modify global settings or disable another plugin during initialization.
 
 Adopt an established repository's terminology and document structure. Do not create a parallel docs taxonomy just because Plumbline is new. For a new project, ask only for a concise product baseline: purpose, users, important behavior, priority, constraints, and non-goals.
 

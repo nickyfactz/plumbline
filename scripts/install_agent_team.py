@@ -48,6 +48,7 @@ LOCAL_IGNORE_FILES = (
     ".codex/",
     ".agents/skills/plumbline-router/",
 )
+ROUTER_RELATIVE_PATH = ".agents/skills/plumbline-router/SKILL.md"
 AGENT_SECTION = """## Local agent team
 
 Use `$plumbline-init` for the combined router/team setup and `$plumbline-agent-team` explicitly for initialize, audit, retune, or add requests. Do not invoke setup for ordinary feature work. Use only the project-local agents in `.codex/agents/` when work benefits from delegation:
@@ -60,6 +61,8 @@ Use `$plumbline-init` for the combined router/team setup and `$plumbline-agent-t
 
 Keep direct low-risk edits in the main thread. The main thread owns product decisions, active specs and plans, integration, and Git. The report-only roles (researcher, architect, and QA) receive no write set. Their `sandbox_mode = "read-only"` is intent; a writable parent is normal for a goal and may affect the child's effective sandbox. At each delegation wave, emit one compact line such as `Delegated wave: researcher [model=<slug>, reasoning=<effort>]`; report selected role names with configured model slugs and reasoning efforts, include configured/effective sandbox values when observable, and state the report-only/no-write-set/no-child boundary. Inspect Git status/diff after the child returns, and never silently integrate unexpected edits. Only the approved implementer receives a bounded write set. Workers never spawn child agents. Do not use personal or global agent files as fallbacks. If no local role is available, state `Direct: <reason>` and continue on the main thread.
 Keep `features.multi_agent = true` and `agents.max_depth = 1` in project `.codex/config.toml`. Every role TOML must carry explicit `model`, `model_reasoning_effort`, and `sandbox_mode` values approved during setup.
+
+Before dispatch, identify one lifecycle owner. Installed or enabled skills are available capabilities, not active ownership; an explicitly selected competing controller owns its own checkpoint and closeout flow.
 """
 AGENT_GUIDANCE_MARKERS = (
     ".codex/agents/",
@@ -75,6 +78,8 @@ AGENT_GUIDANCE_MARKERS = (
     "no write set",
     "effective sandbox",
     "writable parent",
+    "one lifecycle owner",
+    "explicitly selected competing controller",
 )
 
 
@@ -315,8 +320,46 @@ def _audit_config(repo: Path) -> list[str]:
     return findings
 
 
-def _audit(repo: Path, roles: tuple[str, ...]) -> InstallReport:
+def _audit_router(plugin: Path, repo: Path) -> list[str]:
+    target = repo / ROUTER_RELATIVE_PATH
+    template = plugin / "templates" / "router" / "SKILL.md"
+    if not target.exists():
+        return [f"{target}: missing project-local router"]
+    if not template.is_file():
+        return [f"{template}: missing current router template"]
+    try:
+        target_text = target.read_text(encoding="utf-8")
+        template_text = template.read_text(encoding="utf-8")
+    except OSError as exc:
+        return [f"router audit could not read {target}: {exc}"]
+    if target_text != template_text:
+        return [
+            f"{target}: differs from current router template {template}; review an explicit refresh, no file was changed"
+        ]
+    return []
+
+
+def _audit_agents_guidance(repo: Path) -> list[str]:
+    target = repo / "AGENTS.md"
+    if not target.is_file():
+        return [f"{target}: missing project agent-team guidance"]
+    try:
+        text = target.read_text(encoding="utf-8")
+    except OSError as exc:
+        return [f"{target}: could not read project agent-team guidance: {exc}"]
+    if "## Local agent team" not in text:
+        return [f"{target}: missing `## Local agent team` guidance section"]
+    return [
+        f"{target}: Local agent team guidance missing marker {marker!r}"
+        for marker in AGENT_GUIDANCE_MARKERS
+        if marker not in text
+    ]
+
+
+def _audit(plugin: Path, repo: Path, roles: tuple[str, ...]) -> InstallReport:
     findings = _audit_config(repo)
+    findings.extend(_audit_router(plugin, repo))
+    findings.extend(_audit_agents_guidance(repo))
     for role in roles:
         path = repo / ".codex" / "agents" / f"{role}.toml"
         if not path.exists():
@@ -347,6 +390,8 @@ def _retune(
         raise ValueError("--fill-missing requires --model and --reasoning-effort")
     changes: dict[Path, tuple[str, ...]] = {}
     findings = _audit_config(repo)
+    findings.extend(_audit_router(plugin, repo))
+    findings.extend(_audit_agents_guidance(repo))
     if replace_config:
         config_path, config_fields = _ensure_config(repo, max_threads, True)
         if config_fields:
@@ -502,7 +547,7 @@ def install(
     if mode == "audit":
         if any((replace, replace_config, fill_missing, update_instructions, update_agents, propagate)):
             raise ValueError("audit is read-only; remove mutation flags")
-        return _audit(repo, roles)
+        return _audit(plugin, repo, roles)
     if mode == "retune":
         if replace:
             raise ValueError("retune preserves existing roles; use --update-instructions or --fill-missing")

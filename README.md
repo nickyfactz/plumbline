@@ -47,7 +47,7 @@ For ordinary automatic routing, run `$plumbline-init` in the target repository. 
 
 `$plumbline-init` can include the complete agent-team setup in the same approval: a role-by-role table with the proposed model slug, reasoning effort, sandbox, and write access; project `.codex/config.toml` with `multi_agent = true` and `agents.max_depth = 1`; the Plumbline section in `AGENTS.md`; and local ignore/worktree propagation. The approved files under `.codex/` and the router stay untracked. A future managed worktree can receive them through an approved, committed `.worktreeinclude` manifest; existing worktrees are not retroactive.
 
-Plumbline checks the global config only for host capability and a model candidate. It never selects personal/global custom-agent files as a fallback. Each delegation wave reports the selected project-local roles with their configured model slugs and reasoning efforts in one compact line; effective values are included when the host exposes them. If no local role is available, the main thread reports `Direct: <reason>`. Researcher, architect, and QA roles are report-only and receive no write set. Their `read-only` TOML is intent, not proof of effective child permissions when the parent is writable; Plumbline reports the boundary when observable and inspects unexpected diffs. Only the approved implementer receives a write set. Workers never spawn children.
+Plumbline checks the global config only for host capability and a model candidate. It never selects personal/global custom-agent files as a fallback. Before phase work, it states one lifecycle owner; installed workflow plugins are available capabilities, not active controllers unless explicitly selected. Each delegation wave reports the selected project-local roles with their configured model slugs and reasoning efforts in one compact line; effective values are included when the host exposes them. If no local role is available, the main thread reports `Direct: <reason>`. Researcher, architect, and QA roles are report-only and receive no write set. Their `read-only` TOML is intent, not proof of effective child permissions when the parent is writable; Plumbline reports the boundary when observable and inspects unexpected diffs. Only the approved implementer receives a write set. Workers never spawn children.
 
 Plumbline keeps one feature outcome, one active specification, and one live checkpoint plan. It adopts an established repository's docs and agent conventions. Active specs and plans are transient execution memory; canonical project docs remain the long-lived current truth.
 
@@ -61,7 +61,7 @@ python scripts/install_router.py --root <target-repository>
 python scripts/install_agent_team.py --root <target-repository> --mode initialize --model <approved-slug> --reasoning-effort <approved-effort> --update-agents
 ```
 
-The installer commands are explicit post-approval helpers. Use `--mode audit` for a read-only report, or `--mode retune` with `--fill-missing` and/or the explicitly approved `--update-instructions`; retune preserves existing model, reasoning, sandbox, and custom fields without `--replace`. Add `--propagate` only when future managed worktrees need the ignored files. The validation script uses only the Python standard library. GitHub Actions runs it on pushes and pull requests. The approved specification and implementation plan remain available at [`docs/specs/plumbline-v1.md`](docs/specs/plumbline-v1.md) and [`docs/plans/plumbline-v1.md`](docs/plans/plumbline-v1.md) until explicit release acceptance.
+The installer commands are explicit post-approval helpers. Use `--mode audit` for a read-only report; it also detects stale router and `AGENTS.md` guidance without overwriting either. Use `--mode retune` with `--fill-missing` and/or the explicitly approved `--update-instructions`; retune preserves existing model, reasoning, sandbox, and custom fields without `--replace`. Add `--propagate` only when future managed worktrees need the ignored files. Execution uses one coherent implementation commit by default, with evidence-only follow-up commits allowed when the repository requires them. Review is risk-proportional rather than a mandatory QA ceremony for trivial work. The validation script uses only the Python standard library. GitHub Actions runs it on pushes and pull requests. The approved specification and implementation plan remain available at [`docs/specs/plumbline-v1.md`](docs/specs/plumbline-v1.md) and [`docs/plans/plumbline-v1.md`](docs/plans/plumbline-v1.md) until explicit release acceptance.
 
 ## Repository map
 
@@ -69,7 +69,7 @@ The installer commands are explicit post-approval helpers. Use `--mode audit` fo
 - `.agents/plugins/marketplace.json` — repo marketplace for GitHub/local installation.
 - `skills/` — explicit public skills plus narrow internal routing engines.
 - `references/` — progressive-disclosure workflow policy.
-- `templates/router/` — the repository-local activation boundary.
+- `templates/router/` — the stable repository-local activation shim.
 - `templates/agents/` — project-owned role, config, and worktree templates.
 - `scripts/` — validation and explicit router/agent-team installation helpers.
 - `docs/` and `evals/` — design authority, migration guidance, and behavioral checks.

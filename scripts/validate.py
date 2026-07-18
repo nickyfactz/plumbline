@@ -61,6 +61,7 @@ CONTRACT_MARKERS = {
         "scripts/install_agent_team.py",
         ".worktreeinclude",
         "writable parent",
+        "available, not active",
     ),
     "plumbline-agent-team": (
         ".codex/agents/",
@@ -71,6 +72,9 @@ CONTRACT_MARKERS = {
         "report-only roles",
         "effective sandbox",
         "no write set",
+        "router",
+        "AGENTS schema drift",
+        "proposed refresh",
     ),
     "plumbline-execute-engine": (
         ".codex/agents/",
@@ -85,6 +89,8 @@ CONTRACT_MARKERS = {
         "last_verified_commit",
         "known unrelated baseline failure",
         "one lifecycle owner",
+        "coherent implementation commit",
+        "evidence-only follow-up commits",
     ),
     "plumbline-review-engine": (
         "qa-auditor",
@@ -95,6 +101,8 @@ CONTRACT_MARKERS = {
         "no write set",
         "effective sandbox",
         "direct: delegation prohibited or effective read-only isolation unavailable",
+        "delegated wave:",
+        "small, low-risk",
     ),
     "plumbline-shape-engine": (
         "external research",
@@ -106,6 +114,7 @@ CONTRACT_MARKERS = {
     "plumbline": (
         "one lifecycle owner",
         "do not stack a second lifecycle controller",
+        "installed or enabled skills alone",
     ),
 }
 WRAPPERS = {
@@ -248,8 +257,11 @@ def validate_references_and_templates(errors: list[str]) -> None:
     _name, _description, body = frontmatter(router, errors)
     if len(re.findall(r"\b[\w'-]+\b", body)) > 180:
         error(errors, "router exceeds the 180-word budget")
-    if "plumbline-router" not in router.read_text(encoding="utf-8"):
+    router_text = router.read_text(encoding="utf-8")
+    if "plumbline-router" not in router_text:
         error(errors, "router template is missing its activation identity")
+    if "installed `plumbline` front door" not in router_text:
+        error(errors, "router template must hand off to the installed Plumbline front door")
     agents_root = ROOT / "templates" / "agents"
     actual_roles = {path.stem for path in agents_root.glob("*.toml") if path.name != "config.toml"}
     if actual_roles != AGENT_ROLES:
@@ -316,7 +328,7 @@ def validate_scripts(errors: list[str]) -> None:
             source = path.read_text(encoding="utf-8")
             compile(source, str(path), "exec")
             if name == "install_agent_team.py":
-                for marker in ("MODES = (\"initialize\", \"audit\", \"retune\")", "class InstallReport", "def _retune", "update_instructions", "Delegated wave:", "model slugs", "reasoning efforts"):
+                for marker in ("MODES = (\"initialize\", \"audit\", \"retune\")", "class InstallReport", "def _retune", "def _audit_router", "def _audit_agents_guidance", "update_instructions", "Delegated wave:", "model slugs", "reasoning efforts"):
                     if marker not in source:
                         error(errors, f"scripts/{name}: missing preservation marker {marker}")
         except (OSError, SyntaxError) as exc:

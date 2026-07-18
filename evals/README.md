@@ -6,3 +6,4 @@ These fixtures exercise the consent boundary and phase classification without re
 - `fixtures/initialized-repo/` contains only the generated router boundary.
 - `prompts/` contains small scenario inputs.
 - `expected/` describes the allowed outcome and forbidden side effects.
+- `prompts/resume-and-ownership.md` and its expected file cover evidence reuse, source drift, stale local integration, controller ownership, and delegation reporting.
