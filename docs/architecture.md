@@ -14,6 +14,8 @@ The public skills are explicit and have `allow_implicit_invocation: false` in `a
 
 Product intent lives in the active specification. Execution state lives in the active plan and Git history. Canonical repository docs describe the resulting current system. This separation lets a fresh task recover from files and Git without replaying the original conversation.
 
+The active plan frontmatter also carries one compact resume record: current checkpoint, checkpoint status, lifecycle owner, last verified commit, and next safe action. Plumbline resolves the currently loaded plugin root once per phase entry or resume; repository artifacts never store absolute versioned cache paths.
+
 ## Ownership
 
 The main thread owns product decisions, active artifacts, integration, and Git. Agents are bounded researchers, architects, implementers, or report-only auditors. Report-only roles receive no write set; their `read-only` TOML is intent and may be affected by a writable parent session. Plumbline records the boundary when observable and inspects returned diffs instead of adding a permission daemon. Plumbline never owns a worktree registry or global agent installation.

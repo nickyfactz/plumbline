@@ -858,7 +858,10 @@ specification: <relative path>
 source: <relative path or null>
 base_commit: <sha after kickoff>
 current_checkpoint: CP-01
+checkpoint_status: Pending
+lifecycle_owner: Plumbline Plan
 last_verified_commit: <sha or null>
+next_safe_action: <one sentence>
 ready_for_acceptance: false
 ---
 ```
@@ -884,7 +887,7 @@ Recommended checkpoint template:
 ### Deviations and corrections
 ```
 
-Do not turn the plan into a chronological diary. Git owns chronology; the plan owns resumable execution state.
+The frontmatter fields `current_checkpoint`, `checkpoint_status`, `lifecycle_owner`, `last_verified_commit`, and `next_safe_action` form the single compact resume record. Do not create a second checkpoint receipt. Do not turn the plan into a chronological diary. Git owns chronology; the plan owns resumable execution state.
 
 ### `references/runtime-value-testing.md`
 
@@ -1629,11 +1632,12 @@ The main thread integrates terminology and ensures no duplicated policy.
 - Protect secrets and avoid committing unsafe or unreasonably large binary attachments; create a safe Markdown extraction/assessment when required.
 - Implement one feature/one spec/one plan.
 - Create meaningful chronological checkpoints across technical seams without splitting the product outcome.
+- Batch adjacent evidence-only, packaging, receipt, or documentation work unless it has an independent acceptance, rollback, risk, contract, or ownership boundary.
 - Record dependencies, shared ownership, parallel groups, runtime protection, verification, canonical impact, and UAT surface.
 - Map all acceptance criteria to checkpoints.
 - Require the kickoff commit before production implementation.
 - Update plan state and `last_verified_commit` as checkpoints progress.
-- Implement recovery instructions that use only source/spec/plan/Git state after a fresh session.
+- Implement recovery instructions that read the compact plan resume record first, reuse unchanged evidence, and use only source/spec/plan/Git state after a fresh session.
 - Do not include full implementation code or two-minute task sequences in plans.
 
 **Evaluation cases**

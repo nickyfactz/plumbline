@@ -4,7 +4,7 @@ The main thread owns product intent, the active spec and plan, integration, and 
 
 ## Lifecycle ownership
 
-Before phase execution, state one owner in a line such as `Lifecycle owner: Plumbline Execute` or `Lifecycle owner: <explicitly selected controller>`. Installed or enabled skills alone are not active ownership. One system owns checkpoint selection, plan advancement, review sequencing, and closeout for a task. If another explicitly selected orchestration loop already owns those responsibilities, do not stack a second lifecycle controller; use Plumbline only for the selected phase contract. When Plumbline owns the lifecycle, supporting skills may contribute bounded research, implementation, or review work but may not advance the plan or closeout independently.
+At phase entry or resume, state one owner in a line such as `Lifecycle owner: Plumbline Execute` or `Lifecycle owner: <explicitly selected controller>` and keep it in the active plan's resume record. Repeat it only when ownership changes or the record is stale. Installed or enabled skills alone are not active ownership. One system owns checkpoint selection, plan advancement, review sequencing, and closeout for a task. If another explicitly selected orchestration loop already owns those responsibilities, do not stack a second lifecycle controller; use Plumbline only for the selected phase contract. When Plumbline owns the lifecycle, supporting skills may contribute bounded research, implementation, or review work but may not advance the plan or closeout independently.
 
 ## Selection and depth
 

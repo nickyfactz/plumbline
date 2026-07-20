@@ -46,6 +46,10 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 24. A stale repository-local router or AGENTS guidance section is reported with a proposed refresh and no automatic overwrite.
 25. An explicitly selected competing orchestration loop is named as lifecycle owner; Plumbline does not stack or advance it.
 26. A delegation wave reports role names, model slugs, reasoning efforts, and the report-only/no-write-set/no-child boundary in one compact line.
+27. Phase entry resolves the current installed Plumbline root once; reference paths resolve from that root and no absolute versioned cache path is persisted.
+28. The active plan's compact resume record is updated together when checkpoint status, owner, verified commit, or next action changes.
+29. An unchanged resume emits a compact transition and skips repeated routing, doctrine, lifecycle, and broad-document narration.
+30. Adjacent evidence-only or packaging work is batched into its parent checkpoint unless it has an independent acceptance, rollback, risk, contract, or ownership boundary.
 
 ## User UAT
 

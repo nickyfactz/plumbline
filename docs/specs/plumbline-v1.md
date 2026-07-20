@@ -725,6 +725,8 @@ Before finalizing the plan, Plumbline investigates enough repository context to 
 
 A checkpoint is a meaningful implementation state, not a two-to-five-minute action.
 
+Batch adjacent evidence-only, packaging, receipt, or documentation work into its parent implementation checkpoint. Create a separate checkpoint only when the work has an independent outcome or acceptance gate, rollback boundary, material risk or contract boundary, or owner. Do not split a coherent outcome only to narrate proof steps.
+
 A checkpoint must have:
 
 - A coherent outcome.
@@ -747,6 +749,9 @@ status: active
 specification: ../specs/<feature>.md
 source: ../specs/<feature>-source.md
 current_checkpoint: CP-01
+checkpoint_status: Pending
+lifecycle_owner: Plumbline Plan
+next_safe_action: <one sentence>
 base_commit: <feature base>
 ---
 
@@ -832,7 +837,7 @@ Plumbline must not silently include unrelated pre-existing changes in the kickof
 
 ### 16.3 Compaction recovery
 
-After compaction, session change, or handoff, the orchestrator resumes by reading:
+After compaction, session change, or handoff, the orchestrator reads the plan's compact resume record first, then:
 
 1. The active specification.
 2. The current plan state.
@@ -840,6 +845,8 @@ After compaction, session change, or handoff, the orchestrator resumes by readin
 4. The repository diff and recent checkpoint commits.
 
 Conversation summaries are supplementary, not authoritative.
+
+The plan record is the single checkpoint summary. On an unchanged resume, emit one compact transition and reuse existing evidence; do not repeat routing, doctrine, lifecycle, or broad-document narration. Resolve the currently loaded Plumbline root once for the phase and treat reference paths as relative to it. Never persist absolute versioned plugin-cache paths.
 
 ### 16.4 Plan updates
 
@@ -930,7 +937,7 @@ Before advancing to the next checkpoint, the main thread:
 5. Records deviations and evidence.
 6. Updates canonical-document impact.
 7. Marks the checkpoint complete only when its criterion is met.
-8. Creates one coherent implementation commit by default, allowing evidence-only follow-up commits when the repository topology requires them.
+8. Creates one coherent implementation commit by default, allowing evidence-only follow-up commits when the repository topology requires them. Evidence-only work that does not have an independent acceptance, rollback, risk, contract, or ownership boundary remains part of the parent checkpoint.
 
 ### 17.6 Commit policy
 

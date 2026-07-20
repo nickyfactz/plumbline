@@ -89,8 +89,16 @@ CONTRACT_MARKERS = {
         "last_verified_commit",
         "known unrelated baseline failure",
         "one lifecycle owner",
+        "compact resume record",
+        "installation root",
+        "compact state/transition line",
         "coherent implementation commit",
         "evidence-only follow-up commits",
+    ),
+    "plumbline-plan-engine": (
+        "evidence-only",
+        "independent outcome",
+        "do not split a coherent outcome",
     ),
     "plumbline-review-engine": (
         "qa-auditor",
@@ -115,6 +123,8 @@ CONTRACT_MARKERS = {
         "one lifecycle owner",
         "do not stack a second lifecycle controller",
         "installed or enabled skills alone",
+        "versioned cache paths",
+        "compact resume record",
     ),
 }
 WRAPPERS = {
