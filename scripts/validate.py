@@ -279,8 +279,13 @@ def validate_references_and_templates(errors: list[str]) -> None:
     router_text = router.read_text(encoding="utf-8")
     if "plumbline-router" not in router_text:
         error(errors, "router template is missing its activation identity")
-    if "installed `plumbline` front door" not in router_text:
-        error(errors, "router template must hand off to the installed Plumbline front door")
+    for marker in (
+        "invoke the installed `$plumbline` front door",
+        "Never substitute a `plumbline-*-engine` skill",
+        "Direct: Plumbline front door unavailable",
+    ):
+        if marker not in router_text:
+            error(errors, f"router template is missing handoff marker {marker}")
     agents_root = ROOT / "templates" / "agents"
     actual_roles = {path.stem for path in agents_root.glob("*.toml") if path.name != "config.toml"}
     if actual_roles != AGENT_ROLES:
