@@ -11,7 +11,9 @@ This skill is explicit only. It is the consent boundary for repository-local rou
 
 Before inspecting files, check whether this conversation already contains unrelated active implementation work. If it does, recommend a fresh task and stop unless the user explicitly says `continue here`.
 
-Start read-only. Inspect enough to understand:
+Start read-only and keep discovery targeted. Begin with repository guidance, README files, manifests, validation scripts, and only the config and paths that determine Plumbline integration. Do not dump a broad recursive file listing or start dependency installation.
+
+Inspect enough to understand:
 
 - `AGENTS.md`, README files, documentation routing, and canonical document ownership;
 - build, validation, UAT, Git, and managed-worktree conventions;
@@ -38,16 +40,18 @@ The same proposal must name every selected change:
 - create or patch project `.codex/config.toml` with `multi_agent`, `max_threads`, and `max_depth`;
 - add or update the Plumbline section in `AGENTS.md` with delegation and no-child rules;
 - add local `.git/info/exclude` entries so the agent/config/router files stay untracked;
-- add `.worktreeinclude` and the smallest tracked ignore/propagation change only when future managed worktrees need these ignored files;
+- when propagation is approved, patch the root `.gitignore` with the exact local Plumbline ignore entries and add `.worktreeinclude`; the proposal must show both changes together rather than promising to keep `.gitignore` unchanged;
 - repair documentation routing only if the repository already needs it;
 - identify competing controllers and offer reversible conflict actions without applying them.
 
 State whether each item is `Create`, `Keep`, `Patch`, or `Skip`, and show the exact model, reasoning, sandbox, config, ignore, and propagation values. Do not treat missing global agents as a reason to create or select them.
 
+Before asking for approval, run the candidate installer commands with `--dry-run --format json` and include their file/operation/field manifest in the proposal. This is read-only and does not approve or apply anything.
+
 ## After approval
 
-Apply only the approved items. Use `scripts/install_agent_team.py --mode initialize` with the approved roles, model, reasoning, thread cap, and explicit `--update-agents`/`--propagate` choices. For existing teams, run `--mode audit` first; it is read-only and does not need `--replace`. A normal `--mode retune` preserves existing model, reasoning, sandbox, custom fields, and instructions; use `--fill-missing` or the explicitly approved `--update-instructions` flag for narrow changes. `--replace` is reserved for an explicitly approved initialize replacement. The helper refuses a differing project config unless the approved command includes `--replace-config`. Then use `scripts/install_router.py` for the approved router. Never write global or personal agent files.
+Apply only the approved items. Rerun the dry-run manifest after approval; if the target changed, refresh the proposal before writing. Then rerun `scripts/install_agent_team.py` without `--dry-run` using the approved roles, model, reasoning, thread cap, and explicit `--update-agents`/`--propagate` choices. Use the same dry-run/apply sequence with `scripts/install_router.py` for the approved router. For existing teams, run `--mode audit` first; it is read-only and does not need `--replace`. A normal `--mode retune` preserves existing model, reasoning, sandbox, custom fields, and instructions; use `--fill-missing` or the explicitly approved `--update-instructions` flag for narrow changes. `--replace` is reserved for an explicitly approved initialize replacement. The helper refuses a differing project config unless the approved command includes `--replace-config`. Never write global or personal agent files.
 
-Validate TOML parsing, required model/reasoning/sandbox/no-child fields, `multi_agent=true`, `max_depth=1`, AGENTS guidance, local discovery paths, ignore rules, exact changed-field output, `git diff --check`, and the `.worktreeinclude` contents. Explain that propagation affects new Codex-managed worktrees only; the `.worktreeinclude` manifest must be committed for future worktrees to see it, and existing worktrees need explicit refresh or local copy. A delegation wave must report selected role names with configured model slugs and reasoning efforts in one compact line; otherwise report `Direct: <reason>` and continue on the main thread. End initialization and recommend a fresh task for feature work.
+Validate Plumbline setup separately from repository product checks. Report Plumbline files/config/TOML/ignore/worktree validation as passed or failed; preflight repository commands for missing dependencies or executables; and label repository checks as passed, skipped, or blocked. Missing dependencies are a repository bootstrap blocker, not a Plumbline setup failure, and do not justify starting `npm ci` or another install without approval. Validate required model/reasoning/sandbox/no-child fields, `multi_agent=true`, `max_depth=1`, AGENTS guidance, local discovery paths, ignore rules, exact changed-field output, `git diff --check`, and the `.worktreeinclude` contents. Explain that propagation affects new Codex-managed worktrees only; the `.worktreeinclude` manifest must be committed for future worktrees to see it, and existing worktrees need explicit refresh or local copy. A delegation wave must report selected role names with configured model slugs and reasoning efforts in one compact line; otherwise report `Direct: <reason>` and continue on the main thread. End initialization and recommend a fresh task for feature work.
 
 A writable parent is normal during a goal. For researcher, architect, and QA dispatches, require a report-only brief with no write set and describe `sandbox_mode = "read-only"` as intent rather than proof of effective child permissions. If the host cannot provide hard read-only isolation when it is required, use `Direct: delegation prohibited or effective read-only isolation unavailable`.

@@ -5,9 +5,12 @@ from __future__ import annotations
 
 import subprocess
 import tempfile
+import json
+import sys
 import tomllib
 from pathlib import Path
 
+from install_router import install as install_router
 from install_agent_team import ROLES, install
 
 
@@ -61,6 +64,100 @@ def main() -> None:
         assert "explicitly selected competing controller" in guidance
         included = (root / ".worktreeinclude").read_text(encoding="utf-8")
         assert ".codex/agents/*.toml" in included
+        ignored = (root / ".gitignore").read_text(encoding="utf-8")
+        assert ".codex/" in ignored
+        assert ".agents/skills/plumbline-router/" in ignored
+
+    with tempfile.TemporaryDirectory() as raw_root:
+        root = Path(raw_root)
+        (root / ".git" / "info").mkdir(parents=True)
+        install(
+            plugin_root,
+            root,
+            model="gpt-5.6-luna",
+            reasoning_effort="medium",
+            roles=("researcher", "implementer"),
+            update_agents=True,
+        )
+        guidance = (root / "AGENTS.md").read_text(encoding="utf-8")
+        assert "- `researcher`" in guidance
+        assert "- `implementer`" in guidance
+        assert "- `backend-architect`" not in guidance
+        assert "- `frontend-architect`" not in guidance
+        assert "- `qa-auditor`" not in guidance
+
+    with tempfile.TemporaryDirectory() as raw_root:
+        root = Path(raw_root)
+        (root / ".git" / "info").mkdir(parents=True)
+        preview = install(
+            plugin_root,
+            root,
+            model="gpt-5.6-luna",
+            reasoning_effort="medium",
+            roles=("researcher",),
+            update_agents=True,
+            propagate=True,
+            dry_run=True,
+        )
+        assert preview.operations[root / ".codex" / "config.toml"] == "create"
+        assert preview.operations[root / ".gitignore"] == "create"
+        assert preview.operations[root / ".worktreeinclude"] == "create"
+        assert not (root / ".codex" / "config.toml").exists()
+        assert not (root / ".codex" / "agents" / "researcher.toml").exists()
+        assert not (root / "AGENTS.md").exists()
+        assert not (root / ".gitignore").exists()
+        assert not (root / ".worktreeinclude").exists()
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(plugin_root / "scripts" / "install_agent_team.py"),
+                "--root",
+                str(root),
+                "--roles",
+                "researcher",
+                "--model",
+                "gpt-5.6-luna",
+                "--reasoning-effort",
+                "medium",
+                "--propagate",
+                "--dry-run",
+                "--format",
+                "json",
+            ],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        payload = json.loads(result.stdout)
+        assert payload["dry_run"] is True
+        assert payload["writes_applied"] is False
+        assert any(change["path"].endswith(".gitignore") for change in payload["changes"])
+
+        router_result = subprocess.run(
+            [
+                sys.executable,
+                str(plugin_root / "scripts" / "install_router.py"),
+                "--root",
+                str(root),
+                "--dry-run",
+                "--format",
+                "json",
+            ],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        router_payload = json.loads(router_result.stdout)
+        assert router_payload["dry_run"] is True
+        assert router_payload["writes_applied"] is False
+        assert router_payload["changes"][0]["operation"] == "create"
+
+        router_target = install_router(plugin_root, root, dry_run=True)
+        assert router_target.name == "SKILL.md"
+        assert not router_target.exists()
 
     with tempfile.TemporaryDirectory() as raw_root:
         root = Path(raw_root)

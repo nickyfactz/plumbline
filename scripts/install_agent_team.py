@@ -4,10 +4,11 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 import tomllib
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 
@@ -49,15 +50,22 @@ LOCAL_IGNORE_FILES = (
     ".agents/skills/plumbline-router/",
 )
 ROUTER_RELATIVE_PATH = ".agents/skills/plumbline-router/SKILL.md"
-AGENT_SECTION = """## Local agent team
+ROLE_DESCRIPTIONS = {
+    "researcher": "repository or external fact-finding",
+    "backend-architect": "backend contracts, persistence, and ownership",
+    "frontend-architect": "UI state, accessibility, and integration seams",
+    "implementer": "an approved bounded write set",
+    "qa-auditor": "independent read-only review",
+}
+
+
+def _agent_section(roles: tuple[str, ...]) -> str:
+    role_lines = "\n".join(f"- `{role}` for {ROLE_DESCRIPTIONS[role]}." for role in roles)
+    return f"""## Local agent team
 
 Use `$plumbline-init` for the combined router/team setup and `$plumbline-agent-team` explicitly for initialize, audit, retune, or add requests. Do not invoke setup for ordinary feature work. Use only the project-local agents in `.codex/agents/` when work benefits from delegation:
 
-- `researcher` for repository or external fact-finding.
-- `backend-architect` for backend contracts, persistence, and ownership.
-- `frontend-architect` for UI state, accessibility, and integration seams.
-- `implementer` only for an approved bounded write set.
-- `qa-auditor` for independent read-only review.
+{role_lines}
 
 Keep direct low-risk edits in the main thread. The main thread owns product decisions, active specs and plans, integration, and Git. The report-only roles (researcher, architect, and QA) receive no write set. Their `sandbox_mode = "read-only"` is intent; a writable parent is normal for a goal and may affect the child's effective sandbox. At each delegation wave, emit one compact line such as `Delegated wave: researcher [model=<slug>, reasoning=<effort>]`; report selected role names with configured model slugs and reasoning efforts, include configured/effective sandbox values when observable, and state the report-only/no-write-set/no-child boundary. Inspect Git status/diff after the child returns, and never silently integrate unexpected edits. Only the approved implementer receives a bounded write set. Workers never spawn child agents. Do not use personal or global agent files as fallbacks. If no local role is available, state `Direct: <reason>` and continue on the main thread.
 Keep `features.multi_agent = true` and `agents.max_depth = 1` in project `.codex/config.toml`. Every role TOML must carry explicit `model`, `model_reasoning_effort`, and `sandbox_mode` values approved during setup.
@@ -87,6 +95,7 @@ AGENT_GUIDANCE_MARKERS = (
 class InstallReport:
     changes: dict[Path, tuple[str, ...]]
     findings: tuple[str, ...] = ()
+    operations: dict[Path, str] = field(default_factory=dict)
 
 
 def _write(path: Path, text: str) -> None:
@@ -95,7 +104,7 @@ def _write(path: Path, text: str) -> None:
         handle.write(text if text.endswith("\n") else text + "\n")
 
 
-def _ensure_lines(path: Path, lines: tuple[str, ...]) -> bool:
+def _ensure_lines(path: Path, lines: tuple[str, ...], *, apply: bool = True) -> bool:
     text = path.read_text(encoding="utf-8") if path.is_file() else ""
     existing = set(text.splitlines())
     missing = [line for line in lines if line not in existing]
@@ -103,7 +112,8 @@ def _ensure_lines(path: Path, lines: tuple[str, ...]) -> bool:
         return False
     if text and not text.endswith("\n"):
         text += "\n"
-    _write(path, text + "\n".join(missing) + "\n")
+    if apply:
+        _write(path, text + "\n".join(missing) + "\n")
     return True
 
 
@@ -185,19 +195,26 @@ def _config_changes(before: str | None, after: str) -> tuple[str, ...]:
     return tuple(field for field in CONFIG_FIELDS if old[field] != new[field])
 
 
-def _ensure_config(repo: Path, max_threads: int, replace: bool) -> tuple[Path, tuple[str, ...]]:
+def _ensure_config(
+    repo: Path,
+    max_threads: int,
+    replace: bool,
+    *,
+    apply: bool = True,
+) -> tuple[Path, tuple[str, ...]]:
     target = repo / ".codex" / "config.toml"
     desired = {"features.multi_agent": True, "agents.max_threads": max_threads, "agents.max_depth": 1}
     if not target.exists():
-        _write(
-            target,
-            "# Plumbline project-local agent settings. Workers never spawn children.\n"
-            "[features]\n"
-            "multi_agent = true\n\n"
-            "[agents]\n"
-            f"max_threads = {max_threads}\n"
-            "max_depth = 1\n",
-        )
+        if apply:
+            _write(
+                target,
+                "# Plumbline project-local agent settings. Workers never spawn children.\n"
+                "[features]\n"
+                "multi_agent = true\n\n"
+                "[agents]\n"
+                f"max_threads = {max_threads}\n"
+                "max_depth = 1\n",
+            )
         return target, CONFIG_FIELDS
 
     before, data = _load_text(target)
@@ -210,18 +227,19 @@ def _ensure_config(repo: Path, max_threads: int, replace: bool) -> tuple[Path, t
         )
     text = _set_table_values(before, "features", {"multi_agent": "true"})
     text = _set_table_values(text, "agents", {"max_threads": str(max_threads), "max_depth": "1"})
-    _write(target, text)
+    if apply:
+        _write(target, text)
     return target, _config_changes(before, text)
 
 
-def _prepare_agents_guidance(repo: Path) -> tuple[Path, str]:
+def _prepare_agents_guidance(repo: Path, roles: tuple[str, ...]) -> tuple[Path, str]:
     target = repo / "AGENTS.md"
     text = target.read_text(encoding="utf-8") if target.is_file() else "# AGENTS.md\n"
     if "## Local agent team" in text:
         if not all(value in text for value in AGENT_GUIDANCE_MARKERS):
             raise ValueError(f"existing Local agent team section needs a reviewed manual patch: {target}")
         return target, text
-    return target, text.rstrip() + "\n\n" + AGENT_SECTION
+    return target, text.rstrip() + "\n\n" + _agent_section(roles)
 
 
 def _render_agent(template: Path, model: str, reasoning_effort: str) -> tuple[str, dict]:
@@ -385,17 +403,21 @@ def _retune(
     update_instructions: bool,
     max_threads: int,
     replace_config: bool,
+    dry_run: bool,
 ) -> InstallReport:
     if fill_missing and (model is None or reasoning_effort is None):
         raise ValueError("--fill-missing requires --model and --reasoning-effort")
     changes: dict[Path, tuple[str, ...]] = {}
+    operations: dict[Path, str] = {}
     findings = _audit_config(repo)
     findings.extend(_audit_router(plugin, repo))
     findings.extend(_audit_agents_guidance(repo))
     if replace_config:
-        config_path, config_fields = _ensure_config(repo, max_threads, True)
+        config_existed = (repo / ".codex" / "config.toml").exists()
+        config_path, config_fields = _ensure_config(repo, max_threads, True, apply=not dry_run)
         if config_fields:
             changes[config_path] = config_fields
+            operations[config_path] = "modify" if config_existed else "create"
             findings = [finding for finding in findings if not finding.startswith(str(config_path))]
 
     template_root = plugin / "templates" / "agents"
@@ -450,9 +472,11 @@ def _retune(
             findings.append(str(exc))
             continue
         findings.extend(_validate_agent_data(after_data, role, path))
-        _write(path, after_text)
+        if not dry_run:
+            _write(path, after_text)
         changes[path] = tuple(dict.fromkeys(changed))
-    return InstallReport(changes, tuple(findings))
+        operations[path] = "modify"
+    return InstallReport(changes, tuple(findings), operations)
 
 
 def _load_text_from_value(path: Path, text: str) -> tuple[str, dict]:
@@ -474,6 +498,7 @@ def _initialize(
     replace_config: bool,
     update_agents: bool,
     propagate: bool,
+    dry_run: bool,
 ) -> InstallReport:
     if model is None or reasoning_effort is None:
         raise ValueError("initialize requires --model and --reasoning-effort")
@@ -483,10 +508,14 @@ def _initialize(
             raise FileExistsError(f"agent already exists; audit or retune it before replacing: {target}")
 
     changes: dict[Path, tuple[str, ...]] = {}
-    guidance = _prepare_agents_guidance(repo) if update_agents else None
-    config_path, config_fields = _ensure_config(repo, max_threads, replace_config)
+    operations: dict[Path, str] = {}
+    guidance = _prepare_agents_guidance(repo, roles) if update_agents else None
+    config_target = repo / ".codex" / "config.toml"
+    config_existed = config_target.exists()
+    config_path, config_fields = _ensure_config(repo, max_threads, replace_config, apply=not dry_run)
     if config_fields:
         changes[config_path] = config_fields
+        operations[config_path] = "modify" if config_existed else "create"
 
     template_root = plugin / "templates" / "agents"
     for role in roles:
@@ -498,26 +527,38 @@ def _initialize(
             except ValueError:
                 before_data = None
         text, after_data = _render_agent(template_root / f"{role}.toml", model, reasoning_effort)
-        _write(target, text)
+        operation = "modify" if target.exists() else "create"
+        if not dry_run:
+            _write(target, text)
         changes[target] = _agent_changes(before_data, after_data)
+        operations[target] = operation
 
     git_exclude = _git_dir(repo) / "info" / "exclude"
-    if _ensure_lines(git_exclude, LOCAL_IGNORE_FILES):
+    git_exclude_existed = git_exclude.exists()
+    if _ensure_lines(git_exclude, LOCAL_IGNORE_FILES, apply=not dry_run):
         changes[git_exclude] = ("ignore rules",)
+        operations[git_exclude] = "modify" if git_exclude_existed else "create"
     if guidance:
         target, text = guidance
         current = target.read_text(encoding="utf-8") if target.is_file() else ""
         if current != text:
-            _write(target, text)
+            operation = "modify" if target.exists() else "create"
+            if not dry_run:
+                _write(target, text)
             changes[target] = ("local agent-team guidance",)
+            operations[target] = operation
     if propagate:
         manifest = repo / ".worktreeinclude"
-        if _ensure_lines(manifest, WORKTREE_FILES):
+        manifest_existed = manifest.exists()
+        if _ensure_lines(manifest, WORKTREE_FILES, apply=not dry_run):
             changes[manifest] = ("propagation manifest",)
+            operations[manifest] = "modify" if manifest_existed else "create"
         gitignore = repo / ".gitignore"
-        if _ensure_lines(gitignore, LOCAL_IGNORE_FILES):
+        gitignore_existed = gitignore.exists()
+        if _ensure_lines(gitignore, LOCAL_IGNORE_FILES, apply=not dry_run):
             changes[gitignore] = ("ignore rules",)
-    return InstallReport(changes)
+            operations[gitignore] = "modify" if gitignore_existed else "create"
+    return InstallReport(changes, operations=operations)
 
 
 def install(
@@ -535,6 +576,7 @@ def install(
     update_instructions: bool = False,
     update_agents: bool = False,
     propagate: bool = False,
+    dry_run: bool = False,
 ) -> InstallReport:
     repo = _repo_root(target_root)
     plugin = plugin_root.resolve()
@@ -563,6 +605,7 @@ def install(
             update_instructions=update_instructions,
             max_threads=max_threads,
             replace_config=replace_config,
+            dry_run=dry_run,
         )
     if fill_missing or update_instructions:
         raise ValueError("initialize creates templates; use retune for preserve-existing updates")
@@ -577,6 +620,7 @@ def install(
         replace_config=replace_config,
         update_agents=update_agents,
         propagate=propagate,
+        dry_run=dry_run,
     )
 
 
@@ -587,11 +631,35 @@ def _parse_roles(value: str) -> tuple[str, ...]:
     return roles
 
 
-def _print_report(mode: str, report: InstallReport) -> None:
-    print(f"Plumbline agent-team {mode} complete.")
+def _print_report(mode: str, report: InstallReport, *, dry_run: bool, output_format: str) -> None:
+    changes = [
+        {
+            "path": str(path),
+            "operation": report.operations.get(path, "modify"),
+            "fields": list(fields),
+        }
+        for path, fields in report.changes.items()
+    ]
+    if output_format == "json":
+        print(
+            json.dumps(
+                {
+                    "mode": mode,
+                    "dry_run": dry_run,
+                    "writes_applied": not dry_run and mode != "audit",
+                    "changes": changes,
+                    "findings": list(report.findings),
+                    "global_agents_selected": False,
+                },
+                indent=2,
+            )
+        )
+        return
+    print(f"Plumbline agent-team {mode} {'preview' if dry_run else 'complete'}.")
     if report.changes:
         for path, fields in report.changes.items():
-            print(f"Changed {path}: {', '.join(fields)}")
+            operation = report.operations.get(path, "modify")
+            print(f"{operation.title()} {path}: {', '.join(fields)}")
     else:
         print("Changed: none")
     for finding in report.findings:
@@ -615,6 +683,8 @@ def main() -> int:
     parser.add_argument("--update-instructions", action="store_true", help="Retune by explicitly updating instructions")
     parser.add_argument("--update-agents", action="store_true", help="Add the approved AGENTS.md section")
     parser.add_argument("--propagate", action="store_true", help="Add ignored-file worktree propagation")
+    parser.add_argument("--dry-run", action="store_true", help="Preview the exact changes without writing files")
+    parser.add_argument("--format", choices=("text", "json"), default="text", dest="output_format")
     args = parser.parse_args()
     plugin_root = Path(__file__).resolve().parents[1]
     try:
@@ -632,10 +702,11 @@ def main() -> int:
             update_instructions=args.update_instructions,
             update_agents=args.update_agents,
             propagate=args.propagate,
+            dry_run=args.dry_run,
         )
     except (FileExistsError, OSError, ValueError, tomllib.TOMLDecodeError) as exc:
         parser.error(str(exc))
-    _print_report(args.mode, report)
+    _print_report(args.mode, report, dry_run=args.dry_run, output_format=args.output_format)
     return 0
 
 

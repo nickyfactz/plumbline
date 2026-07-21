@@ -4,10 +4,17 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 
-def install(plugin_root: Path, target_root: Path, replace: bool = False) -> Path:
+def install(
+    plugin_root: Path,
+    target_root: Path,
+    replace: bool = False,
+    *,
+    dry_run: bool = False,
+) -> Path:
     template = (plugin_root / "templates" / "router" / "SKILL.md").resolve()
     repo = target_root.resolve()
     target = (repo / ".agents" / "skills" / "plumbline-router" / "SKILL.md").resolve()
@@ -19,8 +26,9 @@ def install(plugin_root: Path, target_root: Path, replace: bool = False) -> Path
         raise FileExistsError(f"{target} already exists; use --replace to overwrite it")
     if not target.is_relative_to(repo):
         raise ValueError("router target escaped the repository root")
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(template.read_text(encoding="utf-8"), encoding="utf-8", newline="\n")
+    if not dry_run:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(template.read_text(encoding="utf-8"), encoding="utf-8", newline="\n")
     return target
 
 
@@ -28,13 +36,35 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path.cwd(), help="Target repository root")
     parser.add_argument("--replace", action="store_true", help="Replace an existing router")
+    parser.add_argument("--dry-run", action="store_true", help="Preview the exact router change without writing")
+    parser.add_argument("--format", choices=("text", "json"), default="text", dest="output_format")
     args = parser.parse_args()
     plugin_root = Path(__file__).resolve().parents[1]
+    target = (args.root.resolve() / ".agents" / "skills" / "plumbline-router" / "SKILL.md").resolve()
+    operation = "modify" if target.exists() else "create"
     try:
-        target = install(plugin_root, args.root, args.replace)
+        target = install(plugin_root, args.root, args.replace, dry_run=args.dry_run)
     except (FileExistsError, FileNotFoundError, ValueError) as exc:
         parser.error(str(exc))
-    print(f"Installed repository-local router: {target}")
+    if args.output_format == "json":
+        print(
+            json.dumps(
+                {
+                    "dry_run": args.dry_run,
+                    "writes_applied": not args.dry_run,
+                    "changes": [
+                        {
+                            "path": str(target),
+                            "operation": operation,
+                            "fields": ["router template"],
+                        }
+                    ],
+                },
+                indent=2,
+            )
+        )
+        return
+    print(f"{'Preview' if args.dry_run else 'Installed'} repository-local router: {target}")
     print("Remove .agents/skills/plumbline-router/ to disable automatic routing.")
 
 

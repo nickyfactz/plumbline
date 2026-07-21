@@ -59,6 +59,10 @@ CONTRACT_MARKERS = {
         "personal/global custom-agent files",
         "max_depth = 1",
         "scripts/install_agent_team.py",
+        "dry-run",
+        "gitignore",
+        "preflight repository",
+        "targeted",
         ".worktreeinclude",
         "writable parent",
         "available, not active",
@@ -69,6 +73,9 @@ CONTRACT_MARKERS = {
         "max_depth = 1",
         "spawn children",
         "scripts/install_agent_team.py",
+        "dry-run",
+        "gitignore",
+        "selected roles",
         "report-only roles",
         "effective sandbox",
         "no write set",
@@ -123,6 +130,8 @@ CONTRACT_MARKERS = {
         "one lifecycle owner",
         "do not stack a second lifecycle controller",
         "installed or enabled skills alone",
+        "plumbline-init",
+        "project-local Plumbline router",
         "versioned cache paths",
         "compact resume record",
     ),
@@ -338,9 +347,13 @@ def validate_scripts(errors: list[str]) -> None:
             source = path.read_text(encoding="utf-8")
             compile(source, str(path), "exec")
             if name == "install_agent_team.py":
-                for marker in ("MODES = (\"initialize\", \"audit\", \"retune\")", "class InstallReport", "def _retune", "def _audit_router", "def _audit_agents_guidance", "update_instructions", "Delegated wave:", "model slugs", "reasoning efforts"):
+                for marker in ("MODES = (\"initialize\", \"audit\", \"retune\")", "class InstallReport", "ROLE_DESCRIPTIONS", "def _retune", "def _audit_router", "def _audit_agents_guidance", "update_instructions", "dry_run", "output_format", "Delegated wave:", "model slugs", "reasoning efforts"):
                     if marker not in source:
                         error(errors, f"scripts/{name}: missing preservation marker {marker}")
+            elif name == "install_router.py":
+                for marker in ("dry_run", "output_format", "router template"):
+                    if marker not in source:
+                        error(errors, f"scripts/{name}: missing dry-run marker {marker}")
         except (OSError, SyntaxError) as exc:
             error(errors, f"scripts/{name}: {exc}")
 

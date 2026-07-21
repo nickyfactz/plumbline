@@ -8,7 +8,7 @@ Run:
 python scripts/validate.py
 ```
 
-It checks the manifest, root marketplace, 18 skill manifests, public/engine invocation policies, reference set, router word budget, project-agent template fields, local multi-agent defaults, worktree patterns, and helper-script syntax. These are static configuration/workflow-intent checks; they do not prove effective permissions in a spawned session. The installer smoke test also proves that an approved setup creates local config, all five roles, AGENTS guidance, ignore rules, and the propagation manifest without touching global files. Router and AGENTS drift audits are report-only and never overwrite customized integration files.
+It checks the manifest, root marketplace, 18 skill manifests, public/engine invocation policies, reference set, router word budget, project-agent template fields, local multi-agent defaults, worktree patterns, and helper-script syntax. These are static configuration/workflow-intent checks; they do not prove effective permissions in a spawned session. The installer smoke test also proves that an approved setup creates local config, selected roles, AGENTS guidance, ignore rules, and the propagation manifest without touching global files; its dry-run JSON path proves the same manifest without writes. Router and AGENTS drift audits are report-only and never overwrite customized integration files.
 
 ## Platform smoke checks
 
@@ -20,7 +20,7 @@ It checks the manifest, root marketplace, 18 skill manifests, public/engine invo
 
 The compact prompts in `evals/prompts/` cover the consent boundary and latest-safe-phase choices. The expected outcomes in `evals/expected/` are deliberately behavior-level so they do not freeze model wording.
 
-1. Uninitialized config change stays direct.
+1. An ordinary uninitialized config change stays direct; an explicit `$plumbline` invocation hands off to `$plumbline-init` for a read-only proposal.
 2. Explicit shape works without a router.
 3. A rough idea selects Shape.
 4. A sufficient external design selects Plan.
@@ -50,18 +50,20 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 28. The active plan's compact resume record is updated together when checkpoint status, owner, verified commit, or next action changes.
 29. An unchanged resume emits a compact transition and skips repeated routing, doctrine, lifecycle, and broad-document narration.
 30. Adjacent evidence-only or packaging work is batched into its parent checkpoint unless it has an independent acceptance, rollback, risk, contract, or ownership boundary.
+31. A dry-run setup manifest lists `.gitignore`, `.worktreeinclude`, selected roles, and router changes without creating files; the approved apply matches that manifest.
 
 ## User UAT
 
 1. Add the GitHub marketplace and install Plumbline from `/plugins`.
 2. Start a new task and make a normal config request in an uninitialized fixture; confirm no automatic takeover.
-3. Run `$plumbline-shape` in that fixture; confirm it works without creating the router.
-4. Run `$plumbline-init`, approve only the router, then start a fresh task and try a rough feature prompt.
-5. Delete `.agents/skills/plumbline-router/` and confirm automatic routing stops.
-6. Disable Plumbline in the plugin browser and confirm no Plumbline skill runs.
-7. In a disposable repository, run `$plumbline-init`, review the role/model/reasoning/sandbox table, and approve the full project-local team plus router.
-8. Confirm `.codex/config.toml`, `.codex/agents/*.toml`, and the router are ignored/untracked. Review and commit `AGENTS.md`, `.gitignore`, and the optional `.worktreeinclude` manifest when the team should reach future worktrees.
-9. Start a delegated feature task and confirm the main thread reports one compact delegation-wave line with the selected role, configured model slug, and reasoning effort; remove that local role and confirm it states `Direct` rather than selecting a global agent.
-10. Run `$plumbline-agent-team --mode audit` against custom per-role TOMLs and confirm no file changes.
-11. Run `$plumbline-agent-team --mode retune` without update flags, then with explicit `--update-instructions`; confirm only the instruction field changes and the custom model/reasoning/sandbox values survive.
-12. Run `$plumbline-offboard` and confirm it proposes only Plumbline-owned integration for removal.
+3. Invoke `$plumbline` in that fixture; confirm it hands off to `$plumbline-init` without writing before approval.
+4. Run `$plumbline-shape` in that fixture; confirm it works without creating the router.
+5. Run `$plumbline-init`, approve only the router, then start a fresh task and try a rough feature prompt.
+6. Delete `.agents/skills/plumbline-router/` and confirm automatic routing stops.
+7. Disable Plumbline in the plugin browser and confirm no Plumbline skill runs.
+8. In a disposable repository, run `$plumbline-init`, review the role/model/reasoning/sandbox table and dry-run manifest, and approve the full project-local team plus router.
+9. Confirm `.codex/config.toml`, `.codex/agents/*.toml`, and the router are ignored/untracked. Review and commit `AGENTS.md`, `.gitignore`, and the optional `.worktreeinclude` manifest when the team should reach future worktrees.
+10. Start a delegated feature task and confirm the main thread reports one compact delegation-wave line with the selected role, configured model slug, and reasoning effort; remove that local role and confirm it states `Direct` rather than selecting a global agent.
+11. Run `$plumbline-agent-team --mode audit` against custom per-role TOMLs and confirm no file changes.
+12. Run `$plumbline-agent-team --mode retune` without update flags, then with explicit `--update-instructions`; confirm only the instruction field changes and the custom model/reasoning/sandbox values survive.
+13. Run `$plumbline-offboard` and confirm it proposes only Plumbline-owned integration for removal.
