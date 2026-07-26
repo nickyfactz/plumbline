@@ -21,14 +21,19 @@ A role has two separate boundaries:
 
 At each delegation wave, emit one compact line such as `Delegated wave: researcher [model=<slug>, reasoning=<effort>] — Boundary: report-only; no write set; no child agents`; include each selected role, configured values, and effective model/reasoning/sandbox values when the host exposes them. Add the report-only/no-write-set/no-child boundary to the wave report. Do not invent effective values. After a child returns, inspect Git status and the diff; unexpected edits are not silently integrated. Use `Direct: delegation prohibited or effective read-only isolation unavailable` only when the task requires a hard read-only boundary that the host cannot provide.
 
-Give each worker:
+Give each worker a context-bounded brief containing:
 
 - the checkpoint outcome and acceptance criteria;
-- the exact read set and disjoint write set;
+- the exact read set, anchored sections, and disjoint write set;
 - relevant contract and repository paths;
+- the current diff or last verified commit only when relevant;
 - expected validation and report format;
 - explicit limits: no Git operations, no active-plan edits, no unrelated cleanup.
 
+Do not pass full conversation history or ask workers to reread entire instruction, plan, or documentation trees when the brief and unchanged artifacts already answer the question. Use the active plan's resume record and prior evidence first. A worker may widen its read set only when it identifies a concrete missing fact and reports why. Keep normal reasoning at the configured medium level; reserve high effort for a named ABI, security, persistence, concurrency, ownership, or other material risk, and never rewrite a project's approved TOML values at dispatch time.
+
 Run independent work packages in parallel only after shared contracts are stable. Serialize any package that touches a shared file, public interface, schema, migration, or generated artifact. If a worker needs another file, pause and renegotiate ownership in the main thread.
 
-Worker reports should name changed files, behavior, checks run, failures, residual risk, and follow-up. The main thread inspects and integrates the result, updates the plan, runs checkpoint verification, and commits. Do not let agents create recursive agent organizations or write commits behind the main thread.
+Worker reports should name changed files, behavior, checks run, failures, residual risk, and follow-up without pasting large successful command logs. The main thread inspects and integrates the result, updates the plan, runs checkpoint verification, and summarizes evidence as command, outcome, counts or failure tail, and artifact path where applicable. Do not let agents create recursive agent organizations or write commits behind the main thread.
+
+Review only after the implementer's bounded write set is integrated and the diff is stable. Batch related evidence-only or packaging work into the parent checkpoint when it has no independent acceptance, rollback, risk, contract, or ownership boundary.

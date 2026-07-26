@@ -51,6 +51,13 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 29. An unchanged resume emits a compact transition and skips repeated routing, doctrine, lifecycle, and broad-document narration.
 30. Adjacent evidence-only or packaging work is batched into its parent checkpoint unless it has an independent acceptance, rollback, risk, contract, or ownership boundary.
 31. A dry-run setup manifest lists `.gitignore`, `.worktreeinclude`, selected roles, and router changes without creating files; the approved apply matches that manifest.
+32. A complete work order resumes at its latest safe phase without replaying settled shaping or planning, while new product decisions and failed gates still interrupt.
+33. A contract-complete broad task may remain direct when no phase advancement is required.
+34. Shape offers a throwaway prototype only for material behavioral uncertainty, after conversation/research is insufficient, and only after explicit approval to write.
+35. A prototype uses one existing run command, no persistence by default, visible results, and no automatic production promotion or Git ceremony.
+36. Worker briefs use anchored paths and existing evidence; successful command output is summarized rather than pasted into the main context.
+37. Closeout selects light or full mode proportionally without skipping required UAT, documentation, or explicit transient cleanup boundaries.
+38. Router dry-run previews an existing stale copy without writing and reports when `--replace` is required.
 
 ## User UAT
 
@@ -67,3 +74,6 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 11. Run `$plumbline-agent-team --mode audit` against custom per-role TOMLs and confirm no file changes.
 12. Run `$plumbline-agent-team --mode retune` without update flags, then with explicit `--update-instructions`; confirm only the instruction field changes and the custom model/reasoning/sandbox values survive.
 13. Run `$plumbline-offboard` and confirm it proposes only Plumbline-owned integration for removal.
+14. Provide a complete work order with a ready checkpoint and confirm `$plumbline` resumes execution without recreating the settled plan.
+15. During Shape, present a material state or UI uncertainty and confirm Plumbline offers a prototype only after explaining its transient boundary and waiting for approval.
+16. Run `scripts/install_router.py --dry-run --format json` against an older local router and confirm it reports `modify`, preserves the file, and marks `requires_replace`.

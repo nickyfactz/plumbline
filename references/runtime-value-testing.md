@@ -7,3 +7,5 @@ Good seams include a CLI/API boundary, user-visible workflow, public service con
 Allowed outcomes are: a focused automated test; a static/type/lint check; a deterministic command or HTTP probe; manual UAT; a targeted review; or a documented no-test decision with the risk and compensating evidence. A literal configurable default, prose, private method, snapshot of incidental structure, or a trivial wiring change usually does not deserve a permanent test.
 
 For bugs, test the minimized failure at a correct public seam when one exists. If no seam can reproduce the real issue, record the seam gap instead of adding false confidence. Never require red-green-refactor for every configuration, documentation, refactor, or maintenance change.
+
+Throwaway prototypes may use a one-command smoke run or documented observation instead of a permanent production test suite. They still need enough runtime evidence to answer the stated question. If prototype logic is promoted into a production seam, re-evaluate it under this gate rather than treating the throwaway probe as permanent coverage.

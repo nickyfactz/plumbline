@@ -46,7 +46,7 @@ The same proposal must name every selected change:
 
 State whether each item is `Create`, `Keep`, `Patch`, or `Skip`, and show the exact model, reasoning, sandbox, config, ignore, and propagation values. Do not treat missing global agents as a reason to create or select them.
 
-Before asking for approval, run the candidate installer commands with `--dry-run --format json` and include their file/operation/field manifest in the proposal. This is read-only and does not approve or apply anything.
+Before asking for approval, run the candidate installer commands with `--dry-run --format json` and include their file/operation/field manifest in the proposal. If a repository-local router already exists, the preview must state whether it matches the current template and whether `--replace` would be required; never overwrite it merely because it is stale. This is read-only and does not approve or apply anything.
 
 ## After approval
 

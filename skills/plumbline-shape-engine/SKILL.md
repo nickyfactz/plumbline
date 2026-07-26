@@ -24,6 +24,22 @@ Ask one question at a time. Ask only when the answer changes product behavior, s
 
 Resolve technical boundaries, names, module placement, test seams, and implementation details yourself from repository evidence. Keep the product outcome whole; do not split frontend, backend, persistence, or documentation into separate features.
 
+Use existing handoffs, specifications, plans, and cited research as the source of settled knowledge. Do not replay a question or reread a whole artifact when its relevant section and evidence are unchanged. A new question or a fresh read needs a material trigger: changed scope or contract, relevant repository drift, a failed or newly relevant check, a new capability question, or stale evidence.
+
+## Optional prototype probe
+
+After local facts and any necessary external capability research, decide whether the remaining uncertainty is experiential rather than factual. Offer a throwaway prototype only when a small runnable probe is likely to answer a material question faster than another planning round. Do not prototype settled implementation details, and do not make the probe a mandatory Shape step.
+
+Use the smallest useful form, in this order:
+
+1. a conversation, worked example, or state sketch when that is enough;
+2. an in-memory logic/state/data probe for transitions and behavior;
+3. an isolated UI or interaction variant when the question is visual or experiential.
+
+Ask for approval before writing a repository prototype. State the question, proposed location, one existing run command, and the fact that it is clearly marked, transient, excluded from production, and has no persistence by default. Reuse an existing scratch convention; do not create a new skill, persona, dependency, worktree system, branch, tracker entry, or artifact type. A project-local implementer may receive a narrow write set; otherwise the main thread can run a tiny probe directly. No worker edits the shaping handoff or spawns children.
+
+Keep the probe near the real seam but deliberately unfinished: no polish, production abstractions, or broad test suite. It must expose the relevant state or result and leave a small smoke/run check. Afterward report the question, observed result, decision, and residual uncertainty. Record only the material finding in the existing handoff's `Research Findings` or `Decisions Made`; promote a validated contract into the one active specification and do not automatically promote prototype code.
+
 ## Optional shaping handoff
 
 Conservatively detect long-running work from clear signals such as multiple workflows or product surfaces, several independent material decisions, external research or prototyping, or an explicit multi-session/handoff need. Do not use a complexity score and do not offer a handoff for small or already-settled work.

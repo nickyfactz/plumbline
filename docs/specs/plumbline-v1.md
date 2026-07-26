@@ -350,6 +350,8 @@ User-facing display names may be shorter: Plumbline, Setup, Shape, Specification
 5. Ask only blocking product questions.
 6. Avoid replaying earlier phases that have already been adequately completed.
 
+When a supplied work order or active artifact already contains scope, non-goals, checkpoint, acceptance/proof, lifecycle owner, and closeout boundaries, adopt it as the controlling contract and resume at its latest safe phase. This does not bypass a new product decision, contradictory repository evidence, a failed gate, or an explicit approval boundary.
+
 Examples:
 
 - A rough product idea routes to Shape.
@@ -837,16 +839,15 @@ Plumbline must not silently include unrelated pre-existing changes in the kickof
 
 ### 16.3 Compaction recovery
 
-After compaction, session change, or handoff, the orchestrator reads the plan's compact resume record first, then:
+After compaction, session change, or handoff, the orchestrator reads the controlling work order or plan's compact resume record first, then:
 
-1. The active specification.
-2. The current plan state.
-3. The relevant canonical documents.
-4. The repository diff and recent checkpoint commits.
+1. The current checkpoint and its anchored contract sections.
+2. The repository diff, status, and last verified commit.
+3. Relevant canonical documents only when the checkpoint references them or a material trigger invalidates prior evidence.
 
 Conversation summaries are supplementary, not authoritative.
 
-The plan record is the single checkpoint summary. On an unchanged resume, emit one compact transition and reuse existing evidence; do not repeat routing, doctrine, lifecycle, or broad-document narration. Resolve the currently loaded Plumbline root once for the phase and treat reference paths as relative to it. Never persist absolute versioned plugin-cache paths.
+The plan record is the single checkpoint summary. On an unchanged resume, emit one compact transition and reuse existing evidence; do not repeat routing, doctrine, lifecycle, or broad-document narration. Workers receive anchored briefs and should not inherit or reread full conversation and documentation history when unchanged artifacts answer the question. Resolve the currently loaded Plumbline root once for the phase and treat reference paths as relative to it. Never persist absolute versioned plugin-cache paths.
 
 ### 16.4 Plan updates
 
@@ -937,14 +938,14 @@ Before advancing to the next checkpoint, the main thread:
 5. Records deviations and evidence.
 6. Updates canonical-document impact.
 7. Marks the checkpoint complete only when its criterion is met.
-8. Creates one coherent implementation commit by default, allowing evidence-only follow-up commits when the repository topology requires them. Evidence-only work that does not have an independent acceptance, rollback, risk, contract, or ownership boundary remains part of the parent checkpoint.
+8. Commits only after focused validation passes and when the checkpoint is a coherent recovery boundary or repository policy requires it. Evidence-only work that does not have an independent acceptance, rollback, risk, contract, or ownership boundary remains part of the parent checkpoint.
 
 ### 17.6 Commit policy
 
-Default plan-based history:
+Plan-based history is proportional:
 
 1. Kickoff commit.
-2. One coherent implementation commit per completed checkpoint by default.
+2. A coherent implementation or recovery-boundary commit when validation passes and the checkpoint or repository policy calls for it.
 3. Evidence, receipt, or documentation-only follow-up commits when required by repository topology.
 4. Focused corrective commits for QA or UAT findings.
 5. Closeout commit.
@@ -1398,9 +1399,13 @@ No generic audit reminder is emitted.
 
 Closeout begins after user acceptance or an explicit integration instruction.
 
-### 25.2 Closeout steps
+### 25.2 Closeout modes
 
-1. Recheck changes since the completion audit.
+Choose the smallest mode that preserves proof. Light closeout is for bounded direct work, documentation/process changes, or accepted work with no transient specification/plan cleanup; it checks the current diff/status, focused validation, acceptance signal, documentation impact, and residual risk. Full closeout is for active specifications or plans, migrations, security/privacy, compatibility, material runtime behavior, canonical reconciliation, or transient cleanup; it includes the specification-to-diff coverage needed by the feature, UAT evidence, and final documentation checks. Neither mode skips a required UAT or explicit cleanup boundary.
+
+### 25.3 Closeout steps
+
+1. Recheck changes since the completion audit using the selected closeout mode.
 2. Confirm implementation still satisfies the specification.
 3. Reconcile final canonical documentation.
 4. Confirm no lasting truth exists only in the transient source, specification, or plan.
@@ -1412,7 +1417,7 @@ Closeout begins after user acceptance or an explicit integration instruction.
 10. Integrate through the user-requested Codex Handoff or Git flow.
 11. Leave managed-worktree retirement to Codex.
 
-### 25.3 Final working tree
+### 25.4 Final working tree
 
 After closeout, the working tree contains:
 
@@ -1423,7 +1428,7 @@ After closeout, the working tree contains:
 
 It does not contain completed feature specifications, implementation plans, or imported kickoff sources.
 
-### 25.4 Historical recoverability
+### 25.5 Historical recoverability
 
 The deleted artifacts remain available in Git through the kickoff and checkpoint history. Plumbline preserves that history by default.
 
@@ -1741,7 +1746,7 @@ Rules such as test value, worktree safety, QA evidence, and agent refresh must h
 
 ### 30.6 Subagent context
 
-Subagents receive file-backed briefs and return concise reports. Large diffs, logs, exploration transcripts, and accumulated history should be handed off as files rather than pasted into the main thread.
+Subagents receive file-backed, context-bounded briefs with exact paths and anchored sections and return concise reports. Large diffs, logs, exploration transcripts, and accumulated history should be referenced by artifact path or compact evidence summary rather than pasted into the main thread. Unchanged artifacts are reused instead of reread.
 
 ### 30.7 Direct-path target
 
@@ -1830,86 +1835,88 @@ Implementation must retain applicable license notices and attribution for any te
 ### Routing and phase entry
 
 8. A small config or docs change remains direct and produces no spec, plan, worktree, or QA ceremony.
-9. A rough feature concept routes to Shape.
-10. A sufficient external design routes to Plan without replaying a full grill.
-11. A sufficient plan routes to Execute.
-12. An existing implementation routes to Review when requested.
-13. Explicit phase invocation overrides automatic routing and asks only blocking questions.
-14. Uninitialized repositories do not receive automatic phase invocation from globally installed skill descriptions.
+9. A contract-complete broad work order can remain direct or resume at its current phase without replaying settled planning.
+10. A rough feature concept routes to Shape.
+11. A sufficient external design routes to Plan without replaying a full grill.
+12. A sufficient plan routes to Execute.
+13. An existing implementation routes to Review when requested.
+14. Explicit phase invocation overrides automatic routing and asks only blocking questions.
+15. Uninitialized repositories do not receive automatic phase invocation from globally installed skill descriptions.
 
 ### Shaping and product autonomy
 
-15. Shape researches repository facts before asking the user.
-16. Shape asks one product question at a time and includes a recommendation.
-17. Shape does not ask the user to decide ordinary architecture or implementation details.
-18. Shape may stop without creating artifacts.
+16. Shape researches repository facts before asking the user.
+17. Shape asks one product question at a time and includes a recommendation.
+18. Shape does not ask the user to decide ordinary architecture or implementation details.
+19. Shape may offer an explicitly approved throwaway prototype for material behavioral uncertainty after conversation or research is insufficient; the probe uses no persistence by default and is not automatically promoted.
+20. Shape may stop without creating artifacts.
 
 ### Specifications and plans
 
-19. Imported chat or attachment requirements are materialized into tracked transient artifacts before long-running execution.
-20. Every plan-based feature has one specification and one live plan.
-21. Plans use meaningful checkpoints, not micro-tasks or separate frontend/backend plans.
-22. The plan records serial dependencies, parallel ownership, verification, and canonical-doc impact.
-23. A kickoff commit exists before production implementation.
-24. After simulated compaction or a new session, execution resumes correctly from the specification, plan, and Git state.
-25. Checkpoint status and evidence are updated before advancing.
-26. QA or UAT defects reopen the affected checkpoint and produce a corrective commit.
+21. Imported chat or attachment requirements are materialized into tracked transient artifacts before long-running execution.
+22. Every plan-based feature has one specification and one live plan.
+23. Plans use meaningful checkpoints, not micro-tasks or separate frontend/backend plans.
+24. The plan records serial dependencies, parallel ownership, verification, and canonical-doc impact.
+25. A kickoff commit exists before production implementation.
+26. After simulated compaction or a new session, execution resumes correctly from the controlling work order/specification, plan, and Git state without rereading unchanged full documents.
+27. Checkpoint status and evidence are updated before advancing.
+28. QA or UAT defects reopen the affected checkpoint and produce a corrective commit.
 
 ### Subagents and Git
 
-27. The main thread is the only Git writer.
-28. Parallel implementers have disjoint write sets and cannot move Git state.
-29. Ownership expansion pauses affected work and updates the plan.
-30. One coherent checkpoint commit is created after integration and validation.
-31. Git history is preserved by default through closeout.
+29. The main thread is the only Git writer.
+30. Parallel implementers have disjoint write sets and cannot move Git state.
+31. Ownership expansion pauses affected work and updates the plan.
+32. A coherent recovery-boundary commit is created only after focused validation and when repository policy or checkpoint recovery needs it.
+33. Git history is preserved by default through closeout.
 
 ### Testing and review
 
-32. Direct config or documentation changes do not receive synthetic permanent tests.
-33. New tests satisfy the runtime-value gate or the plan records another verification choice.
-34. Planned features receive an independent standard QA audit before Ready for Acceptance unless explicitly overridden.
-35. QA is report-only and adversarial without manufacturing findings.
-36. QA can run targeted non-mutating probes but does not repeat the full closeout suite or write tests.
-37. `$plumbline-review` can audit a no-plan bug fix on the active checkout.
-38. Deep review requires explicit invocation or user approval.
+34. Direct config or documentation changes do not receive synthetic permanent tests.
+35. New tests satisfy the runtime-value gate or the plan records another verification choice.
+36. Planned features receive an independent standard QA audit before Ready for Acceptance unless explicitly overridden.
+37. QA is report-only and adversarial without manufacturing findings.
+38. QA can run targeted non-mutating probes but does not repeat the full closeout suite or write tests.
+39. `$plumbline-review` can audit a no-plan bug fix on the active checkout.
+40. Deep review requires explicit invocation or user approval.
 
 ### Worktrees and UAT
 
-39. Scoped and designed features default to Codex-managed worktrees.
-40. Direct work and small fixes may remain in the active checkout.
-41. Worktree setup can borrow large models, caches, and environments without copying the full repository payload.
-42. Shared virtual-environment use verifies imports resolve from the worktree.
-43. Plumbline does not create or remove its own worktrees.
-44. UAT uses the smallest useful surface and may hand off to Local when practical.
-45. Low-risk work may be integrated and validated in Local when the user accepts the tradeoff.
+41. Scoped and designed features default to Codex-managed worktrees.
+42. Direct work and small fixes may remain in the active checkout.
+43. Worktree setup can borrow large models, caches, and environments without copying the full repository payload.
+44. Shared virtual-environment use verifies imports resolve from the worktree.
+45. Plumbline does not create or remove its own worktrees.
+46. UAT uses the smallest useful surface and may hand off to Local when practical.
+47. Low-risk work may be integrated and validated in Local when the user accepts the tradeoff.
 
 ### Documentation and closeout
 
-46. Established documentation structures are adopted rather than replaced.
-47. New projects receive an appropriate baseline only after product approval.
-48. Canonical docs describe current state and do not become commit diaries.
-49. Known canonical drift blocks a clean closeout claim unless the user explicitly overrides and accepts the residual issue.
-50. Accepted closeout deletes imported source, specification, and plan from the final working tree.
-51. Deleted artifacts remain recoverable in Git history.
-52. Offboarding preserves canonical docs, agents, and useful tooling by default.
+48. Established documentation structures are adopted rather than replaced.
+49. New projects receive an appropriate baseline only after product approval.
+50. Canonical docs describe current state and do not become commit diaries.
+51. Known canonical drift blocks a clean closeout claim unless the user explicitly overrides and accepts the residual issue.
+52. Accepted closeout deletes imported source, specification, and plan from the final working tree.
+53. Deleted artifacts remain recoverable in Git history.
+54. Offboarding preserves canonical docs, agents, and useful tooling by default.
 
 ### Agent team
 
-53. Initialization can audit, refresh, or create a project-local agent team, project config, AGENTS guidance, and optional worktree propagation as one selectable option, with approval before any write; audit itself is read-only.
-54. Every proposed role shows and then writes an explicit model slug, reasoning level, sandbox, and write-access boundary; existing healthy preferences are preserved by default.
-55. Generated agents reference canonical docs rather than embedding mutable architecture truth.
-56. Agent-team setup detects disabled or incompatible project-local multi-agent configuration, recommends `multi_agent=true` and `max_depth=1`, and proposes an exact approved patch; global config is capability evidence only.
-57. A bounded smoke test proves project-local role discovery, the no-child boundary, and the ignored-file worktree manifest without modifying global configuration; audit/retune preserve deliberately different per-role models, reasoning, sandboxes, and custom fields.
-58. Agent-drift recommendations appear only for concrete, significant drift.
+55. Initialization can audit, refresh, or create a project-local agent team, project config, AGENTS guidance, and optional worktree propagation as one selectable option, with approval before any write; audit itself is read-only.
+56. Every proposed role shows and then writes an explicit model slug, reasoning level, sandbox, and write-access boundary; existing healthy preferences are preserved by default.
+57. Generated agents reference canonical docs rather than embedding mutable architecture truth.
+58. Agent-team setup detects disabled or incompatible project-local multi-agent configuration, recommends `multi_agent=true` and `max_depth=1`, and proposes an exact approved patch; global config is capability evidence only.
+59. A bounded smoke test proves project-local role discovery, the no-child boundary, and the ignored-file worktree manifest without modifying global configuration; audit/retune preserve deliberately different per-role models, reasoning, sandboxes, and custom fields.
+60. Agent-drift recommendations appear only for concrete, significant drift.
 
 ### Context and polish
 
-59. Ordinary direct work does not load unrelated phase skills.
-60. The local router remains small and contains no full workflow doctrine.
-61. Phase bodies use progressive disclosure and avoid duplicated rules.
-62. No custom installer duplicates plugin skills into global skill folders.
-63. No session hook activates Plumbline.
-64. The README explains installed-only, one-off, initialized, and offboarding modes in user-facing language.
+61. Ordinary direct work does not load unrelated phase skills.
+62. The local router remains small and contains no full workflow doctrine.
+63. Phase bodies use progressive disclosure and avoid duplicated rules.
+64. No custom installer duplicates plugin skills into global skill folders.
+65. No session hook activates Plumbline.
+66. The README explains installed-only, one-off, initialized, and offboarding modes in user-facing language.
 
 ---
 

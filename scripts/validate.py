@@ -99,8 +99,9 @@ CONTRACT_MARKERS = {
         "compact resume record",
         "installation root",
         "compact state/transition line",
-        "coherent implementation commit",
-        "evidence-only follow-up commits",
+        "coherent recovery boundary",
+        "evidence-only",
+        "stable delta",
     ),
     "plumbline-plan-engine": (
         "evidence-only",
@@ -125,6 +126,16 @@ CONTRACT_MARKERS = {
         "not yet specified",
         "one question at a time",
         "personal or global agent",
+        "optional prototype probe",
+        "conversation, worked example",
+        "no persistence by default",
+        "existing handoff",
+    ),
+    "plumbline-closeout-engine": (
+        "light closeout",
+        "full closeout",
+        "smallest closeout mode",
+        "transient specification/plan cleanup",
     ),
     "plumbline": (
         "one lifecycle owner",
@@ -134,6 +145,8 @@ CONTRACT_MARKERS = {
         "project-local Plumbline router",
         "versioned cache paths",
         "compact resume record",
+        "controlling work order",
+        "contract-complete work",
     ),
 }
 WRAPPERS = {
@@ -356,7 +369,7 @@ def validate_scripts(errors: list[str]) -> None:
                     if marker not in source:
                         error(errors, f"scripts/{name}: missing preservation marker {marker}")
             elif name == "install_router.py":
-                for marker in ("dry_run", "output_format", "router template"):
+                for marker in ("dry_run", "output_format", "router template", "requires_replace"):
                     if marker not in source:
                         error(errors, f"scripts/{name}: missing dry-run marker {marker}")
         except (OSError, SyntaxError) as exc:

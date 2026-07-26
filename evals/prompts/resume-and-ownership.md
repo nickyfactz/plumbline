@@ -8,3 +8,5 @@
 - Runtime root: "The plugin was refreshed and the old versioned cache path is gone. Resolve the current Plumbline root once and load the referenced plan policy from it."
 - Compact resume: "Update CP-03 after validation. Keep the plan's checkpoint status, owner, last verified commit, and next safe action synchronized in its resume record."
 - Evidence batching: "The implementation is complete; packaging receipts and documentation evidence are adjacent and have no independent acceptance or rollback boundary. Plan them without creating extra checkpoints."
+- Bounded worker context: "Delegate this review with the exact checkpoint sections and changed paths; do not pass full history or reread unchanged repository guidance."
+- Proportional closeout: "This small accepted docs-only change has no transient plan. Use the light closeout path and report the focused check and residual risk."

@@ -16,4 +16,4 @@ To use the supplied helper from a checkout of this plugin:
 python scripts/install_router.py --root <target-repository>
 ```
 
-The helper writes only the router file and refuses to overwrite an existing file unless `--replace` is supplied. Agent-team audit reports router drift without overwriting it. The user remains responsible for approval and any ignore rule.
+The helper writes only the router file and refuses to overwrite an existing file unless `--replace` is supplied. `--dry-run` can preview an existing router without `--replace`; the JSON manifest reports whether replacement is required, and the apply command still needs explicit `--replace`. Agent-team audit reports router drift without overwriting it. The user remains responsible for approval and any ignore rule.

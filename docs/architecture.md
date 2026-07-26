@@ -16,9 +16,13 @@ Product intent lives in the active specification. Execution state lives in the a
 
 The active plan frontmatter also carries one compact resume record: current checkpoint, checkpoint status, lifecycle owner, last verified commit, and next safe action. Plumbline resolves the currently loaded plugin root once per phase entry or resume; repository artifacts never store absolute versioned cache paths.
 
+A supplied work order is adopted when it already contains scope, non-goals, checkpoint, acceptance/proof, owner, and closeout boundaries. This lets Plumbline act as a thin safety rail for execution instead of replaying settled shaping or planning. Workers receive anchored, bounded briefs and reuse unchanged artifacts rather than inheriting or rereading full conversation and documentation history.
+
 ## Ownership
 
 The main thread owns product decisions, active artifacts, integration, and Git. Agents are bounded researchers, architects, implementers, or report-only auditors. Report-only roles receive no write set; their `read-only` TOML is intent and may be affected by a writable parent session. Plumbline records the boundary when observable and inspects returned diffs instead of adding a permission daemon. Plumbline never owns a worktree registry or global agent installation.
+
+Shape may offer an explicitly approved throwaway prototype when a behavioral question is cheaper to answer with a small runnable probe. It is not a new phase or artifact class and is not automatically promoted into production.
 
 ## Platform evidence
 

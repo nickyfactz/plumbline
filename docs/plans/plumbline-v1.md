@@ -337,7 +337,7 @@ Assess the user's requested outcome, supplied artifacts, conversation state, and
 
 Choose the latest safe phase:
 
-- direct work for small, clear, low-risk maintenance
+- direct work for small, clear, low-risk maintenance or a supplied contract-complete work order that needs no phase advancement
 - Diagnose for a defect, regression, failure, or performance problem
 - Shape when product intent or important behavior remains unclear
 - Specification when intent is understood but the active product contract is incomplete
@@ -346,7 +346,7 @@ Choose the latest safe phase:
 - Review when implementation exists and the user wants an independent assessment
 - Closeout when the work has been accepted and integration or cleanup is requested
 
-Honor existing artifacts regardless of which model or workflow produced them. Repair only blocking gaps. Ask the user only when a missing answer would invent a product decision.
+Honor existing artifacts regardless of which model or workflow produced them. If a work order already defines scope, non-goals, checkpoint, acceptance/proof, owner, and closeout, adopt it and do not recreate settled planning. Repair only blocking gaps. Ask the user only when a missing answer would invent a product decision or a gate has failed.
 
 State the selected phase in one sentence, then run only that Plumbline phase. Do not initialize the repository or enable future automatic routing.
 ```
@@ -420,7 +420,7 @@ description: Shape a product concept through repository research, recommendation
 
 Turn a concept into a shared product understanding. Do not implement unless the user later requests another phase.
 
-Start with repository evidence. Read the applicable project instructions and documentation router, then inspect the relevant code, contracts, tests, configuration, and history only as needed. Use a bounded researcher or architect when that keeps noisy discovery out of the main thread. Research current primary sources when a material decision depends on version-specific behavior, security guidance, standards, or unfamiliar technology.
+Start with repository evidence. Read the applicable project instructions and documentation router, then inspect the exact relevant paths and anchored contract sections only as needed. Use a bounded researcher or architect when that keeps noisy discovery out of the main thread. Research current primary sources when a material decision depends on version-specific behavior, security guidance, standards, or unfamiliar technology. If the remaining uncertainty is behavioral, offer a small explicitly approved throwaway prototype after conversation or research is insufficient; use the smallest existing scratch/run convention and no persistence by default.
 
 Resolve technical questions yourself. Ask the user only about product behavior, scope, priorities, user experience, privacy, cost, destructive handling, compatibility, or another difficult-to-reverse consequence.
 
@@ -550,7 +550,7 @@ Implement the active feature as the main-thread orchestrator and sole Git writer
 
 Use a Codex-managed worktree for scoped or designed feature work unless the user explicitly chooses the active checkout. Do not create, relocate, or remove worktrees yourself. Verify the environment can use the repository's existing dependencies and required shared resources before implementation.
 
-For plan-based work, confirm the kickoff commit exists. Before each checkpoint re-read the governing specification, current plan state, relevant canonical documents, and Git state.
+For plan-based work, confirm the kickoff commit exists. At resume or checkpoint entry, read the compact plan record or controlling work order first, then the exact checkpoint, anchored contract sections, relevant delta, and Git state. Reuse unchanged evidence instead of rereading whole specifications or canonical documents.
 
 Execute the checkpoint's dependency topology:
 
@@ -560,7 +560,7 @@ Execute the checkpoint's dependency topology:
 - never allow subagents to stage, commit, move Git state, or edit the specification and plan
 - pause affected work when ownership or dependency assumptions change
 
-The main thread inspects and integrates all returned work. Run checkpoint-level targeted validation, apply the runtime-value test decision, update plan status and evidence, record deviations and canonical impact, then create one coherent implementation commit by default. Evidence-only follow-up commits are allowed when the repository topology requires them and must not silently change the verified code boundary. Do not advance while the checkpoint is Blocked or Reopened.
+The main thread inspects and integrates all returned work. Run checkpoint-level targeted validation, apply the runtime-value test decision, update plan status and evidence, record deviations and canonical impact, then commit only after focused validation passes and when a coherent recovery boundary or repository policy calls for it. Evidence-only work without an independent acceptance, rollback, risk, contract, or ownership boundary stays with its parent checkpoint. Do not advance while the checkpoint is Blocked or Reopened.
 
 When all checkpoints are complete, prepare the smallest meaningful acceptance surface. Run the planned completion checks and perform a risk-proportional independent audit; dispatch a fresh QA auditor for high-risk or explicitly independent review, while small direct work may remain on the main thread. Repair confirmed findings through focused corrective commits and reopened checkpoints.
 
@@ -656,6 +656,8 @@ description: Close accepted work by reconciling canonical truth, removing transi
 Close work only after successful UAT, explicit approval, or a clear instruction to integrate.
 
 If QA or UAT exposes a defect, reopen the affected checkpoint or add one bounded corrective checkpoint to the same plan. Do not close while planned work remains Blocked or Reopened.
+
+Choose light closeout for bounded direct, documentation/process, or already-documented work with no transient cleanup. Choose full closeout for active specifications or plans, migrations, security/privacy, compatibility, material runtime behavior, canonical reconciliation, or transient cleanup. Neither mode skips required UAT or explicit cleanup boundaries.
 
 For accepted plan-based work:
 

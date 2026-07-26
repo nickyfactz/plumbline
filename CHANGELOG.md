@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.1 — 2026-07-26
+
+- Adopt complete work orders without replaying settled planning.
+- Add bounded worker-context guidance and quieter delegation reporting.
+- Add an optional, explicitly approved Shape prototype probe for behavioral uncertainty.
+- Add proportional light/full closeout guidance and safer existing-router dry-run previews.
+
 ## 0.1.0 — 2026-07-11
 
 - Initial Plumbline v1 implementation.

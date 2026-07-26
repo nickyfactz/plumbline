@@ -5,7 +5,12 @@ description: Internal Plumbline engine. Use only after the Plumbline router or a
 
 # Closeout engine
 
-Closeout begins only when the user says the work is accepted or asks to integrate/clean up after a ready-for-acceptance audit. Read the specification, plan, QA verdict, UAT evidence, Git history, current status, and repository documentation routing.
+Closeout begins only when the user says the work is accepted or asks to integrate/clean up after a ready-for-acceptance audit. First choose the smallest closeout mode that preserves the required proof:
+
+- **Light closeout** for bounded direct work, documentation/process changes, or already-documented work with no transient specification/plan cleanup. Read the current status/diff, focused validation, acceptance signal, documentation impact, and residual risk.
+- **Full closeout** for work with an active specification or plan, migrations, security/privacy, compatibility, material runtime behavior, canonical documentation reconciliation, or transient artifact cleanup. Read the specification, plan, QA verdict, UAT evidence, Git history, current status, and repository documentation routing; prepare the coverage matrix when a specification-to-diff mapping is needed.
+
+Do not skip a required UAT or canonical-document check merely to keep closeout light. Do not reread unrelated large documents when the selected mode and current artifacts identify the exact sections needed.
 
 Prepare a concise product-level UAT surface and hand off to Local when validation is singleton, hardware-bound, exceptionally heavy, or cheaper there. Reconcile canonical current-state documentation; investigate code/doc disagreement instead of blindly overwriting either side. A justified `no canonical change` is valid.
 

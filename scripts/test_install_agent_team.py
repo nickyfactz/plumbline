@@ -161,6 +161,35 @@ def main() -> None:
 
     with tempfile.TemporaryDirectory() as raw_root:
         root = Path(raw_root)
+        (root / ".git" / "info").mkdir(parents=True)
+        router = root / ".agents" / "skills" / "plumbline-router" / "SKILL.md"
+        router.parent.mkdir(parents=True)
+        router.write_text("old router\n", encoding="utf-8")
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(plugin_root / "scripts" / "install_router.py"),
+                "--root",
+                str(root),
+                "--dry-run",
+                "--format",
+                "json",
+            ],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        payload = json.loads(result.stdout)
+        assert payload["dry_run"] is True
+        assert payload["writes_applied"] is False
+        assert payload["requires_replace"] is True
+        assert payload["changes"][0]["operation"] == "modify"
+        assert payload["changes"][0]["requires_replace"] is True
+        assert router.read_text(encoding="utf-8") == "old router\n"
+
+    with tempfile.TemporaryDirectory() as raw_root:
+        root = Path(raw_root)
         source = root / "source"
         source.mkdir()
         run_git("init", "-q", cwd=source)

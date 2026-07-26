@@ -9,9 +9,11 @@ You are the explicit front door. Inspect the user's request, supplied artifacts,
 
 Before phase selection, check whether the current repository has the project-local Plumbline router at `.agents/skills/plumbline-router/SKILL.md`. If it is absent, setup takes precedence: hand off to `$plumbline-init`, which remains read-only until the user approves its proposal. This applies even when the user only invokes `$plumbline` for ordinary work in a new repository. If the user says `init` or setup, give the same direct handoff; do not silently write files. If setup is declined, continue only with the user's explicitly chosen non-Plumbline work.
 
+If the user supplies a controlling work order, active handoff, specification, or plan that already states the scope, non-goals, current checkpoint, acceptance/proof, lifecycle owner, and closeout boundary, adopt it as the active contract. Resume at its latest safe phase instead of recreating settled shaping, specification, or planning. This fast path does not bypass a new product decision, contradictory repository evidence, a failed gate, or an explicit approval boundary.
+
 Choose exactly one:
 
-- direct work for small, clear, low-risk maintenance;
+- direct work for small, clear, low-risk maintenance or contract-complete work that needs no phase advancement;
 - Diagnose for a defect, regression, failure, or performance problem;
 - Shape when product intent or important behavior is unclear;
 - Specification when intent is understood but the product contract is incomplete;

@@ -22,7 +22,7 @@ def install(
         raise ValueError("plugin root is invalid")
     if not template.is_file():
         raise FileNotFoundError(template)
-    if target.exists() and not replace:
+    if target.exists() and not replace and not dry_run:
         raise FileExistsError(f"{target} already exists; use --replace to overwrite it")
     if not target.is_relative_to(repo):
         raise ValueError("router target escaped the repository root")
@@ -41,7 +41,11 @@ def main() -> None:
     args = parser.parse_args()
     plugin_root = Path(__file__).resolve().parents[1]
     target = (args.root.resolve() / ".agents" / "skills" / "plumbline-router" / "SKILL.md").resolve()
-    operation = "modify" if target.exists() else "create"
+    template = (plugin_root / "templates" / "router" / "SKILL.md").resolve()
+    existing = target.is_file()
+    matches_template = existing and target.read_text(encoding="utf-8") == template.read_text(encoding="utf-8")
+    operation = "none" if matches_template else ("modify" if target.exists() else "create")
+    requires_replace = target.exists() and not matches_template and not args.replace
     try:
         target = install(plugin_root, args.root, args.replace, dry_run=args.dry_run)
     except (FileExistsError, FileNotFoundError, ValueError) as exc:
@@ -52,19 +56,28 @@ def main() -> None:
                 {
                     "dry_run": args.dry_run,
                     "writes_applied": not args.dry_run,
-                    "changes": [
+                    "changes": []
+                    if operation == "none"
+                    else [
                         {
                             "path": str(target),
                             "operation": operation,
                             "fields": ["router template"],
+                            "requires_replace": requires_replace,
                         }
                     ],
+                    "requires_replace": requires_replace,
                 },
                 indent=2,
             )
         )
         return
-    print(f"{'Preview' if args.dry_run else 'Installed'} repository-local router: {target}")
+    if args.dry_run:
+        suffix = " (existing copy; --replace is required to apply)" if requires_replace else ""
+        message = "matches the current template" if operation == "none" else "would update"
+        print(f"Preview: repository-local router {message}: {target}{suffix}")
+    else:
+        print(f"Installed repository-local router: {target}")
     print("Remove .agents/skills/plumbline-router/ to disable automatic routing.")
 
 
