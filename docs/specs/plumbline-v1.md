@@ -202,6 +202,8 @@ Plumbline keeps work aligned; it does not own the user's project.
 
 A workflow step exists only when it changes behavior or preserves evidence. Ritual without a concrete risk is removed.
 
+Every process artifact, announcement, or receipt must support recovery, validation, authorization, or ownership. Omit ceremony that serves none of those purposes.
+
 ### P-3. Latest safe phase
 
 When the user supplies an existing design, plan, handoff, implementation, or accepted feature, Plumbline enters at the latest defensible phase. It does not restart upstream work merely to establish procedural ownership.
@@ -729,6 +731,8 @@ A checkpoint is a meaningful implementation state, not a two-to-five-minute acti
 
 Batch adjacent evidence-only, packaging, receipt, or documentation work into its parent implementation checkpoint. Create a separate checkpoint only when the work has an independent outcome or acceptance gate, rollback boundary, material risk or contract boundary, or owner. Do not split a coherent outcome only to narrate proof steps.
 
+The default checkpoint representation is a compact card containing outcome, boundary, acceptance proof, evidence, and next action. Expand it with detailed dependency, topology, verification, documentation, or deviation sections only for a material security, schema, rollback, public-contract, ownership, or irreversible boundary.
+
 A checkpoint must have:
 
 - A coherent outcome.
@@ -817,9 +821,9 @@ A second unrelated feature uses another managed worktree. Tightly related additi
 
 ## 16. Kickoff and durable execution memory
 
-### 16.1 Mandatory kickoff commit
+### 16.1 Conditional kickoff commit
 
-Every plan-based feature must create a kickoff commit before substantive production implementation.
+Create a kickoff or recovery-boundary commit before implementation when the user or repository requires it, when work must survive multi-session or operator recovery, when a material ABI, schema, or product contract is being established, or when an auditable approval boundary needs it. Otherwise, keep intended source, specification, and plan artifacts tracked but uncommitted until the first coherent boundary.
 
 The kickoff commit contains:
 
@@ -847,7 +851,7 @@ After compaction, session change, or handoff, the orchestrator reads the control
 
 Conversation summaries are supplementary, not authoritative.
 
-The plan record is the single checkpoint summary. On an unchanged resume, emit one compact transition and reuse existing evidence; do not repeat routing, doctrine, lifecycle, or broad-document narration. Workers receive anchored briefs and should not inherit or reread full conversation and documentation history when unchanged artifacts answer the question. Resolve the currently loaded Plumbline root once for the phase and treat reference paths as relative to it. Never persist absolute versioned plugin-cache paths.
+The plan record is the single checkpoint summary. Treat checkout/worktree identity, HEAD/last_verified_commit, the plan-record hash, .codex/config.toml hash, and selected role-TOML hashes as the resume fingerprint. A new task, compaction, or conversational resume alone does not invalidate unchanged evidence. On an unchanged resume, reuse existing evidence and do not repeat routing, doctrine, lifecycle, or broad-document narration. Workers receive anchored briefs and should not inherit or reread full conversation and documentation history when unchanged artifacts answer the question. Resolve the currently loaded Plumbline root once for the phase and treat reference paths as relative to it. Never persist absolute versioned plugin-cache paths.
 
 ### 16.4 Plan updates
 
@@ -1399,6 +1403,8 @@ No generic audit reminder is emitted.
 
 Closeout begins after user acceptance or an explicit integration instruction.
 
+Execute ends at Ready for Acceptance after implementation, focused/full proof, acceptance-required canonical documentation, and stable-delta review. Closeout begins after acceptance and owns integration, transient cleanup, plan retirement, worktree/branch handling, and publishing preparation; it does not redo first-time implementation proof.
+
 ### 25.2 Closeout modes
 
 Choose the smallest mode that preserves proof. Light closeout is for bounded direct work, documentation/process changes, or accepted work with no transient specification/plan cleanup; it checks the current diff/status, focused validation, acceptance signal, documentation impact, and residual risk. Full closeout is for active specifications or plans, migrations, security/privacy, compatibility, material runtime behavior, canonical reconciliation, or transient cleanup; it includes the specification-to-diff coverage needed by the feature, UAT evidence, and final documentation checks. Neither mode skips a required UAT or explicit cleanup boundary.
@@ -1746,7 +1752,7 @@ Rules such as test value, worktree safety, QA evidence, and agent refresh must h
 
 ### 30.6 Subagent context
 
-Subagents receive file-backed, context-bounded briefs with exact paths and anchored sections and return concise reports. Large diffs, logs, exploration transcripts, and accumulated history should be referenced by artifact path or compact evidence summary rather than pasted into the main thread. Unchanged artifacts are reused instead of reread.
+Subagents receive file-backed, context-bounded briefs with exact paths and anchored sections and return concise reports. Load detailed delegation doctrine only immediately before an actual worker wave; direct work keeps only the short dispatch invariant. Large diffs, logs, exploration transcripts, and accumulated history should be referenced by artifact path or compact evidence summary rather than pasted into the main thread. Unchanged artifacts are reused instead of reread.
 
 ### 30.7 Direct-path target
 
@@ -1857,7 +1863,7 @@ Implementation must retain applicable license notices and attribution for any te
 22. Every plan-based feature has one specification and one live plan.
 23. Plans use meaningful checkpoints, not micro-tasks or separate frontend/backend plans.
 24. The plan records serial dependencies, parallel ownership, verification, and canonical-doc impact.
-25. A kickoff commit exists before production implementation.
+25. A kickoff or recovery-boundary commit exists before implementation when user/repository policy, multi-session recovery, a material contract, or an auditable approval boundary requires it; otherwise artifacts may remain uncommitted until the first coherent boundary.
 26. After simulated compaction or a new session, execution resumes correctly from the controlling work order/specification, plan, and Git state without rereading unchanged full documents.
 27. Checkpoint status and evidence are updated before advancing.
 28. QA or UAT defects reopen the affected checkpoint and produce a corrective commit.
@@ -1914,6 +1920,12 @@ Implementation must retain applicable license notices and attribution for any te
 61. Ordinary direct work does not load unrelated phase skills.
 62. The local router remains small and contains no full workflow doctrine.
 63. Phase bodies use progressive disclosure and avoid duplicated rules.
+64. An unchanged resume fingerprint reuses checkpoint evidence without rereading agent configuration, broad plan bodies, or delegation doctrine.
+65. The first actual delegation loads detailed orchestration guidance and retains one compact role/model/reasoning/boundary report; direct work does not load it.
+66. Ordinary checkpoints use compact cards, while material boundaries receive expanded evidence.
+67. Execute reaches Ready for Acceptance before Closeout handles acceptance, integration, and transient cleanup.
+68. Accepted equivalent evidence paths are reused before slice-specific machinery is introduced.
+69. Supporting construction-policy skills do not add lifecycle ownership, checkpoints, or competing acceptance gates.
 64. No custom installer duplicates plugin skills into global skill folders.
 65. No session hook activates Plumbline.
 66. The README explains installed-only, one-off, initialized, and offboarding modes in user-facing language.
@@ -1933,7 +1945,7 @@ Implementation must include behavioral evaluations for at least these scenarios:
 7. **Direct edit:** A documentation typo remains direct.
 8. **Hidden complexity:** A seemingly small authentication config change reveals a durable security behavior and escalates with one product-level question.
 9. **No re-grill:** A sufficient Claude handoff proceeds to Plan with a compact assessment.
-10. **Kickoff durability:** Feature source/spec/plan are committed before code.
+10. **Kickoff durability:** Feature source/spec/plan use a kickoff or recovery-boundary commit when policy, recovery, a material contract, or an auditable boundary requires it; otherwise they may remain uncommitted until the first coherent boundary.
 11. **Compaction recovery:** A simulated new session resumes the correct checkpoint without relying on chat history.
 12. **Parallel ownership:** Frontend and backend work run concurrently only after the shared contract is stable.
 13. **Ownership collision:** A subagent requesting a shared contract change stops and reports ownership expansion.

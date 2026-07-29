@@ -34,7 +34,7 @@ Use them as follows:
 5. **Ask the user only if a platform limitation makes an agreed product behavior infeasible or if release identity cannot be inferred from the new repository.** Resolve ordinary architecture, file layout, prompt wording, evaluation design, and implementation details autonomously.
 6. **Keep this as one feature plan.** The checkpoints below are coherent delivery milestones inside Plumbline v1, not separate specifications or independent product features.
 7. **The main thread is the sole Git writer.** Subagents may research, draft, or edit disjoint assigned files, but they must not stage, commit, rebase, reset, stash, switch branches, or edit the active specification and plan.
-8. **Create the kickoff commit before substantive plugin implementation.** The new repository must begin with the approved specification, this plan, source provenance, and initial execution state tracked in Git.
+8. **Use a kickoff or recovery-boundary commit when warranted.** Require it for explicit user/repository policy, multi-session recovery, a material contract, or an auditable approval boundary; otherwise keep intended artifacts uncommitted until the first coherent boundary.
 
 When implementation starts, copy the approved specification and this plan into the new repository's transient artifact convention. For a blank repository, use:
 
@@ -523,7 +523,7 @@ Use exact paths when repository research supports them, but do not transcribe co
 
 Map every acceptance criterion to at least one checkpoint. Mark technical assumptions and risks explicitly. Self-review for missing requirements, false parallelism, overlapping write sets, unsupported commands, and micro-slicing.
 
-Plan-based work requires a kickoff commit containing the imported source, specification, and initial plan before production implementation. Stop after planning when this phase was explicitly requested.
+Plan-based work uses a kickoff or recovery-boundary commit when explicit policy, recovery, a material contract, or an auditable approval boundary requires it. Otherwise, keep intended artifacts uncommitted until the first coherent boundary. Stop after planning when this phase was explicitly requested.
 ```
 
 **Owned references:** live-plan schema, checkpoint template, execution topology, plan self-review, compaction recovery.
@@ -550,7 +550,7 @@ Implement the active feature as the main-thread orchestrator and sole Git writer
 
 Use a Codex-managed worktree for scoped or designed feature work unless the user explicitly chooses the active checkout. Do not create, relocate, or remove worktrees yourself. Verify the environment can use the repository's existing dependencies and required shared resources before implementation.
 
-For plan-based work, confirm the kickoff commit exists. At resume or checkpoint entry, read the compact plan record or controlling work order first, then the exact checkpoint, anchored contract sections, relevant delta, and Git state. Reuse unchanged evidence instead of rereading whole specifications or canonical documents.
+For plan-based work, confirm the required kickoff or recovery boundary exists when the work's policy or risk calls for it. At resume or checkpoint entry, read the compact plan record or controlling work order first, then the exact checkpoint, anchored contract sections, relevant delta, and Git state. Reuse unchanged evidence instead of rereading whole specifications or canonical documents.
 
 Execute the checkpoint's dependency topology:
 
@@ -1291,7 +1291,7 @@ Prioritize these before writing all final content:
 
 ### 11.5 Acceptance mapping
 
-Maintain a machine-readable or Markdown matrix mapping all 64 specification acceptance criteria to:
+Maintain a machine-readable or Markdown matrix mapping all 69 specification acceptance criteria to:
 
 - implementing checkpoint;
 - static test, behavior eval, or manual proof;
@@ -1599,7 +1599,7 @@ feat: add repository setup and agent-team management
 
 **Outcome**
 
-Plumbline can take a rough idea or external handoff, settle only necessary product decisions, create one authoritative transient specification and one live checkpoint plan, and preserve them through a mandatory kickoff commit and simulated compaction.
+Plumbline can take a rough idea or external handoff, settle only necessary product decisions, create one authoritative transient specification and one live checkpoint plan, and preserve them through the appropriate recovery boundary and simulated compaction.
 
 **Dependencies**
 
@@ -1637,7 +1637,7 @@ The main thread integrates terminology and ensures no duplicated policy.
 - Batch adjacent evidence-only, packaging, receipt, or documentation work unless it has an independent acceptance, rollback, risk, contract, or ownership boundary.
 - Record dependencies, shared ownership, parallel groups, runtime protection, verification, canonical impact, and UAT surface.
 - Map all acceptance criteria to checkpoints.
-- Require the kickoff commit before production implementation.
+- Require a kickoff or recovery-boundary commit only when policy, recovery, a material contract, or an auditable approval boundary needs it.
 - Update plan state and `last_verified_commit` as checkpoints progress.
 - Implement recovery instructions that read the compact plan resume record first, reuse unchanged evidence, and use only source/spec/plan/Git state after a fresh session.
 - Do not include full implementation code or two-minute task sequences in plans.
@@ -1651,7 +1651,7 @@ The main thread integrates terminology and ensures no duplicated policy.
 - A plan with 15 micro-checkpoints fails self-review and is consolidated.
 - Hidden shared contract prevents false parallelization.
 - Fresh session resumes the current checkpoint.
-- Source/spec/plan are committed before code.
+- Source/spec/plan remain uncommitted until the first coherent boundary when no kickoff policy applies.
 
 **Validation**
 
@@ -1954,7 +1954,7 @@ CP-07 complete and QA verdict acceptable.
 
 **Specification acceptance covered**
 
-All 64 acceptance criteria.
+All 69 acceptance criteria.
 
 **Completion criterion**
 
@@ -2032,7 +2032,7 @@ Plumbline v1 is complete only when all of the following are true:
 - The local router produces proportional automatic guidance and is easy to delete.
 - Direct work remains light.
 - Imported designs enter at the latest safe phase.
-- Plan-based work creates durable source/spec/plan artifacts and a kickoff commit.
+- Plan-based work creates durable source/spec/plan artifacts and uses a kickoff or recovery-boundary commit when warranted.
 - Plans remain live and resumable through checkpoint updates.
 - Execute enforces sole Git writer and disjoint parallel ownership.
 - Runtime testing is value-based rather than universal.
@@ -2044,7 +2044,7 @@ Plumbline v1 is complete only when all of the following are true:
 - Conflict detection is reversible and approval-based.
 - Offboarding uses the local router as the single kill switch and preserves useful assets.
 - No predecessor bloat or universal bootstrap has reappeared.
-- All 64 specification acceptance criteria have current evidence.
+- All 69 specification acceptance criteria have current evidence.
 - The user has completed the release UAT and explicitly accepted the plugin.
 
 ---
@@ -2083,11 +2083,11 @@ Start with CP-00 only:
 - inspect the empty/new repository and current Codex environment;
 - copy the spec and plan into tracked transient docs;
 - pin source provenance;
-- create the kickoff commit;
+- create the kickoff or recovery-boundary commit when the selected policy or risk requires it;
 - update the live plan state;
 - stop and report the exact baseline and any actual platform contradiction.
 
-Do not begin plugin implementation before the kickoff commit. Do not reopen product decisions unless current Codex capabilities make the approved behavior infeasible.
+Do not begin plugin implementation before the required kickoff or recovery boundary. Do not reopen product decisions unless current Codex capabilities make the approved behavior infeasible.
 ```
 
 ---

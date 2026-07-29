@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.2 - 2026-07-29
+
+- Add fingerprint-based resume guidance so unchanged execution reuses prior evidence.
+- Lazy-load detailed delegation doctrine while retaining one-line role/model/reasoning telemetry and worker boundaries.
+- Add compact checkpoint cards, conditional kickoff commits, evidence-path reuse, and an explicit Execute/Closeout boundary.
+- Add a ceremony budget so artifacts and announcements must serve recovery, validation, authorization, or ownership.
+
 ## 0.1.1 — 2026-07-26
 
 - Adopt complete work orders without replaying settled planning.

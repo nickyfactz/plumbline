@@ -59,6 +59,15 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 37. Closeout selects light or full mode proportionally without skipping required UAT, documentation, or explicit transient cleanup boundaries.
 38. Router dry-run previews an existing stale copy without writing and reports when `--replace` is required.
 
+39. An unchanged resume fingerprint reuses the compact record and checkpoint evidence without rereading agent TOMLs, broad plan bodies, or delegation doctrine.
+40. The first actual delegation loads the detailed orchestration reference, reports role names with model slugs and reasoning, states the report-only/no-write-set/no-child boundary, and inspects Git once after the wave.
+41. Direct work with no delegation need does not emit routine lifecycle, Direct, or delegation doctrine ceremony.
+42. A compact checkpoint card is sufficient for ordinary work; material security, schema, rollback, public-contract, ownership, or irreversible boundaries receive expanded detail.
+43. A kickoff commit is required only for an explicit policy, recovery need, material contract, or auditable boundary; otherwise planning artifacts may remain uncommitted until a coherent recovery boundary.
+44. Execute reaches Ready for Acceptance without deleting transient artifacts; accepted Closeout handles integration, retirement, and cleanup.
+45. A supporting construction-policy skill may constrain implementation choices but does not add lifecycle ownership, checkpoints, or competing acceptance gates.
+46. An accepted equivalent evidence path is reused before slice-specific packaging or receipt machinery is introduced.
+
 ## User UAT
 
 1. Add the GitHub marketplace and install Plumbline from `/plugins`.
