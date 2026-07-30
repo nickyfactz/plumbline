@@ -287,6 +287,10 @@ def validate_marketplace(errors: list[str]) -> None:
         error(errors, "missing repo marketplace")
         return
     data = json.loads(path.read_text(encoding="utf-8"))
+    if data.get("name") != "plumbline":
+        error(errors, "repo marketplace name must be plumbline")
+    if data.get("interface", {}).get("displayName") != "Plumbline":
+        error(errors, "repo marketplace displayName must be Plumbline")
     entries = [entry for entry in data.get("plugins", []) if entry.get("name") == "plumbline"]
     if len(entries) != 1:
         error(errors, "marketplace must contain one Plumbline entry")
@@ -313,8 +317,8 @@ def validate_claude_marketplace(errors: list[str]) -> None:
     except json.JSONDecodeError as exc:
         error(errors, f".claude-plugin/marketplace.json: invalid JSON: {exc}")
         return
-    if data.get("name") != "plumbline-development":
-        error(errors, "Claude marketplace name must be plumbline-development")
+    if data.get("name") != "plumbline":
+        error(errors, "Claude marketplace name must be plumbline")
     if not isinstance(data.get("owner"), dict) or not data.get("owner", {}).get("name"):
         error(errors, "Claude marketplace owner.name is required")
     entries = [entry for entry in data.get("plugins", []) if entry.get("name") == "plumbline"]
@@ -483,8 +487,8 @@ def main() -> int:
     print(f"Plumbline validation passed: {ROOT}")
     print(f"- skills: {len(EXPECTED_SKILLS)} ({len(PUBLIC)} public, {len(ENGINES)} internal engines)")
     print(f"- references: {len(REFERENCES)}")
-    print("- marketplace: root plugin path ./")
-    print("- Claude marketplace: plumbline-development; public skills only")
+    print("- Codex marketplace: plumbline; root plugin path ./")
+    print("- Claude marketplace: plumbline; public skills only")
     print("- scope: static configuration/workflow intent; not effective child-permission enforcement")
     return 0
 

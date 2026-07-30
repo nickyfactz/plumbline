@@ -26,4 +26,4 @@ Shape may offer an explicitly approved throwaway prototype when a behavioral que
 
 ## Platform evidence
 
-The root marketplace path was tested with Codex CLI 0.144.0 in an isolated `CODEX_HOME`: `codex plugin marketplace add E:\Plumbline --json` returned marketplace `plumbline-development`, and `codex plugin list` discovered `plumbline@plumbline-development` at the repository root. Browser enable/disable and a real fresh-task routing session remain part of user UAT.
+The root marketplace path was tested with Codex CLI 0.144.0 in an isolated `CODEX_HOME`: `codex plugin marketplace add E:\Plumbline --json` returned marketplace `plumbline`, and `codex plugin list` discovered `plumbline@plumbline` at the repository root. Browser enable/disable and a real fresh-task routing session remain part of user UAT.

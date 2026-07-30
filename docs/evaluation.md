@@ -13,7 +13,7 @@ It checks the manifest, root marketplace, 18 skill manifests, public/engine invo
 ## Platform smoke checks
 
 - Root repo marketplace: passed with Codex CLI 0.144.0 and isolated `CODEX_HOME`.
-- `codex plugin list`: discovered `plumbline@plumbline-development` at the repo root.
+- `codex plugin list`: discovered `plumbline@plumbline` at the repo root.
 - Plugin browser install/enable/disable: requires an interactive Codex app or `/plugins` session and is listed in the UAT below.
 
 ## Behavioral scenarios

@@ -203,7 +203,7 @@ plumbline/
 │   └── plugin.json
 ├── .agents/
 │   └── plugins/
-│       └── marketplace.json          # development marketplace only
+│       └── marketplace.json          # repo marketplace
 ├── assets/
 │   ├── icon-small.svg
 │   ├── icon-large.png
@@ -1420,7 +1420,7 @@ These packages have disjoint write sets. The main thread owns `plugin.json`, mar
 **Implementation requirements**
 
 - Create `.codex-plugin/plugin.json` with name `plumbline`, version `0.1.0`, `skills: "./skills/"`, polished interface metadata, and no hooks/apps/MCP declarations.
-- Create the local development marketplace using current official schema.
+- Create the local repo marketplace using current official schema.
 - Create skill directories and minimal placeholder frontmatter only for discovery testing. Do not fill them with boilerplate doctrine yet.
 - Add `agents/openai.yaml` only where invocation policy or user-facing metadata is needed.
 - Create original iconography and validate paths.
@@ -1923,7 +1923,7 @@ CP-07 complete and QA verdict acceptable.
 - Document conflict detection and reversible settings.
 - Finalize `CHANGELOG.md`, semantic version, license, notices, repository fields, and publisher metadata inferred from the actual project.
 - Capture clean screenshots for the plugin browser and initialization proposal.
-- Install the plugin from the development marketplace into a clean Codex environment.
+- Install the plugin from the repo marketplace into a clean Codex environment.
 - Test enable, disable, update, and remove flows.
 - Run the final 64-criterion acceptance matrix.
 - Produce a concise user UAT script.

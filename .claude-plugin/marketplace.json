@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
-  "name": "plumbline-development",
+  "name": "plumbline",
   "description": "Repository-local, proportional engineering workflows for Claude Code.",
   "owner": {
     "name": "Plumbline contributors",

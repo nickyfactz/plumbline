@@ -1,28 +1,40 @@
 # Plumbline
 
-Plumbline is a Codex-native engineering workflow plugin for keeping product intent, implementation, verification, and canonical repository documentation aligned without forcing heavyweight process onto small changes.
+Plumbline is a skills-only engineering workflow plugin for Codex and Claude Code. It keeps product intent, implementation, verification, and canonical repository documentation aligned without forcing heavyweight process onto small changes.
 
 It is a skills-only plugin: no MCP server, connector, session-start hook, global installer, issue-tracker integration, or plugin-owned Git worktree system.
 
-## Install from GitHub
+## Install for Codex
+
+Codex has a direct CLI path and a plugin-browser path. Both use the checked-in repo marketplace at `.agents/plugins/marketplace.json`.
+
+### Direct CLI install from GitHub
 
 ```bash
-codex plugin marketplace add nickyfactz/plumbline --ref main
+codex plugin marketplace add nickyfactz/plumbline@main
+codex plugin add plumbline@plumbline
+```
+
+Start a new Codex session after installation. The first command registers the GitHub marketplace; the second installs the `plumbline` plugin from it.
+
+### Plugin browser
+
+```bash
+codex plugin marketplace add nickyfactz/plumbline@main
 codex
 /plugins
 ```
 
-Choose the `plumbline-development` marketplace, install `Plumbline`, then start a new Codex session. The same marketplace can be added in the Codex desktop app or IDE plugin browser. The repo marketplace is intentionally checked in at `.agents/plugins/marketplace.json`, so a GitHub checkout is the only source a user needs.
+Select the `plumbline` marketplace, install `Plumbline`, and start a new Codex session. The browser path is available in Codex CLI and the Codex desktop app.
 
-For a local checkout:
+### Local checkout
 
 ```bash
 codex plugin marketplace add .
-codex
-/plugins
+codex plugin add plumbline@plumbline
 ```
 
-The current Codex CLI was verified to discover the root plugin from this repo marketplace with `source.path: "./"`.
+The root plugin is intentionally addressed by the marketplace with `source.path: "./"`, so no nested package or copy step is required.
 
 ## Install for Claude Code
 
@@ -30,14 +42,14 @@ Claude Code uses the same platform-neutral `SKILL.md` workflows through the Clau
 
 ```bash
 claude plugin marketplace add nickyfactz/plumbline@main
-claude plugin install plumbline@plumbline-development
+claude plugin install plumbline@plumbline
 ```
 
 For a local checkout while developing:
 
 ```bash
 claude plugin marketplace add .
-claude plugin install plumbline@plumbline-development
+claude plugin install plumbline@plumbline
 ```
 
 Reload the current Claude Code session with `/reload-plugins`. The explicit entry skills are available as `/plumbline:plumbline`, `/plumbline:plumbline-shape`, `/plumbline:plumbline-spec`, `/plumbline:plumbline-plan`, `/plumbline:plumbline-execute`, `/plumbline:plumbline-diagnose`, `/plumbline:plumbline-review`, `/plumbline:plumbline-closeout`, `/plumbline:plumbline-agent-team`, `/plumbline:plumbline-init`, and `/plumbline:plumbline-offboard`. The plugin exposes only these public entry skills; internal phase engines remain package-local guidance so they do not add menu or automatic-invocation noise.

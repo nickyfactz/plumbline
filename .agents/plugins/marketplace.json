@@ -1,7 +1,7 @@
 {
-  "name": "plumbline-development",
+  "name": "plumbline",
   "interface": {
-    "displayName": "Plumbline Development"
+    "displayName": "Plumbline"
   },
   "plugins": [
     {
