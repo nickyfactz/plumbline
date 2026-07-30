@@ -108,6 +108,11 @@ CONTRACT_MARKERS = {
         "construction-policy",
         "ready for acceptance",
         "recovery, validation, authorization, or ownership",
+        "artifact sufficiency preflight",
+        "user-supplied or repository-local",
+        "companion plan",
+        "exactly one current checkpoint",
+        "timestamped sample",
     ),
     "plumbline-plan-engine": (
         "evidence-only",
@@ -115,6 +120,18 @@ CONTRACT_MARKERS = {
         "do not split a coherent outcome",
         "compact checkpoint card",
         "kickoff or recovery-boundary commit",
+        "planning is artifact-agnostic",
+        "external plan or work order",
+        "competing candidates",
+        "current checkpoint",
+    ),
+    "plumbline-spec-engine": (
+        "controlling product specification",
+        "sufficiency",
+        "external",
+        "do not require",
+        "competing",
+        "blocking product questions",
     ),
     "plumbline-review-engine": (
         "qa-auditor",
@@ -147,6 +164,9 @@ CONTRACT_MARKERS = {
         "execute owns implementation",
         "ready for acceptance",
         "transient cleanup",
+        "acceptance-led",
+        "does not require an active",
+        "acceptance blocker",
     ),
     "plumbline": (
         "one lifecycle owner",
@@ -158,6 +178,11 @@ CONTRACT_MARKERS = {
         "compact resume record",
         "controlling work order",
         "contract-complete work",
+        "convention mode",
+        "artifact sufficiency check",
+        "controlling artifact set",
+        "not a prerequisite",
+        "explicitly invoked phase side door",
     ),
 }
 WRAPPERS = {

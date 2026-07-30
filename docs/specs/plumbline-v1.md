@@ -218,7 +218,7 @@ A feature is the complete product outcome. Frontend, backend, schema, persistenc
 
 ### P-6. Durable active artifacts; clean final repository
 
-Specifications and plans are tracked and authoritative during implementation, then removed after accepted closeout. Canonical docs retain the resulting truth.
+Specifications and plans are tracked and authoritative during implementation, then become eligible for removal after accepted closeout. They may be retained as decision records when useful; canonical docs retain current-state truth. User-supplied external artifacts may serve as the controlling specification or plan without being rewritten into Plumbline's format.
 
 ### P-7. Main-thread orchestration
 
@@ -310,6 +310,8 @@ One-off use must not:
 ### 9.3 Initialized repository
 
 After explicit `$plumbline-init` and user approval, the local router may automatically classify ordinary repository prompts and enter the appropriate phase.
+
+Convention mode remains available without initialization: explicit phase skills can adopt sufficient external artifacts or ordinary repository conventions and continue on the main thread. Initialized mode adds automatic routing and an optional project-local agent team; it is not a prerequisite for phase work.
 
 Automatic behavior remains proportional:
 
@@ -1920,15 +1922,19 @@ Implementation must retain applicable license notices and attribution for any te
 61. Ordinary direct work does not load unrelated phase skills.
 62. The local router remains small and contains no full workflow doctrine.
 63. Phase bodies use progressive disclosure and avoid duplicated rules.
-64. An unchanged resume fingerprint reuses checkpoint evidence without rereading agent configuration, broad plan bodies, or delegation doctrine.
-65. The first actual delegation loads detailed orchestration guidance and retains one compact role/model/reasoning/boundary report; direct work does not load it.
-66. Ordinary checkpoints use compact cards, while material boundaries receive expanded evidence.
-67. Execute reaches Ready for Acceptance before Closeout handles acceptance, integration, and transient cleanup.
-68. Accepted equivalent evidence paths are reused before slice-specific machinery is introduced.
-69. Supporting construction-policy skills do not add lifecycle ownership, checkpoints, or competing acceptance gates.
 64. No custom installer duplicates plugin skills into global skill folders.
 65. No session hook activates Plumbline.
 66. The README explains installed-only, one-off, initialized, and offboarding modes in user-facing language.
+67. An unchanged resume fingerprint reuses checkpoint evidence without rereading agent configuration, broad plan bodies, or delegation doctrine.
+68. The first actual delegation loads detailed orchestration guidance and retains one compact role/model/reasoning/boundary report; direct work does not load it.
+69. Ordinary checkpoints use compact cards, while material boundaries use expanded evidence.
+70. Execute reaches Ready for Acceptance before Closeout handles acceptance, integration, and transient cleanup.
+71. Accepted equivalent evidence paths are reused before slice-specific machinery is introduced.
+72. Supporting construction-policy skills do not add lifecycle ownership, checkpoints, or competing acceptance gates.
+73. An explicit phase side door works in convention mode without initialization, a local router, or a project agent team.
+74. A sufficient external specification, plan, handoff, or work order is adopted without requiring Plumbline frontmatter, generated paths, or a companion artifact.
+75. A task selects one controlling artifact set; unrelated artifacts do not block it and competing candidates produce an ambiguity report.
+76. Only an Acceptance blocker prevents advancement; residual risk, operational follow-up, and future enhancement remain visible without reopening the lifecycle.
 
 ---
 

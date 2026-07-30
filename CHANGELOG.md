@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3 - 2026-07-29
+
+- Support convention-mode phase work without initialization or generated Plumbline artifacts.
+- Adopt sufficient external specifications, plans, handoffs, and work orders without duplicate lifecycle files.
+- Add conditional artifact-sufficiency preflight, ambiguity reporting, plan-state checks, open-item classifications, and timestamped rolling-evidence guidance.
+
 ## 0.1.2 - 2026-07-29
 
 - Add fingerprint-based resume guidance so unchanged execution reuses prior evidence.

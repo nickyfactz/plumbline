@@ -536,7 +536,7 @@ Plan-based work uses a kickoff or recovery-boundary commit when explicit policy,
 
 ```yaml
 name: plumbline-execute
-description: Implement one active Plumbline feature plan through durable checkpoints, bounded subagents, targeted verification, and Ready for Acceptance.
+description: Implement one controlling feature plan or sufficient external work order through durable checkpoints, bounded subagents, targeted verification, and Ready for Acceptance.
 ```
 
 **Invocation policy:** explicit or router-selected.
@@ -1291,7 +1291,7 @@ Prioritize these before writing all final content:
 
 ### 11.5 Acceptance mapping
 
-Maintain a machine-readable or Markdown matrix mapping all 69 specification acceptance criteria to:
+Maintain a machine-readable or Markdown matrix mapping all 76 specification acceptance criteria to:
 
 - implementing checkpoint;
 - static test, behavior eval, or manual proof;
@@ -1303,7 +1303,7 @@ Do not mark Plumbline v1 complete while an acceptance criterion lacks evidence o
 ---
 ## 12. Execution topology and Git policy for building Plumbline
 
-Treat Plumbline v1 as one feature with one specification and one live plan.
+Treat a Plumbline-managed feature as one controlling artifact set with one live plan when planning materially improves execution. Sufficient external specifications, plans, and work orders may be adopted without duplicate artifacts.
 
 The main thread owns:
 
@@ -1954,7 +1954,7 @@ CP-07 complete and QA verdict acceptable.
 
 **Specification acceptance covered**
 
-All 69 acceptance criteria.
+All 76 acceptance criteria.
 
 **Completion criterion**
 
@@ -2044,7 +2044,7 @@ Plumbline v1 is complete only when all of the following are true:
 - Conflict detection is reversible and approval-based.
 - Offboarding uses the local router as the single kill switch and preserves useful assets.
 - No predecessor bloat or universal bootstrap has reappeared.
-- All 69 specification acceptance criteria have current evidence.
+- All 76 specification acceptance criteria have current evidence.
 - The user has completed the release UAT and explicitly accepted the plugin.
 
 ---

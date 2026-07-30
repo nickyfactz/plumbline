@@ -7,6 +7,10 @@ description: Internal Plumbline engine. Use only after the Plumbline router or a
 
 Closeout begins only when the user says the work is accepted or asks to integrate/clean up after a ready-for-acceptance audit. Execute owns implementation, focused/full proof, acceptance-required canonical documentation, and stable-delta review until Ready for Acceptance. Closeout does not redo first-time implementation proof; after acceptance it owns integration, transient cleanup, plan retirement, worktree/branch handling, and publishing preparation.
 
+Closeout preflight is acceptance-led, not artifact-led. An external work order, specification, plan, implementation, or explicit user acceptance is sufficient to identify the work. This does not require an active Plumbline specification or plan, and does not create one merely to make closeout conform. Report only a missing acceptance signal, competing artifact set, or destructive cleanup decision that actually blocks the requested closeout.
+
+Classify remaining open items before closeout. Only an Acceptance blocker prevents Ready for Acceptance; Residual risk, Operational follow-up, and Future enhancement remain visible without forcing a new planning cycle.
+
 First choose the smallest closeout mode that preserves the required proof:
 
 - Light closeout for bounded direct work, documentation/process changes, or already-documented work with no transient specification/plan cleanup. Read the current status/diff, focused validation, acceptance signal, documentation impact, and residual risk.

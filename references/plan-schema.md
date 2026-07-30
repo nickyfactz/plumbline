@@ -18,7 +18,7 @@ ready_for_acceptance: false
 ---
 ```
 
-Use one feature and one plan. Each checkpoint should use a compact card by default:
+For a Plumbline-managed feature, keep one controlling feature and one plan. A sufficient external plan or work order may serve that role without being rewritten into Plumbline's schema. Each checkpoint should use a compact card by default:
 
 ```markdown
 ## CP-01: <Meaningful outcome>
@@ -36,3 +36,13 @@ The frontmatter fields current_checkpoint, checkpoint_status, lifecycle_owner, l
 Treat checkout/worktree identity, HEAD/last_verified_commit, the plan-record hash, .codex/config.toml hash, and selected role-TOML hashes as the resume fingerprint. Treat last_verified_commit and checkpoint completion evidence as the baseline until that fingerprint or a material contract/evidence input changes. A task resume, compaction, or conversational reminder alone does not invalidate it. At the next checkpoint, inspect the current delta and referenced paths first. Reuse unchanged evidence instead of rereading whole documents or rerunning broad checks. Reassess when the fingerprint changes, a new or failed check matters, a contract boundary changes, a defect appears, or the prior evidence may be stale.
 
 Every plan artifact or status announcement must support recovery, validation, authorization, or ownership. Omit ceremony that serves none of those purposes.
+
+Whenever the plan is written, verify that exactly one current checkpoint is named, its frontmatter status matches the checkpoint, and next_safe_action points to that checkpoint. Do not leave a later checkpoint active while an earlier checkpoint is unresolved unless the plan explicitly records the dependency and current owner.
+
+## Artifact adoption and open items
+
+Do not require this frontmatter or checkpoint format for an external artifact that already provides sufficient scope, boundaries, proof, and next action. If a companion plan improves recovery, recommend it; do not block execution solely because it is absent.
+
+Label unresolved items as Acceptance blocker, Residual risk, Operational follow-up, or Future enhancement. Only an Acceptance blocker prevents Ready for Acceptance. Preserve the other categories as explicit residual state rather than reopening planning to eliminate them.
+
+Rolling telemetry is sample evidence, not automatically durable truth. Record the observation date or generation/window and stable assertions separately from changing counts; do not rewrite acceptance merely because a live count moved.

@@ -41,7 +41,9 @@ $plumbline-agent-team
 $plumbline-offboard
 ```
 
-Invoke `$plumbline` in a new repository and the front door detects the missing project-local router, then hands off to `$plumbline-init`. Setup remains read-only until it presents one selectable proposal and receives approval. `$plumbline-init` can also be invoked directly. It creates the tiny `.agents/skills/plumbline-router/` skill only after approval. Delete that directory to stop automatic Plumbline routing. The plugin can also be disabled in the Codex plugin browser.
+Invoke `$plumbline` in a new repository and the front door offers the read-only setup proposal for an ordinary unclassified request. When the request includes a sufficient external specification, plan, handoff, or work order, it can instead adopt that artifact and continue in convention mode. Setup remains read-only until it presents one selectable proposal and receives approval. `$plumbline-init` can also be invoked directly. It creates the tiny `.agents/skills/plumbline-router/` skill only after approval. Delete that directory to stop automatic Plumbline routing. The plugin can also be disabled in the Codex plugin browser.
+
+Explicit phase skills also support convention mode in an uninitialized repository. A user-supplied specification, plan, handoff, or work order can be adopted without Plumbline frontmatter or generated paths; initialization and a project-local agent team are optional enhancements. Plumbline recommends companion artifacts when they improve recovery, but does not block a sufficient external artifact merely because its companion is absent.
 
 ### Project-local agent team
 

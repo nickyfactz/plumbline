@@ -68,6 +68,15 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 45. A supporting construction-policy skill may constrain implementation choices but does not add lifecycle ownership, checkpoints, or competing acceptance gates.
 46. An accepted equivalent evidence path is reused before slice-specific packaging or receipt machinery is introduced.
 
+47. An explicit phase skill accepts a sufficient external specification, plan, handoff, or work order in an uninitialized repository without requiring setup, Plumbline frontmatter, or generated paths.
+48. A sufficient external specification with no separate plan receives a companion-plan recommendation but does not block execution when it contains execution topology, the next safe slice, and acceptance proof.
+49. A sufficient external plan or work order can execute without a separate Plumbline specification; a material product ambiguity routes back to Shape.
+50. Unrelated specifications or plans do not block the current task; competing artifacts for the same task produce one compact ambiguity report.
+51. The front door offers setup for an ordinary unclassified request without a router but assesses a supplied sufficient artifact before making setup a prerequisite.
+52. Plan and Execute reject inconsistent current-checkpoint/frontmatter state before advancement, while retained external artifacts are not rewritten merely for format compliance.
+53. Rolling telemetry is recorded as timestamped sample evidence and does not force acceptance rewrites or evidence-only commits when stable assertions remain valid.
+54. Closeout uses explicit acceptance or integration as its gate and does not require a Plumbline-generated specification or plan.
+
 ## User UAT
 
 1. Add the GitHub marketplace and install Plumbline from `/plugins`.
