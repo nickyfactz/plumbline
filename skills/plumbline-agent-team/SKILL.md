@@ -1,6 +1,7 @@
 ---
 name: plumbline-agent-team
 description: Initialize, audit, retune, or extend a repository-adapted Codex agent team without global installation.
+disable-model-invocation: true
 ---
 
 # Agent Team

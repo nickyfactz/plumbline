@@ -1,6 +1,7 @@
 ---
 name: plumbline
 description: Enter Plumbline at the latest safe phase from an idea, design, plan, implementation, bug, review request, accepted feature, or an uninitialized repository that needs guarded setup.
+disable-model-invocation: true
 ---
 
 # Plumbline
@@ -9,7 +10,7 @@ You are the explicit front door. Inspect the user's request, supplied artifacts,
 
 First distinguish setup from phase work:
 
-- If the user explicitly asks for initialization or setup, hand off to $plumbline-init. It remains read-only until the user approves its proposal.
+- If the user explicitly asks for initialization or setup, hand off to the explicit `plumbline-init` skill. In Codex this is `$plumbline-init`; in Claude Code it is `/plumbline:plumbline-init`. It remains read-only until the user approves its proposal.
 - An explicitly invoked phase side door may run without a project-local router or agent team. Use convention mode: honor supplied artifacts and ordinary repository conventions, and keep execution on the main thread when no local role exists.
 - If the front door is invoked in a repository without the project-local Plumbline router, offer setup for an ordinary unclassified request. If the request supplies a sufficient external specification, plan, handoff, or work order, assess that artifact set first and continue at the appropriate phase; setup is optional, not a prerequisite for the artifact-backed work.
 
@@ -40,7 +41,7 @@ Choose exactly one:
 - Review when implementation exists and an independent assessment is requested;
 - Closeout when accepted work needs reconciliation or integration.
 
-Honor existing artifacts regardless of which workflow produced them. Ask only questions whose answers would change product behavior, scope, experience, privacy, security, destructive handling, cost, compatibility, or another hard-to-reverse choice. At phase entry or resume, state one lifecycle owner: `Plumbline <phase>` or the explicitly selected competing controller. Installed or enabled skills alone are available capabilities, not active ownership. If another explicitly selected orchestration loop owns checkpoint selection, plan advancement, review sequencing, or closeout, do not stack a second lifecycle controller; use Plumbline only for the selected phase contract. Supporting skills may research, implement, or review, but may not advance the plan or closeout. When Plumbline owns the lifecycle, state the selected phase in one sentence, do direct work directly, and otherwise invoke exactly one matching internal engine. Do not initialize an already-installed repository or create automatic routing from the front door.
+Honor existing artifacts regardless of which workflow produced them. Ask only questions whose answers would change product behavior, scope, experience, privacy, security, destructive handling, cost, compatibility, or another hard-to-reverse choice. At phase entry or resume, state one lifecycle owner: `Plumbline <phase>` or the explicitly selected competing controller. Installed or enabled skills alone are available capabilities, not active ownership. If another explicitly selected orchestration loop owns checkpoint selection, plan advancement, review sequencing, or closeout, do not stack a second lifecycle controller; use Plumbline only for the selected phase contract. Supporting skills may research, implement, or review, but may not advance the plan or closeout. When Plumbline owns the lifecycle, state the selected phase in one sentence, do direct work directly, and otherwise use exactly one matching internal engine. If the host cannot dispatch a nested skill, read that engine's sibling `SKILL.md` from the installed plugin and follow it directly. Do not initialize an already-installed repository or create automatic routing from the front door.
 
 At first entry or resume, resolve the currently loaded Plumbline installation root once from this front door's path (`<plugin-root>/skills/plumbline/SKILL.md`), read `<plugin-root>/.codex-plugin/plugin.json` once for its version, and reuse both for the phase. Treat every `references/<file>` path as relative to that root. Never persist or chase absolute versioned cache paths in repository artifacts; if a resumed root is gone, resolve the current installation once and continue. Use an active plan's compact resume record when one exists; otherwise use the controlling external artifact and current Git state. Do not repeat routing, doctrine, lifecycle, or artifact preflight narration on an unchanged resume.
 

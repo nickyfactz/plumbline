@@ -1,6 +1,7 @@
 ---
 name: plumbline-init
 description: Initialize or reassess Plumbline for a repository through a read-only audit and one approved setup proposal.
+disable-model-invocation: true
 ---
 
 # Initialize Plumbline

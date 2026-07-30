@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "plumbline-development",
+  "description": "Repository-local, proportional engineering workflows for Claude Code.",
+  "owner": {
+    "name": "Plumbline contributors",
+    "url": "https://github.com/nickyfactz"
+  },
+  "plugins": [
+    {
+      "name": "plumbline",
+      "source": "./",
+      "description": "Proportional, evidence-driven engineering workflows for Claude Code.",
+      "homepage": "https://github.com/nickyfactz/plumbline",
+      "repository": "https://github.com/nickyfactz/plumbline",
+      "license": "MIT",
+      "category": "development",
+      "skills": [
+        "./skills/plumbline",
+        "./skills/plumbline-init",
+        "./skills/plumbline-shape",
+        "./skills/plumbline-spec",
+        "./skills/plumbline-plan",
+        "./skills/plumbline-execute",
+        "./skills/plumbline-diagnose",
+        "./skills/plumbline-review",
+        "./skills/plumbline-closeout",
+        "./skills/plumbline-agent-team",
+        "./skills/plumbline-offboard"
+      ],
+      "tags": [
+        "engineering-workflow",
+        "planning",
+        "research",
+        "review",
+        "repository-alignment"
+      ]
+    }
+  ]
+}

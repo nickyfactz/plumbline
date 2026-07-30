@@ -24,6 +24,32 @@ codex
 
 The current Codex CLI was verified to discover the root plugin from this repo marketplace with `source.path: "./"`.
 
+## Install for Claude Code
+
+Claude Code uses the same platform-neutral `SKILL.md` workflows through the Claude plugin manifest and marketplace at `.claude-plugin/`. From GitHub:
+
+```bash
+claude plugin marketplace add nickyfactz/plumbline@main
+claude plugin install plumbline@plumbline-development
+```
+
+For a local checkout while developing:
+
+```bash
+claude plugin marketplace add .
+claude plugin install plumbline@plumbline-development
+```
+
+Reload the current Claude Code session with `/reload-plugins`. The explicit entry skills are available as `/plumbline:plumbline`, `/plumbline:plumbline-shape`, `/plumbline:plumbline-spec`, `/plumbline:plumbline-plan`, `/plumbline:plumbline-execute`, `/plumbline:plumbline-diagnose`, `/plumbline:plumbline-review`, `/plumbline:plumbline-closeout`, `/plumbline:plumbline-agent-team`, `/plumbline:plumbline-init`, and `/plumbline:plumbline-offboard`. The plugin exposes only these public entry skills; internal phase engines remain package-local guidance so they do not add menu or automatic-invocation noise.
+
+Validate before sharing or installing:
+
+```bash
+claude plugin validate .
+```
+
+Claude Code uses the repository's Git credentials for a private GitHub marketplace. The plugin adds no Claude hooks, agents, MCP servers, project settings, or global files. Codex-specific `agents/openai.yaml` metadata remains alongside the shared skills and is ignored by Claude Code.
+
 ## How it behaves
 
 Installation is inert. It does not inspect or modify a project. Use an explicit side door for one task:
@@ -71,6 +97,7 @@ The installer commands are explicit proposal/apply helpers. Run `--dry-run --for
 
 - `.codex-plugin/plugin.json` — plugin manifest.
 - `.agents/plugins/marketplace.json` — repo marketplace for GitHub/local installation.
+- `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` — Claude Code plugin and marketplace manifests.
 - `skills/` — explicit public skills plus narrow internal routing engines.
 - `references/` — progressive-disclosure workflow policy.
 - `templates/router/` — the stable repository-local activation shim.

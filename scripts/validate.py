@@ -259,6 +259,28 @@ def validate_manifest(errors: list[str]) -> None:
             error(errors, f"manifest asset missing: {key}")
 
 
+def validate_claude_manifest(errors: list[str]) -> None:
+    path = ROOT / ".claude-plugin" / "plugin.json"
+    if not path.is_file():
+        error(errors, "missing .claude-plugin/plugin.json")
+        return
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        error(errors, f".claude-plugin/plugin.json: invalid JSON: {exc}")
+        return
+    for key in ("name", "description", "version", "author", "skills"):
+        if key not in data:
+            error(errors, f"Claude plugin manifest missing {key}")
+    if data.get("name") != "plumbline" or not SEMVER.fullmatch(data.get("version", "")):
+        error(errors, "Claude plugin manifest name/version is invalid")
+    if not isinstance(data.get("author"), dict) or not data.get("author", {}).get("name"):
+        error(errors, "Claude plugin manifest author.name is required")
+    expected = [f"./skills/{name}" for name in sorted(PUBLIC)]
+    if sorted(data.get("skills", [])) != expected:
+        error(errors, "Claude plugin manifest must expose only the public Plumbline skills")
+
+
 def validate_marketplace(errors: list[str]) -> None:
     path = ROOT / ".agents" / "plugins" / "marketplace.json"
     if not path.is_file():
@@ -281,6 +303,36 @@ def validate_marketplace(errors: list[str]) -> None:
         error(errors, "marketplace root does not contain the plugin manifest")
 
 
+def validate_claude_marketplace(errors: list[str]) -> None:
+    path = ROOT / ".claude-plugin" / "marketplace.json"
+    if not path.is_file():
+        error(errors, "missing Claude marketplace")
+        return
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        error(errors, f".claude-plugin/marketplace.json: invalid JSON: {exc}")
+        return
+    if data.get("name") != "plumbline-development":
+        error(errors, "Claude marketplace name must be plumbline-development")
+    if not isinstance(data.get("owner"), dict) or not data.get("owner", {}).get("name"):
+        error(errors, "Claude marketplace owner.name is required")
+    entries = [entry for entry in data.get("plugins", []) if entry.get("name") == "plumbline"]
+    if len(entries) != 1:
+        error(errors, "Claude marketplace must contain one Plumbline entry")
+        return
+    entry = entries[0]
+    if entry.get("source") != "./":
+        error(errors, "Claude marketplace root plugin source must be ./")
+    if entry.get("category") != "development":
+        error(errors, "Claude marketplace category must be development")
+    expected = [f"./skills/{name}" for name in sorted(PUBLIC)]
+    if sorted(entry.get("skills", [])) != expected:
+        error(errors, "Claude marketplace must expose only the public Plumbline skills")
+    if not (ROOT / ".claude-plugin" / "plugin.json").is_file():
+        error(errors, "Claude marketplace root does not contain the plugin manifest")
+
+
 def validate_skills(errors: list[str]) -> None:
     skills_root = ROOT / "skills"
     actual = {path.name for path in skills_root.iterdir() if path.is_dir()}
@@ -299,6 +351,8 @@ def validate_skills(errors: list[str]) -> None:
         text = skill_path.read_text(encoding="utf-8")
         if "[TODO:" in text or "session-start" in text.lower() or "using-superpowers" in text.lower():
             error(errors, f"{name}: contains forbidden placeholder/bootstrap text")
+        if name in PUBLIC and "disable-model-invocation: true" not in text:
+            error(errors, f"{name}: public entry skills must remain explicit-only for Claude Code")
         policy = policy_path.read_text(encoding="utf-8")
         expected = "false" if name in EXPLICIT else "true"
         if f"allow_implicit_invocation: {expected}" not in policy:
@@ -415,7 +469,9 @@ def validate_scripts(errors: list[str]) -> None:
 def main() -> int:
     errors: list[str] = []
     validate_manifest(errors)
+    validate_claude_manifest(errors)
     validate_marketplace(errors)
+    validate_claude_marketplace(errors)
     validate_skills(errors)
     validate_references_and_templates(errors)
     validate_scripts(errors)
@@ -428,6 +484,7 @@ def main() -> int:
     print(f"- skills: {len(EXPECTED_SKILLS)} ({len(PUBLIC)} public, {len(ENGINES)} internal engines)")
     print(f"- references: {len(REFERENCES)}")
     print("- marketplace: root plugin path ./")
+    print("- Claude marketplace: plumbline-development; public skills only")
     print("- scope: static configuration/workflow intent; not effective child-permission enforcement")
     return 0
 

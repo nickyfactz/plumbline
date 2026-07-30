@@ -1,6 +1,7 @@
 ---
 name: plumbline-offboard
 description: Explain Plumbline's repository-local footprint and optionally remove selected activation files.
+disable-model-invocation: true
 ---
 
 # Offboard Plumbline

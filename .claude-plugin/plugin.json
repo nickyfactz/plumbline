@@ -1,0 +1,32 @@
+{
+  "name": "plumbline",
+  "description": "Proportional, evidence-driven engineering workflows for Claude Code.",
+  "version": "0.1.4",
+  "homepage": "https://github.com/nickyfactz/plumbline",
+  "repository": "https://github.com/nickyfactz/plumbline",
+  "author": {
+    "name": "Plumbline contributors",
+    "url": "https://github.com/nickyfactz"
+  },
+  "license": "MIT",
+  "keywords": [
+    "engineering-workflow",
+    "planning",
+    "research",
+    "review",
+    "repository-alignment"
+  ],
+  "skills": [
+    "./skills/plumbline",
+    "./skills/plumbline-init",
+    "./skills/plumbline-shape",
+    "./skills/plumbline-spec",
+    "./skills/plumbline-plan",
+    "./skills/plumbline-execute",
+    "./skills/plumbline-diagnose",
+    "./skills/plumbline-review",
+    "./skills/plumbline-closeout",
+    "./skills/plumbline-agent-team",
+    "./skills/plumbline-offboard"
+  ]
+}
