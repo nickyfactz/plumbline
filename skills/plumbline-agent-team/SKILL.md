@@ -14,6 +14,12 @@ Project-local `.codex/agents/*.toml` and `.codex/config.toml` are the only agent
 
 Set or verify project-local `features.multi_agent = true`, an approved `agents.max_threads`, and `agents.max_depth = 1`. A depth of one lets the main thread use direct workers while preventing worker-created children. Every worker instruction must say it cannot spawn children, own Git, or edit the active spec/plan. Give each worker only the exact read paths and anchored sections needed for its brief; do not pass full history or whole documentation trees when unchanged artifacts answer the question. Report-only roles (researcher, architect, and QA) receive no write set. Their `sandbox_mode = "read-only"` is intent; a writable parent is normal for a goal and may affect the effective sandbox. State the boundary when observable and inspect returned diffs; only the approved implementer receives a write set.
 
+## Starting model recommendation
+
+During setup, recommend a role-aware starting profile aimed at the cheapest effective model and reasoning effort for each function: lower-cost settings for bounded research and mechanical work, and higher settings only when the task has material architecture, persistence, concurrency, security, ownership, or acceptance risk. Use the host's available model candidates and the user's project evidence; do not hard-code a model slug or reasoning policy into Plumbline.
+
+Label the proposal as a recommended starting point, not a permanent team policy. Model and reasoning values are adjustable and hotswappable by explicit user choice or later evidence. If the installer applies one common pair to several roles, say that it is a reproducible baseline rather than claiming it is optimal for every role. Audit and retune preserve tuned values unless the user explicitly approves a change. Evaluate cheaper settings by accepted first-pass work and remediation cost, not nominal price alone.
+
 ## Operations
 
 - **Initialize:** create only approved missing roles from the five archetypes in `templates/agents/`, plus exact local config, AGENTS guidance, ignore, and worktree propagation changes. Generate AGENTS role bullets from the selected roles. When propagation is approved, include the root `.gitignore` patch and `.worktreeinclude` in the same proposal. Existing roles require an explicit initialize replacement approval before `--replace`.
@@ -21,7 +27,7 @@ Set or verify project-local `features.multi_agent = true`, an approved `agents.m
 - **Retune:** preserve every existing role field, including `model`, `model_reasoning_effort`, sandbox, permissions, MCP, custom fields, and `developer_instructions`. Use `--fill-missing` only to add absent required fields; it never overwrites a present value. Use `--update-instructions` only when the approved proposal explicitly changes the instruction field.
 - **Add:** add one specialist only for a demonstrated need; do not create a role for every technical layer.
 
-Before approval, show one role-by-role table with `name`, purpose, model slug, reasoning effort, sandbox, and write access. The recommended template uses the current approved model/reasoning explicitly in every TOML. Do not invent slugs or silently downgrade a user's choice. Apply nothing before approval.
+Before approval, show one role-by-role table with `name`, purpose, model slug, reasoning effort, sandbox, and write access. Mark the model and reasoning values as the recommended starting profile and explain that the user can adjust or hot-swap them later. The template writes explicit values for reproducible local setup, but those values are not immutable Plumbline policy. Do not invent slugs or silently downgrade a user's choice. Apply nothing before approval.
 
 Before asking for approval, run the candidate `install_agent_team.py` command with `--dry-run --format json` and include its exact file/operation/field manifest in the proposal. The dry run is read-only and does not approve or apply changes.
 

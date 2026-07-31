@@ -62,6 +62,7 @@ def main() -> None:
         assert "writable parent" in guidance
         assert "one lifecycle owner" in guidance
         assert "explicitly selected competing controller" in guidance
+        assert "cheapest effective setting" in guidance
         included = (root / ".worktreeinclude").read_text(encoding="utf-8")
         assert ".codex/agents/*.toml" in included
         ignored = (root / ".gitignore").read_text(encoding="utf-8")

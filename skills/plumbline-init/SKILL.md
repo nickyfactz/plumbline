@@ -32,7 +32,7 @@ Present one reviewable proposal and wait for explicit approval before writing an
 
 `role | why it is needed | model slug | reasoning effort | sandbox | write access`
 
-Use the current project/main model when available; otherwise show the global model only as a candidate to approve. Do not invent a model slug. The approved model and reasoning values become explicit fields in every generated TOML, rather than an implicit global fallback. Recommend `max_depth = 1`, `multi_agent = true`, and a small approved `max_threads` (six is the template default). Explain that workers never spawn children.
+Use the current project/main model when available; otherwise show the global model only as a candidate to approve. Do not invent a model slug. Treat the table as a recommended, role-aware starting profile aimed at the cheapest effective model and reasoning effort: lower-cost settings for bounded research or mechanical work, higher settings only for material architecture, persistence, concurrency, security, ownership, or acceptance risk. These values are adjustable and hotswappable after setup; if one model/reasoning pair is applied to several roles, describe it as a reproducible baseline rather than permanent Plumbline policy. The approved values become explicit fields in every generated TOML for reproducibility, not an immutable optimization rule. Recommend `max_depth = 1`, `multi_agent = true`, and a small approved `max_threads` (six is the template default). Explain that workers never spawn children.
 
 The same proposal must name every selected change:
 
