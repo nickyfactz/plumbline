@@ -7,7 +7,7 @@ Plumbline supports two operating tiers without a mode flag. Convention mode uses
 | Class | Use when | Default handling |
 | --- | --- | --- |
 | Direct | Small, clear, low-risk maintenance such as a typo, one config value, or a local docs correction; or a supplied work order whose scope, proof, owner, and closeout are already complete | Work in place; do not recreate Plumbline artifacts or ceremony unless evidence exposes a missing product decision or phase boundary |
-| Scoped | A clear product outcome crosses a few files or needs isolated implementation | Use a short specification/plan and a Codex-managed worktree when available |
+| Scoped | A clear product outcome crosses a few files or needs isolated implementation | Use a short specification/plan and a host-managed worktree when available |
 | Designed | Product ambiguity, durable contracts, migrations, privacy/security, compatibility, or broad seams matter | Shape or adopt a design, then recommend or create the smallest useful spec/plan set |
 | Diagnose | A defect, regression, failure, or performance problem is the outcome | Build the smallest red-capable signal and find the root cause |
 | Review | The user wants an independent correctness/completeness audit | Report only; do not mutate the work |

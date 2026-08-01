@@ -1,6 +1,6 @@
 # Product autonomy
 
-The user owns product intent. Codex owns ordinary engineering judgment.
+The user owns product intent. The active host's main thread owns ordinary engineering judgment.
 
 Ask a question only when different answers materially change product behavior or scope, user experience, privacy/security posture, destructive data handling, compatibility expectations, material cost, or another hard-to-reverse product consequence. Do not ask the user to choose module boundaries, function signatures, adapters, schema normalization, test seams, model names, or file locations when repository evidence can settle them.
 

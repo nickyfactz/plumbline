@@ -12,7 +12,7 @@ Plumbline is a lighter replacement, not a renamed copy. Do not run both as autom
 | systematic debugging | replaced by `plumbline-diagnose` |
 | parallel-agent and subagent-driven skills | folded into `plumbline-execute` and orchestration reference |
 | code-review and verification gates | replaced by `plumbline-review` and checkpoint evidence |
-| custom worktree workflow | removed; use Codex-managed worktrees |
+| custom worktree workflow | removed; use host-managed worktrees when available |
 | finishing branch workflow | replaced by `plumbline-closeout` |
 | global agent installers | removed; optional project-owned templates live under `templates/agents/` |
 

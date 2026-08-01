@@ -453,7 +453,14 @@ def validate_references_and_templates(errors: list[str]) -> None:
 
 
 def validate_scripts(errors: list[str]) -> None:
-    for name in ("validate.py", "install_router.py", "install_agent_team.py", "test_install_agent_team.py"):
+    for name in (
+        "validate.py",
+        "install_router.py",
+        "install_agent_team.py",
+        "test_install_agent_team.py",
+        "install_claude_agent_team.py",
+        "test_install_claude_agent_team.py",
+    ):
         path = ROOT / "scripts" / name
         try:
             source = path.read_text(encoding="utf-8")
@@ -462,6 +469,10 @@ def validate_scripts(errors: list[str]) -> None:
                 for marker in ("MODES = (\"initialize\", \"audit\", \"retune\")", "class InstallReport", "ROLE_DESCRIPTIONS", "def _retune", "def _audit_router", "def _audit_agents_guidance", "update_instructions", "dry_run", "output_format", "Delegated wave:", "model slugs", "reasoning efforts"):
                     if marker not in source:
                         error(errors, f"scripts/{name}: missing preservation marker {marker}")
+            elif name == "install_claude_agent_team.py":
+                for marker in ("AGENT_ROOT", "ROLE_TOOLS", "permissionMode", "def _retune", "dry_run", "claude_settings_modified", "experimental_agent_teams_enabled"):
+                    if marker not in source:
+                        error(errors, f"scripts/{name}: missing Claude adapter marker {marker}")
             elif name == "install_router.py":
                 for marker in ("dry_run", "output_format", "router template", "requires_replace"):
                     if marker not in source:
@@ -488,7 +499,7 @@ def main() -> int:
     print(f"- skills: {len(EXPECTED_SKILLS)} ({len(PUBLIC)} public, {len(ENGINES)} internal engines)")
     print(f"- references: {len(REFERENCES)}")
     print("- Codex marketplace: plumbline; root plugin path ./")
-    print("- Claude marketplace: plumbline; public skills only")
+    print("- Claude marketplace: plumbline; public skills plus project-local agent adapter")
     print("- scope: static configuration/workflow intent; not effective child-permission enforcement")
     return 0
 

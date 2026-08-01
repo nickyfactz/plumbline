@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.8 - 2026-08-01
+
+- Add a Claude Code project-local agent-team adapter using shared role instructions and native Markdown subagent fields.
+- Preserve Claude model, effort, permission, custom fields, and instructions during audit/retune; never edit global Claude settings or enable experimental Agent Teams.
+- Document the Codex multi-agent compatibility setting and its role in dispatching explicit Luna-based project agents.
+
 ## 0.1.7 - 2026-08-01
 
 - Make approved multi-checkpoint Execute runs complete the plan serially by default, while preserving explicit checkpoint-by-checkpoint control.

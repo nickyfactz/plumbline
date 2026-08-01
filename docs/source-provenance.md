@@ -29,3 +29,12 @@ Checked 2026-07-11:
 - [Plugins](https://developers.openai.com/codex/plugins)
 - [Customization and skills](https://developers.openai.com/codex/concepts/customization)
 - [Subagents](https://developers.openai.com/codex/agent-configuration/subagents)
+
+## Official Claude Code documentation checked
+
+Checked 2026-08-01:
+
+- [Create custom subagents](https://code.claude.com/docs/en/sub-agents)
+- [Orchestrate teams of Claude Code sessions](https://code.claude.com/docs/en/agent-teams)
+- [Create plugins](https://code.claude.com/docs/en/plugins)
+- [Plugins reference](https://code.claude.com/docs/en/plugins-reference)

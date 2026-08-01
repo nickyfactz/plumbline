@@ -112,14 +112,17 @@ Initialization is project-local and explicit. The proposal shows a dry-run manif
 
 | Approved item | What is created or updated |
 | --- | --- |
-| Project `.codex/config.toml` | Adds or verifies `features.multi_agent = true`, an approved `agents.max_threads` cap (the starting template uses `6`), and `agents.max_depth = 1`. A different existing value is shown for approval and is not silently overwritten. |
+| Project `.codex/config.toml` (Codex) | Adds or verifies `features.multi_agent = true`, an approved `agents.max_threads` cap (the starting template uses `6`), and `agents.max_depth = 1`. This keeps the project-local collaboration tools available to the main Codex parent when it dispatches an explicit role, including a role using `gpt-5.6-luna` when Luna is not shown on the standard v2 model choice card. The `features.multi_agent` setting keeps collaboration available; the selected role's explicit `model` field is what selects Luna. This is a delegation-capability setting, not a requirement to use Luna or any particular model. A different existing value is shown for approval and is not silently overwritten. |
 | Selected `.codex/agents/*.toml` | Creates only the roles you select. Each role has explicit `name`, `description`, `developer_instructions`, `model`, `model_reasoning_effort`, and `sandbox_mode` fields. Researcher, architect, and QA templates are report-only with `read-only` intent; the implementer is the only write-capable role. |
+| Selected `.claude/agents/*.md` (Claude Code) | Creates the same role contracts as Claude-native Markdown subagents. Each role records `model`, `effort`, `tools`, and `permissionMode`; report-only roles use restricted read tools and `plan` intent, while the implementer receives write-capable tools. The default model is `inherit`, so no Codex slug or provider is hard-coded. |
 | `AGENTS.md` | When approved, adds a `## Local agent team` section listing only the selected roles. It explains that the main thread owns product decisions, plans, integration, and Git; workers receive bounded briefs; report-only roles get no write set; workers never spawn children; and global agents are never fallbacks. |
 | `.git/info/exclude` | Adds local-only ignore entries for `.codex/` and the project-local Plumbline router. This keeps generated setup out of the checkout without changing the repository’s tracked files. |
 | `.agents/skills/plumbline-router/SKILL.md` | Creates the small repository-local router only if you approve automatic routing. It is the only automatic Plumbline activation boundary; it does not initialize teams, invoke internal engines, or create workers. |
 | `.gitignore` and `.worktreeinclude` | Only when you approve propagation. The root ignore file receives the exact local setup entries, while `.worktreeinclude` lists the config, selected role files, and router for future managed worktrees. Commit the manifest for new worktrees to receive those ignored files; existing worktrees need an explicit refresh. |
 
-The global Codex `config.toml` may be inspected to identify a host model candidate for the proposal, but Plumbline does not edit global config, install global agents, or use personal/global agent files as fallbacks. Model and reasoning choices are recommended starting points that you can adjust or hot-swap later; they are written explicitly to the local role files only so the setup is reproducible.
+The global Codex `config.toml` may be inspected to identify a host model candidate for the proposal, but Plumbline does not edit global config, install global agents, or use personal/global agent files as fallbacks. Claude Code has no equivalent Plumbline project `config.toml`: its project subagents are discovered from `.claude/agents/`, and Plumbline does not edit `~/.claude/settings.json` or enable `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`. Model and reasoning/effort choices are recommended starting points that you can adjust or hot-swap later; the host adapter writes them explicitly only to the local role files so the setup is reproducible.
+
+The role instructions are shared across hosts; only the small configuration adapter changes format. Codex uses TOML model/reasoning fields, while Claude Code uses Markdown `model`/`effort`/tool/permission fields. Claude's native Agent Teams feature is separate and experimental; Plumbline's one-level team uses bounded project subagents instead.
 
 ### Initialized versus uninitialized
 
@@ -197,7 +200,7 @@ When a project-local team is enabled, Plumbline recommends a role-aware starting
 - Workers do not spawn children; `agents.max_depth = 1` is the recommended boundary.
 - If no suitable local role exists, Plumbline reports `Direct: <reason>` and continues on the main thread rather than using a global fallback.
 
-Each delegation wave reports the selected role names with configured model slugs and reasoning efforts in one compact line. This keeps delegation visible without turning every worker response into a ceremony.
+Each delegation wave reports the selected role names with the host-native model and reasoning/effort values in one compact line. Codex shows model slugs and reasoning efforts; Claude Code shows its model and effort values. This keeps delegation visible without turning every worker response into a ceremony.
 
 ### Keep orchestration explicit
 
@@ -246,6 +249,7 @@ The sections below are for contributors, maintainers, and users who need to insp
 python scripts/validate.py
 python scripts/install_router.py --root <target-repository> --dry-run --format json
 python scripts/install_agent_team.py --root <target-repository> --mode initialize --model <approved-slug> --reasoning-effort <approved-effort> --update-agents
+python scripts/install_claude_agent_team.py --root <target-repository> --dry-run --format json
 ```
 
 The installer commands are explicit proposal/apply helpers. Run `--dry-run --format json` while preparing a proposal and again after approval to preview every file, operation, and changed field without writing.
@@ -271,7 +275,7 @@ The validation script uses only the Python standard library. GitHub Actions runs
 - `references/` - progressive-disclosure workflow policy.
 - `templates/router/` - the repository-local activation shim.
 - `templates/agents/` - project-owned role, config, and worktree templates.
-- `scripts/` - validation and explicit router/agent-team installation helpers.
+- `scripts/` - validation and explicit router/agent-team installation helpers for Codex and Claude Code.
 - `docs/` and `evals/` - design authority, migration guidance, and behavioral checks.
 
 The approved specification and implementation plan are [docs/specs/plumbline-v1.md](docs/specs/plumbline-v1.md) and [docs/plans/plumbline-v1.md](docs/plans/plumbline-v1.md). They remain available until explicit release acceptance.

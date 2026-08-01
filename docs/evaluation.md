@@ -6,9 +6,11 @@ Run:
 
 ```bash
 python scripts/validate.py
+python scripts/test_install_agent_team.py
+python scripts/test_install_claude_agent_team.py
 ```
 
-It checks the manifest, root marketplace, 18 skill manifests, public/engine invocation policies, reference set, router word budget, project-agent template fields, local multi-agent defaults, worktree patterns, and helper-script syntax. These are static configuration/workflow-intent checks; they do not prove effective permissions in a spawned session. The installer smoke test also proves that an approved setup creates local config, selected roles, AGENTS guidance, ignore rules, and the propagation manifest without touching global files; its dry-run JSON path proves the same manifest without writes. Router and AGENTS drift audits are report-only and never overwrite customized integration files.
+It checks the manifests, both marketplaces, 18 skill manifests, public/engine invocation policies, reference set, router word budget, project-agent template fields, local multi-agent defaults, worktree patterns, and helper-script syntax. These are static configuration/workflow-intent checks; they do not prove effective permissions in a spawned session. The Codex and Claude installer smoke tests prove that approved setup creates host-local roles, guidance, ignore rules, and propagation manifests without touching global files; their dry-run paths prove the same manifests without writes. Router and AGENTS drift audits are report-only and never overwrite customized integration files.
 
 ## Platform smoke checks
 
@@ -45,7 +47,7 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 23. A resume after relevant source drift invalidates only affected evidence and reassesses it before advancement.
 24. A stale repository-local router or AGENTS guidance section is reported with a proposed refresh and no automatic overwrite.
 25. An explicitly selected competing orchestration loop is named as lifecycle owner; Plumbline does not stack or advance it.
-26. A delegation wave reports role names, model slugs, reasoning efforts, and the report-only/no-write-set/no-child boundary in one compact line.
+26. A delegation wave reports role names, host-native model and reasoning/effort values, and the report-only/no-write-set/no-child boundary in one compact line.
 27. Phase entry resolves the current installed Plumbline root once; reference paths resolve from that root and no absolute versioned cache path is persisted.
 28. The active plan's compact resume record is updated together when checkpoint status, owner, verified commit, or next action changes.
 29. An unchanged resume emits a compact transition and skips repeated routing, doctrine, lifecycle, and broad-document narration.
@@ -60,7 +62,7 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 38. Router dry-run previews an existing stale copy without writing and reports when `--replace` is required.
 
 39. An unchanged resume fingerprint reuses the compact record and checkpoint evidence without rereading agent TOMLs, broad plan bodies, or delegation doctrine.
-40. The first actual delegation loads the detailed orchestration reference, reports role names with model slugs and reasoning, states the report-only/no-write-set/no-child boundary, and inspects Git once after the wave.
+40. The first actual delegation loads the detailed orchestration reference, reports role names with host-native model and reasoning/effort values, states the report-only/no-write-set/no-child boundary, and inspects Git once after the wave.
 41. Direct work with no delegation need does not emit routine lifecycle, Direct, or delegation doctrine ceremony.
 42. A compact checkpoint card is sufficient for ordinary work; material security, schema, rollback, public-contract, ownership, or irreversible boundaries receive expanded detail.
 43. A kickoff commit is required only for an explicit policy, recovery need, material contract, or auditable boundary; otherwise planning artifacts may remain uncommitted until a coherent recovery boundary.
@@ -80,6 +82,8 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 56. Explicit checkpoint-by-checkpoint wording pauses after the requested checkpoint and does not imply the default behavior.
 57. An architect's in-scope product-question label is resolved by the main thread from the approved plan and a safe reversible default without automatically reopening Shape.
 58. A named destructive or user-approval gate still pauses only at that gate while preserving the active plan.
+59. Claude setup creates project-local `.claude/agents/*.md` roles with host-native model, effort, tools, and permission fields, without creating `.claude/settings.json` or enabling experimental Agent Teams.
+60. Claude report-only roles omit the `Agent` tool, carry a `plan` permission intent, and preserve custom model, effort, frontmatter, and instructions during audit/retune.
 
 ## User UAT
 
@@ -99,3 +103,5 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 14. Provide a complete work order with a ready checkpoint and confirm `$plumbline` resumes execution without recreating the settled plan.
 15. During Shape, present a material state or UI uncertainty and confirm Plumbline offers a prototype only after explaining its transient boundary and waiting for approval.
 16. Run `scripts/install_router.py --dry-run --format json` against an older local router and confirm it reports `modify`, preserves the file, and marks `requires_replace`.
+17. In a Claude Code fixture, run `/plumbline:plumbline-init`, review the host-native role table and dry-run manifest, approve the project-local team, and confirm only `.claude/agents/*.md`, approved guidance, ignore rules, and optional propagation are created.
+18. In the Claude fixture, confirm report-only roles cannot invoke `Agent`, Claude global settings remain unchanged, and `/reload-plugins` or a new session loads the updated plugin.

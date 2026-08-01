@@ -15,7 +15,7 @@ ready_for_acceptance: false
 **Plan version:** 1.0  
 **Date:** 2026-07-11  
 **Governing specification:** `plumbline-design-spec-approved.md`  
-**Target:** A new standalone, Codex-native Plumbline plugin repository  
+**Target:** A new standalone, Codex- and Claude-Code-native Plumbline plugin repository
 **Feature boundary:** Deliver Plumbline v1 as one complete plugin, not as separate frontend/backend-style micro-projects  
 **Expected executor:** A fresh Codex task with repository write access, current official Codex documentation, and the ability to use bounded subagents
 
@@ -548,7 +548,7 @@ description: Implement one controlling feature plan or sufficient external work 
 
 Implement the active feature as the main-thread orchestrator and sole Git writer.
 
-Use a Codex-managed worktree for scoped or designed feature work unless the user explicitly chooses the active checkout. Do not create, relocate, or remove worktrees yourself. Verify the environment can use the repository's existing dependencies and required shared resources before implementation.
+Use the active host's managed worktree for scoped or designed feature work when available unless the user explicitly chooses the active checkout. Do not create, relocate, or remove worktrees yourself. Verify the environment can use the repository's existing dependencies and required shared resources before implementation.
 
 For plan-based work, confirm the required kickoff or recovery boundary exists when the work's policy or risk calls for it. At resume or checkpoint entry, read the compact plan record or controlling work order first, then the exact checkpoint, anchored contract sections, relevant delta, and Git state. Reuse unchanged evidence instead of rereading whole specifications or canonical documents.
 
@@ -688,7 +688,7 @@ Run a lightweight agent-drift check only when the feature changed a significant 
 
 ```yaml
 name: plumbline-agent-team
-description: Initialize, audit, retune, or extend an untracked project-local Codex agent team while preserving user-selected models and repository truth.
+description: Initialize, audit, retune, or extend an untracked project-local Plumbline agent team for Codex or Claude Code while preserving user-selected models and repository truth.
 ```
 
 **Invocation policy:** explicit only; callable as a selectable branch of Init.
@@ -702,19 +702,19 @@ Support four operations: initialize, audit, retune, and add a specialist.
 
 Begin read-only. Inspect project-local custom agents, project instructions, the documentation router, current technical surfaces, project multi-agent configuration, the global config for host capability/model evidence only, managed policy, and worktree propagation. Never select, copy, or inherit personal/global custom-agent files.
 
-Prefer project-local agents under `.codex/agents/`. Treat bundled archetypes as quality rubrics and generation scaffolds, not managed copies. Generated agents must combine:
+Prefer project-local agents under `.codex/agents/` for Codex or `.claude/agents/` for Claude Code. Treat bundled archetypes as quality rubrics and generation scaffolds, not managed copies. Generated agents must combine:
 
 - stable role discipline from Plumbline
 - repository vocabulary, real technical surfaces, and canonical-document pointers
-- user-controlled model, reasoning, sandbox, and tool choices
+- user-controlled host-native model, reasoning/effort, permission/sandbox, and tool choices
 
-Every proposed role must show its model slug, reasoning effort, sandbox, and write access before approval. The approved values are explicit in the generated TOML. The project-local config must enable `features.multi_agent`, set an approved `agents.max_threads`, and keep `agents.max_depth = 1`; workers never spawn children.
+Every proposed role must show its host-native model value, reasoning/effort, permission/sandbox intent, and write access before approval. The approved values are explicit in the generated local role file. Codex project config must enable `features.multi_agent`, set an approved `agents.max_threads`, and keep `agents.max_depth = 1`; Claude uses Markdown subagents with restricted tools and no `Agent` tool. Workers never spawn children.
 
 Do not embed mutable ownership maps, target architecture, or copied canonical documents in agent prompts.
 
 When auditing existing agents, evaluate role selection, overlap, stale repository truth, Plumbline compatibility, operational configuration, context cost, and output quality. Preserve healthy custom behavior and all intentional model settings by default. Patch surgically; replace the instruction body only when old workflow rules and stale repository truth are too entangled to clean safely.
 
-Present one reviewable proposal before writing. Include `.codex/config.toml`, `AGENTS.md`, local ignore rules, role files, and managed-worktree propagation in that proposal. Configure local ignore rules and propagation only with approval. The installer has separate `initialize`, read-only `audit`, and preserving `retune` modes. Retune preserves present model, reasoning, sandbox, custom fields, and instructions unless `--fill-missing` or explicitly approved `--update-instructions` is selected; report exact changed fields and do not require `--replace`. Change `.codex/config.toml` only through the approved local installer when a concrete incompatible value exists, such as disabled multi-agent support or zero spawn depth. If no local role is available after setup, state `Direct` rather than selecting a personal/global fallback.
+Present one reviewable proposal before writing. Include the host-local config where applicable, `AGENTS.md`, local ignore rules, role files, and managed-worktree propagation in that proposal. Configure local ignore rules and propagation only with approval. The host installers have separate `initialize`, read-only `audit`, and preserving `retune` modes. Retune preserves present model, reasoning/effort, permission/sandbox, custom fields, and instructions unless `--fill-missing` or explicitly approved `--update-instructions` is selected; report exact changed fields and do not require `--replace`. Change Codex `.codex/config.toml` only through the approved local installer when a concrete incompatible value exists. Claude setup does not edit global settings or enable experimental Agent Teams. If no local role is available after setup, state `Direct` rather than selecting a personal/global fallback.
 
 After applying changes, parse every TOML and run one bounded read-only smoke test proving role discovery and configuration without modifying repository files.
 ```
@@ -1223,7 +1223,7 @@ Create a small development-only validation harness that checks:
 - skill descriptions and bodies stay within agreed context budgets or document justified exceptions;
 - agent archetype TOMLs parse after filling test placeholders;
 - manifest icon paths exist;
-- no template contains real credentials, personal paths, or stale AiriAI-specific architecture;
+- no template contains real credentials, personal paths, or stale project-specific architecture;
 - `THIRD_PARTY_NOTICES.md` contains both upstream attributions;
 - transient example artifacts are not presented as canonical docs.
 
@@ -1394,11 +1394,11 @@ docs: establish Plumbline v1 specification and plan
 
 ---
 
-### CP-01 — Build the Codex-native plugin shell and validation foundation
+### CP-01 — Build the host-native plugin shell and validation foundation
 
 **Outcome**
 
-Plumbline appears as a polished but behaviorally minimal plugin in a local Codex marketplace. The package follows current official structure, can be installed/enabled/disabled, and has a small automated structural validation suite.
+Plumbline appears as a polished but behaviorally minimal plugin in local Codex and Claude Code marketplaces. Each package follows its host's official structure, can be installed/enabled/disabled, and has a small automated structural validation suite.
 
 **Dependencies**
 
@@ -1545,7 +1545,7 @@ CP-02 invocation model stable.
 **Parallel work packages after shared schema is stable**
 
 1. Draft the five agent archetypes in disjoint files.
-2. Build established-repository fixtures, including an AiriAI-like docs tree.
+2. Build established-repository fixtures, including a mature repository docs tree.
 3. Build new-project fixtures with no docs or agents.
 4. Build conflict fixtures with Superpowers and overlapping TDD/review skills.
 5. Draft offboarding and manual post-uninstall guidance.
@@ -1559,11 +1559,11 @@ CP-02 invocation model stable.
 - Present one individually selectable proposal and mutate nothing before approval.
 - Generate the local router under `.agents/skills/plumbline-router/`.
 - Prefer untracked local integration. Use `.git/info/exclude` for local-only agent files and router paths where appropriate.
-- Validate the `.worktreeinclude` propagation manifest for new managed worktrees; keep the copied config, role TOMLs, and router ignored/untracked, and explain that the manifest must be present in the starting commit and is not retroactive.
+- Validate the `.worktreeinclude` propagation manifest for new managed worktrees; keep the copied host-local config, role files, and router ignored/untracked, and explain that the manifest must be present in the starting commit and is not retroactive.
 - Implement `$plumbline-agent-team` initialize/audit/retune/add behavior.
-- Preserve existing model slugs, reasoning, sandbox, permissions, and healthy custom preferences by default.
-- Inspect `features.multi_agent`, `agents.max_depth`, and relevant managed-policy constraints. Offer exact approved patches only when needed.
-- Implement the five repository-adapted archetypes and bounded discovery smoke test.
+- Preserve existing host-native model, reasoning/effort, sandbox/permission, and healthy custom preferences by default.
+- Inspect applicable host capability settings (including Codex `features.multi_agent` and `agents.max_depth`) and relevant managed-policy constraints. Offer exact approved patches only when needed.
+- Implement the five repository-adapted archetypes and bounded discovery smoke test for each supported host adapter.
 - Detect global/project role overlap without selecting, copying, or deleting global/personal definitions.
 - Implement workflow conflict classification and reversible disable proposals.
 - Validate the current Codex format for disabling individual skills/plugins before offering patches.
@@ -1572,12 +1572,12 @@ CP-02 invocation model stable.
 **Validation**
 
 - Init invoked in a busy thread stops before inspection.
-- Established AiriAI-like docs are adopted, not reorganized.
+- Established repository docs are adopted, not reorganized.
 - New project setup asks product questions, then creates an appropriate baseline only after approval.
-- Existing agent model slugs survive audit unchanged.
+- Existing agent model and reasoning/effort values survive audit unchanged.
 - Stale architecture copied into an agent is detected and removed from the proposed body.
 - Disabled multi-agent config produces a precise proposal, not a silent edit.
-- Generated TOMLs parse and one agent responds under its intended role without modifying files.
+- Generated host-native role files validate and one agent responds under its intended role without modifying files.
 - Superpowers conflict is explained; no settings change before approval.
 - Offboarding removes or identifies only Plumbline-specific integration and preserves useful docs/agents/tooling.
 
@@ -1683,7 +1683,7 @@ feat: add shaping and durable feature planning
 
 **Outcome**
 
-Plumbline can execute one active feature plan through coherent checkpoints, safe parallel work packages, Codex-managed worktrees, targeted validation, live plan updates, and meaningful checkpoint commits.
+Plumbline can execute one active feature plan through coherent checkpoints, safe parallel work packages, host-managed worktrees when available, targeted validation, live plan updates, and meaningful checkpoint commits.
 
 **Dependencies**
 
@@ -1709,7 +1709,7 @@ The main thread owns the final orchestration flow and all Git-related instructio
 
 **Implementation requirements**
 
-- Default scoped/designed feature execution to Codex-managed worktrees.
+- Default scoped/designed feature execution to host-managed worktrees when available.
 - Keep direct work and small fixes eligible for the active checkout.
 - Never create or remove worktrees from Plumbline instructions.
 - Inspect repository-owned environment setup before recommending changes.
@@ -1849,7 +1849,7 @@ All functional skills implemented.
 2. Context and duplication audit.
 3. `superpowers-personal` migration map.
 4. Windows/worktree environment matrix.
-5. Agent-team audit against the supplied AiriAI-style TOMLs.
+5. Agent-team audit against supplied project-local role files.
 
 The main thread owns final skill wording, invocation descriptions, and any architecture adjustment caused by evidence.
 
@@ -2027,7 +2027,7 @@ During implementation:
 
 Plumbline v1 is complete only when all of the following are true:
 
-- The plugin installs through the current Codex plugin browser or configured marketplace.
+- The plugin installs through the current Codex or Claude Code marketplace surface.
 - Installation is inert in an uninitialized repository.
 - Explicit one-off and side-door skills work without initialization.
 - Explicit Init creates only approved local integration.
@@ -2042,7 +2042,7 @@ Plumbline v1 is complete only when all of the following are true:
 - QA is adversarial, report-only, and bounded.
 - UAT corrections reopen the plan and append corrective commits.
 - Closeout reconciles canonical docs, removes transient artifacts, and preserves history.
-- Agent Team can create or audit repository-adapted TOMLs while preserving model choices.
+- Agent Team can create or audit repository-adapted Codex TOMLs or Claude Markdown subagents while preserving host-native model choices.
 - Conflict detection is reversible and approval-based.
 - Offboarding uses the local router as the single kill switch and preserves useful assets.
 - No predecessor bloat or universal bootstrap has reappeared.

@@ -8,16 +8,16 @@ Record one owner in the active plan and report it only when ownership changes, a
 
 ## Selection and depth
 
-Use only a matching project-local definition under .codex/agents/ after checking project .codex/config.toml. The global config may explain host capability, but personal/global agent files are never selected or used as fallback. If no local role is available, keep the work on the main thread and report Direct: <reason>. At a delegation wave, state the selected role names, configured model slugs, and reasoning efforts in one compact line.
+Use only a matching project-local definition under `.codex/agents/` for Codex or `.claude/agents/` for Claude Code. Check `.codex/config.toml` for Codex capability settings; Claude project agents do not require a Plumbline project config. Global config may explain host capability or provide a model candidate, but personal/global agent files are never selected or used as fallback. If no local role is available, keep the work on the main thread and report `Direct: <reason>`. At a delegation wave, state the selected role names with the host-native model and reasoning/effort values in one compact line.
 
-Project agents.max_depth = 1 is the recommended ceiling. The main thread may create direct workers; workers must never create children, delegate further, or form a second agent hierarchy.
+For Codex, project `agents.max_depth = 1` is the recommended ceiling. Claude roles use the equivalent explicit instruction and omit the `Agent` tool. The main thread may create direct workers; workers must never create children, delegate further, or form a second agent hierarchy.
 
 ## Capability versus assignment
 
 A role has two separate boundaries:
 
 - Assignment: researcher, architect, and QA roles are report-only and receive no write set. A brief asking them to edit source, tests, scripts, documentation, or Git state is invalid and returns to the main thread.
-- Capability: sandbox_mode = read-only is the role's intent. The parent goal may remain writable; the host can apply the parent's live permission state to the child. Do not claim hard read-only isolation from the TOML alone.
+- Capability: Codex `sandbox_mode = read-only` and Claude `permissionMode: plan` are role intent. The parent goal may remain writable or permissive, and the host can apply that live state to the child. Do not claim hard read-only isolation from the role file alone.
 
 At each delegation wave, emit one compact line such as Delegated wave: researcher [model=<slug>, reasoning=<effort>] - Boundary: report-only; no write set; no child agents; include each selected role, configured values, and effective model/reasoning/sandbox values only when the host exposes a meaningful difference or the user asks. Add the report-only/no-write-set/no-child boundary to the wave report. Do not invent effective values. After a child returns, inspect Git status and the diff; unexpected edits are not silently integrated. Use Direct: delegation prohibited or effective read-only isolation unavailable when the task requires a hard read-only boundary that the host cannot provide.
 
