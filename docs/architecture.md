@@ -2,28 +2,81 @@
 
 ## Package boundary
 
-The repository root is the plugin root. `.codex-plugin/plugin.json` points at `./skills/`; `.agents/plugins/marketplace.json` exposes the root plugin for local or Git-backed marketplace installation. No runtime package is copied into user repositories.
+The repository root is the plugin root. Codex and Claude Code each have a
+native manifest and marketplace entry, while the shared workflow is expressed
+as Markdown skills and references. Plugin installation exposes those skills;
+it does not copy a runtime package into user repositories.
+
+The public surface contains the front door, phase wrappers, agent-team setup,
+and offboarding. Internal `*-engine` skills contain the detailed phase rules
+and are selected only by a wrapper or the repository-local router.
 
 ## Invocation boundary
 
-The public skills are explicit and have `allow_implicit_invocation: false` in `agents/openai.yaml`. Seven internal `*-engine` skills carry the phase bodies and allow model invocation only after the explicit wrapper or local router selects them. This keeps the public command surface stable while giving the router a narrow, model-invoked target.
+Public skills are explicit entry points. The front door classifies the task
+and selects the latest safe phase: direct work, Shape, Specification, Plan,
+Execute, Diagnose, Review, or Closeout. The phase wrappers keep the user-facing
+command surface stable and load an internal engine only when that phase is
+selected.
 
-`templates/router/SKILL.md` is the only repository-local automatic controller. It is not shipped into a target repository during plugin installation. `$plumbline-init` creates it only after approval; deleting its directory disables automatic routing.
+The only automatic controller Plumbline can install is the small,
+repository-local router at `.agents/skills/plumbline-router/SKILL.md`. It is
+created only after explicit initialization approval. Removing that directory
+stops automatic routing while leaving explicit skills available.
 
 ## Durable state
 
-Product intent lives in the active specification. Execution state lives in the active plan and Git history. Canonical repository docs describe the resulting current system. This separation lets a fresh task recover from files and Git without replaying the original conversation.
+Small work stays in conversation. Broad or multi-session work may use one
+approved repository-local shaping handoff, one active specification, and one
+live checkpoint plan. The plan's compact resume record holds the current
+checkpoint, status, lifecycle owner, last verified commit, and next safe action.
 
-The active plan frontmatter also carries one compact resume record: current checkpoint, checkpoint status, lifecycle owner, last verified commit, and next safe action. Plumbline resolves the currently loaded plugin root once per phase entry or resume; repository artifacts never store absolute versioned cache paths.
+Canonical repository documentation describes the current system. Transient
+specifications, plans, imported source, and handoffs are removed only through
+accepted Closeout. Plumbline does not treat a conversation transcript or a
+historical implementation plan as current product truth.
 
-A supplied work order is adopted when it already contains scope, non-goals, checkpoint, acceptance/proof, owner, and closeout boundaries. This lets Plumbline act as a thin safety rail for execution instead of replaying settled shaping or planning. Workers receive anchored, bounded briefs and reuse unchanged artifacts rather than inheriting or rereading full conversation and documentation history.
+## Agent-team boundary
 
-## Ownership
+Agent teams are optional and project-local:
 
-The main thread owns product decisions, active artifacts, integration, and Git. Agents are bounded researchers, architects, implementers, or report-only auditors. Report-only roles receive no write set; their `read-only` TOML is intent and may be affected by a writable parent session. Plumbline records the boundary when observable and inspects returned diffs instead of adding a permission daemon. Plumbline never owns a worktree registry or global agent installation.
+- Codex uses `.codex/config.toml` and selected `.codex/agents/*.toml` files.
+  The project config enables collaboration, caps threads, and recommends
+  `agents.max_depth = 1`.
+- Claude Code uses selected `.claude/agents/*.md` files with Claude-native
+  model, effort, tool, and permission fields. Plumbline does not edit global
+  Claude settings or enable the separate experimental Agent Teams feature.
 
-Shape may offer an explicitly approved throwaway prototype when a behavioral question is cheaper to answer with a small runnable probe. It is not a new phase or artifact class and is not automatically promoted into production.
+The shared role contracts keep researchers, architects, and QA report-only;
+only an approved implementer receives a bounded write set. Workers do not own
+Git, edit the active specification or plan, or spawn children. Codex
+`sandbox_mode = "read-only"` and Claude `permissionMode: plan` express intent,
+not guaranteed isolation from a writable parent session.
 
-## Platform evidence
+## Ownership and worktrees
 
-The root marketplace path was tested with Codex CLI 0.144.0 in an isolated `CODEX_HOME`: `codex plugin marketplace add E:\Plumbline --json` returned marketplace `plumbline`, and `codex plugin list` discovered `plumbline@plumbline` at the repository root. Browser enable/disable and a real fresh-task routing session remain part of user UAT.
+The main thread owns product decisions, active artifacts, integration, and
+Git. Plumbline uses the host's managed worktree or handoff mechanism when one
+exists, but it does not create, register, remove, or clean up worktrees.
+
+The project-local installer keeps role files and routers ignored and untracked
+unless the user chooses otherwise. An approved `.worktreeinclude` manifest can
+propagate small local setup files to future managed worktrees when the host and
+repository workflow support it; existing worktrees are not updated
+retroactively.
+
+## Validation boundary
+
+Static validation and installer smoke tests cover manifests, skill contracts,
+role-file generation, preservation behavior, and dry-run safety:
+
+```bash
+python scripts/validate.py
+python scripts/test_install_agent_team.py
+python scripts/test_install_claude_agent_team.py
+git diff --check
+```
+
+These checks prove repository and workflow intent. They do not claim to prove
+effective child permissions in every host session; that remains a bounded
+interactive UAT concern.

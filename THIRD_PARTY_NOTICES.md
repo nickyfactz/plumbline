@@ -1,10 +1,10 @@
 # Third-party notices
 
 Plumbline is an original implementation. Its workflow ideas were informed by
-the following MIT-licensed projects, pinned in [`docs/source-provenance.md`](docs/source-provenance.md):
+the following MIT-licensed projects at these reviewed commits:
 
-- Matt Pocock's [skills](https://github.com/mattpocock/skills), Copyright (c) 2026 Matt Pocock.
-- Jesse Vincent and Prime Radiant's [Superpowers](https://github.com/obra/superpowers), Copyright (c) 2025 Jesse Vincent.
+- Matt Pocock's [skills](https://github.com/mattpocock/skills) at `391a2701dd948f94f56a39f7533f8eea9a859c87`, Copyright (c) 2026 Matt Pocock.
+- Jesse Vincent and Prime Radiant's [Superpowers](https://github.com/obra/superpowers) at `d884ae04edebef577e82ff7c4e143debd0bbec99`, Copyright (c) 2025 Jesse Vincent.
 
 No source tree, installer, session hook, branding asset, or copied skill body
 from either project is shipped here. The notices below preserve the relevant

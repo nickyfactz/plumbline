@@ -276,9 +276,9 @@ The validation script uses only the Python standard library. GitHub Actions runs
 - `templates/router/` - the repository-local activation shim.
 - `templates/agents/` - project-owned role, config, and worktree templates.
 - `scripts/` - validation and explicit router/agent-team installation helpers for Codex and Claude Code.
-- `docs/` and `evals/` - design authority, migration guidance, and behavioral checks.
+- `docs/` and `evals/` - current architecture, contributor guidance, and behavioral checks.
 
-The approved specification and implementation plan are [docs/specs/plumbline-v1.md](docs/specs/plumbline-v1.md) and [docs/plans/plumbline-v1.md](docs/plans/plumbline-v1.md). They remain available until explicit release acceptance.
+The current implementation boundaries are summarized in [docs/architecture.md](docs/architecture.md); validation and UAT guidance is in [docs/evaluation.md](docs/evaluation.md).
 
 ### Scope boundary
 
