@@ -1,101 +1,229 @@
 # Plumbline
 
-Plumbline is a skills-only engineering workflow plugin for Codex and Claude Code. It keeps product intent, implementation, verification, and canonical repository documentation aligned without forcing heavyweight process onto small changes.
+Plumbline is a lightweight engineering workflow plugin for Codex and Claude Code. It helps an agent move from product intent to useful implementation, verification, and current documentation without forcing every task through a heavyweight process.
 
-It is a skills-only plugin: no MCP server, connector, session-start hook, global installer, issue-tracker integration, or plugin-owned Git worktree system.
+If you are trying Plumbline for the first time:
 
-## Install for Codex
+1. Install the plugin for your coding tool.
+2. Open the repository you want to work on and start a new session.
+3. Invoke the front door: `$plumbline` in Codex or `/plumbline:plumbline` in Claude Code.
+4. Give it the outcome you want and any specification, plan, handoff, or work order you already have.
 
-Codex has a direct CLI path and a plugin-browser path. Both use the checked-in repo marketplace at `.agents/plugins/marketplace.json`.
+The front door decides how much process the task needs. A small rename may stay direct. An ambiguous feature may go through Shape and research. A large change may use a specification, checkpoint plan, bounded workers, review, and closeout.
 
-### Direct CLI install from GitHub
+## Install
+
+Plumbline is distributed from this GitHub repository. Plugin installation makes the skills available to your tool; it does not modify the project you are working in.
+
+### Codex
+
+From the Codex CLI, add the GitHub marketplace and install the plugin:
 
 ```bash
 codex plugin marketplace add nickyfactz/plumbline@main
 codex plugin add plumbline@plumbline
 ```
 
-Start a new Codex session after installation. The first command registers the GitHub marketplace; the second installs the `plumbline` plugin from it.
+Start a new Codex session after installation. To use the plugin browser instead:
 
-### Plugin browser
-
-```bash
-codex plugin marketplace add nickyfactz/plumbline@main
+```text
 codex
 /plugins
 ```
 
-Select the `plumbline` marketplace, install `Plumbline`, and start a new Codex session. The browser path is available in Codex CLI and the Codex desktop app.
+Choose the `plumbline` marketplace and install `Plumbline`. The browser path is available in Codex CLI and the Codex desktop app.
 
-### Local checkout
+For a local checkout of this repository:
 
 ```bash
 codex plugin marketplace add .
 codex plugin add plumbline@plumbline
 ```
 
-The root plugin is intentionally addressed by the marketplace with `source.path: "./"`, so no nested package or copy step is required.
+### Claude Code
 
-## Install for Claude Code
-
-Claude Code uses the same platform-neutral `SKILL.md` workflows through the Claude plugin manifest and marketplace at `.claude-plugin/`. From GitHub:
+From Claude Code, add the GitHub marketplace and install the plugin:
 
 ```bash
 claude plugin marketplace add nickyfactz/plumbline@main
 claude plugin install plumbline@plumbline
 ```
 
-For a local checkout while developing:
+For a local checkout:
 
 ```bash
 claude plugin marketplace add .
 claude plugin install plumbline@plumbline
 ```
 
-Reload the current Claude Code session with `/reload-plugins`. The explicit entry skills are available as `/plumbline:plumbline`, `/plumbline:plumbline-shape`, `/plumbline:plumbline-spec`, `/plumbline:plumbline-plan`, `/plumbline:plumbline-execute`, `/plumbline:plumbline-diagnose`, `/plumbline:plumbline-review`, `/plumbline:plumbline-closeout`, `/plumbline:plumbline-agent-team`, `/plumbline:plumbline-init`, and `/plumbline:plumbline-offboard`. The plugin exposes only these public entry skills; internal phase engines remain package-local guidance so they do not add menu or automatic-invocation noise.
+Reload the current session with `/reload-plugins`, or start a new Claude Code session. Claude Code uses the same platform-neutral `SKILL.md` workflows; the Claude manifest and marketplace provide the installation surface.
 
-Validate before sharing or installing:
+## Your first project
 
-```bash
-claude plugin validate .
-```
+There are two separate decisions:
 
-Claude Code uses the repository's Git credentials for a private GitHub marketplace. The plugin adds no Claude hooks, agents, MCP servers, project settings, or global files. Codex-specific `agents/openai.yaml` metadata remains alongside the shared skills and is ignored by Claude Code.
+- **Install the plugin** so the skills are available.
+- **Initialize a repository** if you want project-local automatic routing, a local agent team, or both.
 
-## How it behaves
+Installation alone is inert. Plumbline never silently creates project files, global files, agents, hooks, worktrees, or trackers.
 
-Installation is inert. It does not inspect or modify a project. Use an explicit side door for one task:
+### Use an uninitialized repository
+
+You do not have to initialize a repository to use Plumbline. Invoke the front door and describe the work:
 
 ```text
-$plumbline
-$plumbline-shape
-$plumbline-spec
-$plumbline-plan
-$plumbline-execute
-$plumbline-diagnose
-$plumbline-review
-$plumbline-closeout
-$plumbline-agent-team
-$plumbline-offboard
+$plumbline I want to add import/export support for the project configuration.
 ```
 
-Invoke `$plumbline` in a new repository and the front door offers the read-only setup proposal for an ordinary unclassified request. When the request includes a sufficient external specification, plan, handoff, or work order, it can instead adopt that artifact and continue in convention mode. Setup remains read-only until it presents one selectable proposal and receives approval. `$plumbline-init` can also be invoked directly. It creates the tiny `.agents/skills/plumbline-router/` skill only after approval. Delete that directory to stop automatic Plumbline routing. The plugin can also be disabled in the Codex plugin browser.
+In an uninitialized repository, Plumbline works in convention mode:
 
-Explicit phase skills also support convention mode in an uninitialized repository. A user-supplied specification, plan, handoff, or work order can be adopted without Plumbline frontmatter or generated paths; initialization and a project-local agent team are optional enhancements. Plumbline recommends companion artifacts when they improve recovery, but does not block a sufficient external artifact merely because its companion is absent.
+- It reads the repository guidance and artifacts that matter to the request.
+- It can use an existing specification, plan, handoff, or work order from any source.
+- It may recommend a companion artifact when that would improve recovery, but it does not require Plumbline-generated files.
+- It continues on the main thread when no project-local worker is available.
+- It does not install a router or agent team unless you explicitly approve initialization.
 
-### Project-local agent team
+This is the right mode for a small change, an established project with its own process, or a task where you want to try Plumbline before changing repository configuration.
 
-`$plumbline-init` can include the complete agent-team setup in the same approval: a role-by-role table with the proposed model slug, reasoning effort, sandbox, and write access; project `.codex/config.toml` with `multi_agent = true` and `agents.max_depth = 1`; the Plumbline section in `AGENTS.md`; and local ignore/worktree propagation. When `--propagate` is approved, the installer patches `.gitignore`, `.git/info/exclude`, and `.worktreeinclude` with the exact local Plumbline paths. Preview the same change set with `--dry-run --format json` before applying it. The approved files under `.codex/` and the router stay untracked. A future managed worktree can receive them through an approved, committed `.worktreeinclude` manifest; existing worktrees are not retroactive.
+### Initialize a repository
 
-Plumbline checks the global config only for host capability and a model candidate. It never selects personal/global custom-agent files as a fallback. During setup, its model and reasoning table is a recommended adjustable starting profile: prefer the cheapest effective setting for the role and task, then hot-swap it when evidence shows a different choice works better. Before phase work, it states one lifecycle owner; installed workflow plugins are available capabilities, not active controllers unless explicitly selected. Each delegation wave reports the selected project-local roles with their configured model slugs and reasoning efforts in one compact line; effective values are included when the host exposes them. If no local role is available, the main thread reports `Direct: <reason>`. Researcher, architect, and QA roles are report-only and receive no write set. Their `read-only` TOML is intent, not proof of effective child permissions when the parent is writable; Plumbline reports the boundary when observable and inspects unexpected diffs. Only the approved implementer receives a write set. Workers never spawn children.
+Initialization is useful when you want ordinary repository prompts to pass through Plumbline and/or want a project-local agent team. Use the explicit setup skill:
 
-Plumbline keeps one feature outcome, one active specification, and one live checkpoint plan. It adopts an established repository's docs and agent conventions. A complete work order can be adopted as the lifecycle contract, so Plumbline does not replay settled shaping or planning when only execution remains. The plan frontmatter carries the compact resume record: active checkpoint, status, lifecycle owner, last verified commit, and next safe action. Resumed execution reuses unchanged evidence and avoids repeating routing or doctrine unless a material trigger changes the work. Active specs and plans are transient execution memory; canonical project docs remain the long-lived current truth.
+```text
+$plumbline-init
+```
 
-Execution uses a resume fingerprint of the checkout, plan record, and relevant local agent configuration. An unchanged resume reuses the exact checkpoint evidence instead of rereading broad documents or repeating lifecycle narration. Checkpoints use a compact card by default and expand only for material boundaries. For material state, persistence, concurrency, security, public-contract, or cross-language ownership work, planning captures the applicable invariants and the first stable implementer delta receives report-only QA before material main-thread semantic repair. A newly discovered contract or ownership invariant reopens the checkpoint; small implementation defects remain in Execute. Execute ends at Ready for Acceptance; accepted-work Closeout handles integration and transient cleanup. Every process artifact or announcement must earn its space by serving recovery, validation, authorization, or ownership.
+You can also invoke `$plumbline` and say that you want to initialize the repository; the front door hands setup to the same consent boundary.
 
-During Shape, Plumbline researches external capability and design options when the request leaves the option space open, then presents concise cited findings before asking the user to choose. If the remaining uncertainty is behavioral, Shape may offer an explicitly approved throwaway prototype instead of another planning round; it uses the smallest existing scratch/run convention, no persistence by default, and no automatic branch, tracker, dependency, or production promotion. For clearly long-running work, it may offer one transient in-repository shaping handoff containing decisions, research implications, open questions, fog, and non-goals. Small work stays conversation-only; Plumbline does not create a handoff for every question or use an external issue tracker.
+Initialization is read-only until you approve one complete proposal. The proposal explains each planned change, including:
 
-## Development
+- the repository-local Plumbline router;
+- optional project-local agent roles and their model, reasoning, sandbox, and write boundaries;
+- project multi-agent settings, including the recommended maximum depth of `1`;
+- the Plumbline guidance added to `AGENTS.md`;
+- local ignore and managed-worktree propagation behavior;
+- any competing workflow controller that may need an explicit decision.
+
+After approval, Plumbline applies only the selected items. You may choose the router without a team, the team without automatic routing, both, or neither. A setup validation failure is reported separately from unrelated repository checks that may be blocked because the project has not installed its own dependencies.
+
+### Initialized versus uninitialized
+
+| Repository state | How Plumbline starts | What changes in the project |
+| --- | --- | --- |
+| Uninitialized | You explicitly invoke `$plumbline` or a phase skill. | No project setup is required. Existing artifacts and repository conventions are used. |
+| Router initialized | Ordinary repository prompts can be routed through the Plumbline front door. | A small repository-local router exists. It is the only automatic activation boundary. |
+| Agent team initialized | Plumbline can dispatch approved project-local roles when the task benefits from delegation. | Local `.codex/` configuration and role files are created or audited according to the approved proposal. |
+| Both initialized | Ordinary prompts route automatically and suitable work can use the local team. | The main thread still owns product decisions, artifacts, integration, and Git. |
+
+The project-local router is available capability, not a reason to force every task through every phase. Explicit phase requests, sufficient imported artifacts, and small direct work remain valid.
+
+If future managed worktrees need the untracked local setup, initialization can propose `.worktreeinclude` propagation. That manifest must be committed for new worktrees to receive it. Existing worktrees are not updated retroactively and need an explicit refresh.
+
+## How to use Plumbline effectively
+
+### Start with the outcome, not the phase name
+
+Tell Plumbline what you want to accomplish, what must not change, and what evidence or files already exist. For example:
+
+```text
+$plumbline Add a retry policy for failed webhook delivery. Preserve the current API and keep this limited to the delivery worker. The design notes are in docs/webhooks.md.
+```
+
+Plumbline chooses the smallest suitable path:
+
+- **Direct** for clear, low-risk work that needs no phase advancement.
+- **Diagnose** for a defect, regression, failure, or performance problem.
+- **Shape** when product intent, behavior, or the available solution space is unclear.
+- **Specification** when the contract needs to be made precise or an imported design needs adoption.
+- **Plan** when the design is sufficient but execution checkpoints are missing.
+- **Execute** when a sufficient plan, work order, or specification already exists.
+- **Review** when implementation needs an independent assessment.
+- **Closeout** when accepted work needs reconciliation, integration, or transient-artifact cleanup.
+
+It does not restart the lifecycle merely because an artifact came from ChatGPT, Claude, another repository, or a previous session. A sufficient external plan can go straight to execution; a sufficient specification can go to planning; unresolved material product choices return to Shape.
+
+### Let Shape reduce uncertainty
+
+For a material capability or design question, Shape first checks local repository facts and then performs bounded external research when the option space is open. It presents a concise recommendation, realistic alternatives, tradeoffs, source links, and remaining uncertainty before asking you to choose.
+
+Shape may also offer:
+
+- a small throwaway prototype when a behavioral unknown would be cheaper to test than to debate;
+- one compact repository-local shaping handoff when the work is clearly broad or likely to span sessions;
+- a fog-of-war item for uncertainty that is real but not yet precise enough to become a blocking question.
+
+These are offers, not automatic ceremony. Small work stays in conversation. A handoff is created only with your approval, and it is updated only after material decisions, research findings, scope changes, meaningful fog promotion, or a phase/session transition.
+
+### Use imported specifications and plans
+
+If you already have a document, say which artifact controls the work:
+
+```text
+$plumbline Use docs/specs/payment-retry.md as the controlling specification. Check whether it is sufficient to plan and identify only the decisions that remain open.
+```
+
+Plumbline adopts settled decisions instead of grilling you again. It may recommend a companion plan or specification when one would make execution safer, but it does not block on missing Plumbline frontmatter, checkpoint IDs, or a particular directory name.
+
+### Keep long work recoverable
+
+For broad work, let the main thread maintain one active specification and one live checkpoint plan. Ask to resume from the current checkpoint rather than restating the whole history. Plumbline uses the plan, handoff, specification, and verification evidence as durable working memory and avoids broad rereads when nothing material has changed.
+
+You remain the owner of product intent and irreversible choices. The agent owns ordinary implementation judgment within the agreed scope. If you do not know an answer yet, Plumbline can preserve it as fog and continue with independent decisions instead of forcing speculation.
+
+### Use the agent team as a tool, not a requirement
+
+When a project-local team is enabled, Plumbline recommends a role-aware starting profile aimed at the cheapest effective model and reasoning effort for each role. These are adjustable recommendations, not permanent policy; change or hot-swap them when evidence shows a better fit.
+
+- Researchers, architects, and QA auditors are report-only and receive no write set.
+- Implementers receive only the approved write set.
+- The main thread owns specifications, plans, integration, and Git.
+- Workers do not spawn children; `agents.max_depth = 1` is the recommended boundary.
+- If no suitable local role exists, Plumbline reports `Direct: <reason>` and continues on the main thread rather than using a global fallback.
+
+Each delegation wave reports the selected role names with configured model slugs and reasoning efforts in one compact line. This keeps delegation visible without turning every worker response into a ceremony.
+
+### Keep orchestration explicit
+
+An installed workflow is only an available capability. It does not own the session unless explicitly selected or installed as the repository-local Plumbline router. If another orchestration loop already owns checkpoint selection, plan advancement, review sequencing, or closeout, do not stack a second lifecycle controller on top of it.
+
+## Public commands
+
+Use these public entry skills. Internal `*-engine` skills are implementation details and should not be invoked directly.
+
+| Purpose | Codex | Claude Code |
+| --- | --- | --- |
+| Front door | `$plumbline` | `/plumbline:plumbline` |
+| Initialize or reassess setup | `$plumbline-init` | `/plumbline:plumbline-init` |
+| Agent-team setup or audit | `$plumbline-agent-team` | `/plumbline:plumbline-agent-team` |
+| Shape | `$plumbline-shape` | `/plumbline:plumbline-shape` |
+| Specification | `$plumbline-spec` | `/plumbline:plumbline-spec` |
+| Plan | `$plumbline-plan` | `/plumbline:plumbline-plan` |
+| Execute | `$plumbline-execute` | `/plumbline:plumbline-execute` |
+| Diagnose | `$plumbline-diagnose` | `/plumbline:plumbline-diagnose` |
+| Review | `$plumbline-review` | `/plumbline:plumbline-review` |
+| Closeout | `$plumbline-closeout` | `/plumbline:plumbline-closeout` |
+| Stop project-local routing | `$plumbline-offboard` | `/plumbline:plumbline-offboard` |
+
+Most users only need the front door. Use a side door when you already know the phase you want or when an external artifact makes the phase obvious.
+
+## What Plumbline does not do
+
+Plumbline is intentionally project-agnostic and skills-only. It does not:
+
+- create GitHub issues, tickets, pull requests, labels, or an external tracker;
+- install global agents, global instructions, hooks, MCP servers, or personal configuration;
+- use global custom agents as a fallback for a missing project role;
+- create a custom worktree system or silently create branches;
+- require a specification, plan, handoff, prototype, or review for every request;
+- treat a report-only role's `read-only` setting as proof of hard isolation when the parent is writable;
+- make product decisions on the user's behalf;
+- record every question, transcript line, minor technical choice, or rejected idea in a repository document.
+
+## Developer reference
+
+The sections below are for contributors, maintainers, and users who need to inspect or extend the plugin.
+
+### Validation and local development
 
 ```bash
 python scripts/validate.py
@@ -103,20 +231,34 @@ python scripts/install_router.py --root <target-repository> --dry-run --format j
 python scripts/install_agent_team.py --root <target-repository> --mode initialize --model <approved-slug> --reasoning-effort <approved-effort> --update-agents
 ```
 
-The installer commands are explicit proposal/apply helpers. Run `--dry-run --format json` while preparing the proposal and again after approval to preview every file, operation, and changed field without writing. Existing router previews identify stale copies and whether `--replace` is required. Use `--mode audit` for a read-only report; it also detects stale router and `AGENTS.md` guidance without overwriting either. Use `--mode retune` with `--fill-missing` and/or the explicitly approved `--update-instructions`; retune preserves existing model, reasoning, sandbox, and custom fields without `--replace`. Add `--propagate` only when future managed worktrees need the ignored files; it includes the root `.gitignore` patch. Execution commits only after focused validation and when a coherent recovery boundary or repository policy calls for it; adjacent evidence-only work may stay with its parent checkpoint. Review and closeout are risk-proportional rather than mandatory ceremonies for trivial work. The validation script uses only the Python standard library. GitHub Actions runs it on pushes and pull requests. The approved specification and implementation plan remain available at [`docs/specs/plumbline-v1.md`](docs/specs/plumbline-v1.md) and [`docs/plans/plumbline-v1.md`](docs/plans/plumbline-v1.md) until explicit release acceptance.
+The installer commands are explicit proposal/apply helpers. Run `--dry-run --format json` while preparing a proposal and again after approval to preview every file, operation, and changed field without writing.
 
-## Repository map
+Use `--mode audit` for a read-only report. It detects stale router and `AGENTS.md` guidance without overwriting either. Use `--mode retune` with `--fill-missing` and/or the explicitly approved `--update-instructions`; retune preserves existing model, reasoning, sandbox, custom fields, and instructions unless a change is explicitly approved. `--propagate` includes the root `.gitignore` patch and `.worktreeinclude` behavior, so it must be shown in the proposal.
 
-- `.codex-plugin/plugin.json` — plugin manifest.
-- `.agents/plugins/marketplace.json` — repo marketplace for GitHub/local installation.
-- `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` — Claude Code plugin and marketplace manifests.
-- `skills/` — explicit public skills plus narrow internal routing engines.
-- `references/` — progressive-disclosure workflow policy.
-- `templates/router/` — the stable repository-local activation shim.
-- `templates/agents/` — project-owned role, config, and worktree templates.
-- `scripts/` — validation and explicit router/agent-team installation helpers.
-- `docs/` and `evals/` — design authority, migration guidance, and behavioral checks.
+Run the repository checks for setup or packaging changes:
 
-## Scope boundary
+```bash
+python scripts/validate.py
+python scripts/test_install_agent_team.py
+git diff --check
+```
 
-Plumbline v1 does not create GitHub issues, tickets, pull requests, labels, remote worktrees, global agent files, or automatic repository setup. It leaves those choices with the user and the repository.
+The validation script uses only the Python standard library. GitHub Actions runs it on pushes and pull requests.
+
+### Repository map
+
+- `.codex-plugin/plugin.json` - Codex plugin manifest.
+- `.agents/plugins/marketplace.json` - Codex marketplace for GitHub and local installation.
+- `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` - Claude Code manifests.
+- `skills/` - public entry skills and narrow internal workflow engines.
+- `references/` - progressive-disclosure workflow policy.
+- `templates/router/` - the repository-local activation shim.
+- `templates/agents/` - project-owned role, config, and worktree templates.
+- `scripts/` - validation and explicit router/agent-team installation helpers.
+- `docs/` and `evals/` - design authority, migration guidance, and behavioral checks.
+
+The approved specification and implementation plan are [docs/specs/plumbline-v1.md](docs/specs/plumbline-v1.md) and [docs/plans/plumbline-v1.md](docs/plans/plumbline-v1.md). They remain available until explicit release acceptance.
+
+### Scope boundary
+
+Plumbline does not create GitHub issues, tickets, pull requests, labels, remote worktrees, global agent files, or automatic repository setup. It leaves those choices with the user and the repository.
