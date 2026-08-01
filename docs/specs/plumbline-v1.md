@@ -351,7 +351,7 @@ User-facing display names may be shorter: Plumbline, Setup, Shape, Specification
 2. Determine the latest safe phase.
 3. State the selected phase in one brief sentence.
 4. Load only that phase's focused behavior.
-5. Ask only blocking product questions.
+5. Ask only blocking product questions before execution; once Execute owns an approved plan, use its in-scope judgment contract.
 6. Avoid replaying earlier phases that have already been adequately completed.
 
 When a supplied work order or active artifact already contains scope, non-goals, checkpoint, acceptance/proof, lifecycle owner, and closeout boundaries, adopt it as the controlling contract and resume at its latest safe phase. This does not bypass a new product decision, contradictory repository evidence, a failed gate, or an explicit approval boundary.
@@ -1405,7 +1405,7 @@ No generic audit reminder is emitted.
 
 Closeout begins after user acceptance or an explicit integration instruction.
 
-Execute ends at Ready for Acceptance after implementation, focused/full proof, acceptance-required canonical documentation, and stable-delta review. Closeout begins after acceptance and owns integration, transient cleanup, plan retirement, worktree/branch handling, and publishing preparation; it does not redo first-time implementation proof.
+Execute traverses all remaining checkpoints in serial/dependency order by default. Each checkpoint's design, implementation, review, evidence, and main-thread integration are internal handoffs; Execute does not stop for a user prompt between them. It reaches Ready for Acceptance only after the complete plan, focused/full proof, acceptance-required canonical documentation, and final stable-delta review are done. Closeout begins after acceptance and owns final integration, transient cleanup, plan retirement, worktree/branch handling, and publishing preparation; it does not redo first-time implementation proof.
 
 ### 25.2 Closeout modes
 
@@ -1928,7 +1928,7 @@ Implementation must retain applicable license notices and attribution for any te
 67. An unchanged resume fingerprint reuses checkpoint evidence without rereading agent configuration, broad plan bodies, or delegation doctrine.
 68. The first actual delegation loads detailed orchestration guidance and retains one compact role/model/reasoning/boundary report; direct work does not load it.
 69. Ordinary checkpoints use compact cards, while material boundaries use expanded evidence.
-70. Execute reaches Ready for Acceptance before Closeout handles acceptance, integration, and transient cleanup.
+70. Execute traverses all remaining checkpoints without an intervening user prompt by default, reaches Ready for Acceptance only after the complete plan, and leaves acceptance, integration, and transient cleanup to Closeout.
 71. Accepted equivalent evidence paths are reused before slice-specific machinery is introduced.
 72. Supporting construction-policy skills do not add lifecycle ownership, checkpoints, or competing acceptance gates.
 73. An explicit phase side door works in convention mode without initialization, a local router, or a project agent team.

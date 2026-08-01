@@ -18,5 +18,9 @@
 15. A sufficient imported specification or plan is adopted without re-grilling settled decisions or creating a competing artifact.
 16. An unavailable tool or harness failure is classified separately from a product defect before retrying; environment or harness retries do not count as implementation remediation.
 17. A delegated architect escalation returns to the main orchestrator, preserves the long-running goal and lifecycle owner, and allows independent checkpoints to continue.
+18. Normal Execute traverses every remaining serial/dependent checkpoint through final plan completion without a user prompt at each boundary; `Ready for Acceptance` occurs only after the plan is complete.
+19. Explicit checkpoint-by-checkpoint language opts into slice mode and pauses before later checkpoints.
+20. An in-scope architect uncertainty after plan approval is resolved by the main orchestrator from the approved contract, evidence, and a safe reversible default, then recorded without invoking Shape or asking the user.
+21. A deliberately named destructive or user-approval gate still pauses at that gate without deleting the plan or ending unrelated work.
 
 These are behavior-level expectations. They do not require exact wording or a particular implementation mechanism.

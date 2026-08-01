@@ -1,8 +1,44 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
-  <title id="title">Plumbline</title>
-  <desc id="desc">A blue plumb bob aligned on a vertical line.</desc>
-  <rect width="512" height="512" rx="112" fill="#0F172A"/>
-  <path d="M256 78v288" stroke="#60A5FA" stroke-width="36" stroke-linecap="round"/>
-  <path d="M158 366h196" stroke="#DBEAFE" stroke-width="30" stroke-linecap="round"/>
-  <path d="M256 356l-60 60 60 72 60-72z" fill="#2563EB" stroke="#DBEAFE" stroke-width="18" stroke-linejoin="round"/>
+  <title id="title">Plumbline plugin icon</title>
+  <desc id="desc">A precise vertical plumb line with two workflow checkpoints and a faceted plumb bob.</desc>
+  <defs>
+    <linearGradient id="bg" x1="72" y1="56" x2="440" y2="456" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#111827"/>
+      <stop offset="1" stop-color="#020617"/>
+    </linearGradient>
+    <linearGradient id="line" x1="256" y1="76" x2="256" y2="414" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#60A5FA"/>
+      <stop offset="1" stop-color="#2563EB"/>
+    </linearGradient>
+    <linearGradient id="bob" x1="214" y1="322" x2="298" y2="438" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#93C5FD"/>
+      <stop offset="0.46" stop-color="#3B82F6"/>
+      <stop offset="1" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000000" flood-opacity="0.34"/>
+    </filter>
+  </defs>
+
+  <rect x="24" y="24" width="464" height="464" rx="112" fill="url(#bg)"/>
+  <rect x="25.5" y="25.5" width="461" height="461" rx="110.5" fill="none" stroke="#334155" stroke-width="3"/>
+
+  <g filter="url(#shadow)">
+    <circle cx="256" cy="92" r="19" fill="#0F172A" stroke="#93C5FD" stroke-width="10"/>
+    <path d="M256 116V332" stroke="url(#line)" stroke-width="18" stroke-linecap="round"/>
+
+    <g>
+      <rect x="190" y="176" width="132" height="20" rx="10" fill="#1E293B"/>
+      <circle cx="256" cy="186" r="18" fill="#60A5FA" stroke="#DBEAFE" stroke-width="8"/>
+    </g>
+
+    <g>
+      <rect x="205" y="250" width="102" height="20" rx="10" fill="#1E293B"/>
+      <circle cx="256" cy="260" r="18" fill="#3B82F6" stroke="#BFDBFE" stroke-width="8"/>
+    </g>
+
+    <path d="M256 314L316 374L288 430H224L196 374L256 314Z" fill="url(#bob)" stroke="#DBEAFE" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M256 326V420" stroke="#BFDBFE" stroke-width="7" stroke-linecap="round" opacity="0.6"/>
+    <path d="M208 374H304" stroke="#1E40AF" stroke-width="7" stroke-linecap="round" opacity="0.65"/>
+  </g>
 </svg>

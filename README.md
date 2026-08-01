@@ -106,6 +106,21 @@ Initialization is read-only until you approve one complete proposal. The proposa
 
 After approval, Plumbline applies only the selected items. You may choose the router without a team, the team without automatic routing, both, or neither. A setup validation failure is reported separately from unrelated repository checks that may be blocked because the project has not installed its own dependencies.
 
+### What initialization changes
+
+Initialization is project-local and explicit. The proposal shows a dry-run manifest of every file and field before anything is written. If you approve the agent team, the installer makes these changes:
+
+| Approved item | What is created or updated |
+| --- | --- |
+| Project `.codex/config.toml` | Adds or verifies `features.multi_agent = true`, an approved `agents.max_threads` cap (the starting template uses `6`), and `agents.max_depth = 1`. A different existing value is shown for approval and is not silently overwritten. |
+| Selected `.codex/agents/*.toml` | Creates only the roles you select. Each role has explicit `name`, `description`, `developer_instructions`, `model`, `model_reasoning_effort`, and `sandbox_mode` fields. Researcher, architect, and QA templates are report-only with `read-only` intent; the implementer is the only write-capable role. |
+| `AGENTS.md` | When approved, adds a `## Local agent team` section listing only the selected roles. It explains that the main thread owns product decisions, plans, integration, and Git; workers receive bounded briefs; report-only roles get no write set; workers never spawn children; and global agents are never fallbacks. |
+| `.git/info/exclude` | Adds local-only ignore entries for `.codex/` and the project-local Plumbline router. This keeps generated setup out of the checkout without changing the repository’s tracked files. |
+| `.agents/skills/plumbline-router/SKILL.md` | Creates the small repository-local router only if you approve automatic routing. It is the only automatic Plumbline activation boundary; it does not initialize teams, invoke internal engines, or create workers. |
+| `.gitignore` and `.worktreeinclude` | Only when you approve propagation. The root ignore file receives the exact local setup entries, while `.worktreeinclude` lists the config, selected role files, and router for future managed worktrees. Commit the manifest for new worktrees to receive those ignored files; existing worktrees need an explicit refresh. |
+
+The global Codex `config.toml` may be inspected to identify a host model candidate for the proposal, but Plumbline does not edit global config, install global agents, or use personal/global agent files as fallbacks. Model and reasoning choices are recommended starting points that you can adjust or hot-swap later; they are written explicitly to the local role files only so the setup is reproducible.
+
 ### Initialized versus uninitialized
 
 | Repository state | How Plumbline starts | What changes in the project |
@@ -139,6 +154,8 @@ Plumbline chooses the smallest suitable path:
 - **Execute** when a sufficient plan, work order, or specification already exists.
 - **Review** when implementation needs an independent assessment.
 - **Closeout** when accepted work needs reconciliation, integration, or transient-artifact cleanup.
+
+Execute normally runs every remaining checkpoint in serial/dependency order and returns after the plan is complete. Checkpoint boundaries are internal team handoffs; say “only execute CP-02” or “pause after CP-02” when you want slice-by-slice control. A worker's uncertainty does not automatically prompt the user or cancel the plan—the main thread resolves ordinary in-scope decisions and records them.
 
 It does not restart the lifecycle merely because an artifact came from ChatGPT, Claude, another repository, or a previous session. A sufficient external plan can go straight to execution; a sufficient specification can go to planning; unresolved material product choices return to Shape.
 

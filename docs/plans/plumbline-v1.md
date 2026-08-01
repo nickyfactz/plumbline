@@ -536,7 +536,7 @@ Plan-based work uses a kickoff or recovery-boundary commit when explicit policy,
 
 ```yaml
 name: plumbline-execute
-description: Implement one controlling feature plan or sufficient external work order through durable checkpoints, bounded subagents, targeted verification, and Ready for Acceptance.
+description: Implement one controlling feature plan or sufficient external work order through all remaining durable checkpoints, bounded subagents, targeted verification, and final Ready for Acceptance.
 ```
 
 **Invocation policy:** explicit or router-selected.
@@ -560,11 +560,13 @@ Execute the checkpoint's dependency topology:
 - never allow subagents to stage, commit, move Git state, or edit the specification and plan
 - pause affected work when ownership or dependency assumptions change
 
-The main thread inspects and integrates all returned work. Run checkpoint-level targeted validation, apply the runtime-value test decision, update plan status and evidence, record deviations and canonical impact, then commit only after focused validation passes and when a coherent recovery boundary or repository policy calls for it. Evidence-only work without an independent acceptance, rollback, risk, contract, or ownership boundary stays with its parent checkpoint. Do not advance while the checkpoint is Blocked or Reopened.
+Unless the user explicitly requests checkpoint-by-checkpoint execution or a checkpoint names a deliberate user approval gate, Execute traverses the full remaining plan automatically. A completed checkpoint is an internal handoff: the main thread integrates its reports and evidence, updates the resume record, and moves to the next safe checkpoint without prompting the user. A worker's product-question label is an internal escalation; the main thread resolves ordinary in-scope ambiguity from the approved plan, repository evidence, and a safe reversible default, recording the result rather than reopening Shape.
+
+The main thread inspects and integrates all returned work. Run checkpoint-level targeted validation, apply the runtime-value test decision, update plan status and evidence, record deviations and canonical impact, then commit only after focused validation passes and when a coherent recovery boundary or repository policy calls for it. Evidence-only work without an independent acceptance, rollback, risk, contract, or ownership boundary stays with its parent checkpoint. Do not advance a Blocked or Reopened checkpoint; continue independent checkpoints when their dependencies permit.
 
 When all checkpoints are complete, prepare the smallest meaningful acceptance surface. Run the planned completion checks and perform a risk-proportional independent audit; dispatch a fresh QA auditor for high-risk or explicitly independent review, while small direct work may remain on the main thread. Repair confirmed findings through focused corrective commits and reopened checkpoints.
 
-End at Ready for Acceptance. Do not delete transient artifacts or integrate accepted work until the user completes UAT, explicitly approves the result, or instructs closeout.
+After every required checkpoint is complete, prepare the final acceptance surface and enter Ready for Acceptance. Do not use that state between checkpoints. Do not delete transient artifacts or integrate accepted work until the user completes UAT, explicitly approves the result, or instructs closeout. Stop only for an explicit user gate, a destructive action, or a contradiction with no safe in-scope default; preserve the plan and continue independent work where possible.
 ```
 
 **Owned references:** managed-worktree policy, borrowed-resource safety, single-Git-writer orchestration, subagent briefs, runtime-value testing, checkpoint recovery, Ready for Acceptance.

@@ -2,6 +2,8 @@
 
 ## 0.1.7 - 2026-08-01
 
+- Make approved multi-checkpoint Execute runs complete the plan serially by default, while preserving explicit checkpoint-by-checkpoint control.
+- Refresh the plugin icon and document the exact project-local Codex setup changes made by initialization.
 - Clarify the architect-to-Shape product-question boundary and preserve active long-running goals during delegated escalation.
 - Add conditional scenario-to-proof matrices, proportional QA ordering, and validation failure-origin classification.
 - Add behavior fixtures for technical/product ambiguity, Fog, imported artifacts, environment failures, and checkpoint-local blocking.

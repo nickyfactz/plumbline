@@ -76,6 +76,10 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 52. Plan and Execute reject inconsistent current-checkpoint/frontmatter state before advancement, while retained external artifacts are not rewritten merely for format compliance.
 53. Rolling telemetry is recorded as timestamped sample evidence and does not force acceptance rewrites or evidence-only commits when stable assertions remain valid.
 54. Closeout uses explicit acceptance or integration as its gate and does not require a Plumbline-generated specification or plan.
+55. Execute traverses all remaining serial checkpoints through final plan completion without requiring `/goal` or a user prompt between checkpoints.
+56. Explicit checkpoint-by-checkpoint wording pauses after the requested checkpoint and does not imply the default behavior.
+57. An architect's in-scope product-question label is resolved by the main thread from the approved plan and a safe reversible default without automatically reopening Shape.
+58. A named destructive or user-approval gate still pauses only at that gate while preserving the active plan.
 
 ## User UAT
 

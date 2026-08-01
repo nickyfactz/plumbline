@@ -21,3 +21,7 @@
 - Imported contract: "Adopt this sufficient external specification and plan; do not re-grill settled decisions or create a competing Plumbline artifact."
 - Gate classification: "A package check cannot run because a required tool is absent, while the focused proof passes. Classify the result before retrying and keep environment or harness noise separate from implementation defects."
 - Active-goal escalation: "An architect in checkpoint CP-04 finds a product question during a long-running goal with CP-05 independent. Return the question to the main orchestrator without ending the goal, and state what can continue."
+- Full-plan execution: "The approved plan has CP-01, CP-02, and CP-03 in serial order. Execute the plan end to end without waiting for a user prompt between checkpoints."
+- Explicit slice execution: "Execute only CP-02, report its evidence, and pause before CP-03. The user explicitly wants checkpoint-by-checkpoint control."
+- In-scope execution judgment: "An architect labels an ambiguity a Shape question during CP-02, but the approved specification and plan establish the product outcome. Resolve it with the safest reversible implementation judgment, record the assumption, and continue without asking the user."
+- Explicit approval gate: "The plan explicitly says the user must approve the destructive data-retention choice before CP-03. Pause at that named gate and preserve the rest of the plan."
