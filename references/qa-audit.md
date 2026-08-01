@@ -11,4 +11,4 @@ Use the verdicts:
 - `CHANGES_REQUIRED` — concrete defect or missing acceptance behavior;
 - `INCONCLUSIVE` — required evidence or environment unavailable.
 
-For planned work, create a criterion-to-diff/evidence matrix. If UAT finds a defect, identify the affected checkpoint, preserve the original evidence, record what it missed, and reopen only that checkpoint.
+For planned work, create a criterion-to-diff/evidence matrix and reuse the checkpoint's compact scenario-to-proof matrix when one exists. Review only applicable rows; do not turn a mechanical change into a universal lifecycle checklist. If a check fails, classify its origin as one of: product defect, contract gap, environment failure, test-harness failure, known unrelated baseline failure, or unavailable evidence. Do not count environment or harness retries as implementation remediation. If UAT finds a product or contract defect, identify the affected checkpoint, preserve the original evidence, record what it missed, and reopen only that checkpoint.

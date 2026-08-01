@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.7 - 2026-08-01
+
+- Clarify the architect-to-Shape product-question boundary and preserve active long-running goals during delegated escalation.
+- Add conditional scenario-to-proof matrices, proportional QA ordering, and validation failure-origin classification.
+- Add behavior fixtures for technical/product ambiguity, Fog, imported artifacts, environment failures, and checkpoint-local blocking.
+
 ## 0.1.3 - 2026-07-29
 
 - Support convention-mode phase work without initialization or generated Plumbline artifacts.

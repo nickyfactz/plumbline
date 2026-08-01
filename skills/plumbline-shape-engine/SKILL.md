@@ -24,6 +24,12 @@ Ask one question at a time. Ask only when the answer changes product behavior, s
 
 Resolve technical boundaries, names, module placement, test seams, and implementation details yourself from repository evidence. Keep the product outcome whole; do not split frontend, backend, persistence, or documentation into separate features.
 
+## Delegated architect escalation
+
+When an architect working inside an active goal discovers a material product question, return a structured escalation to the main orchestrator. Include the affected checkpoint and overall objective, the plain-language question, why it changes behavior or acceptance, recommendation, alternatives, tradeoff, default, whether the checkpoint is blocked, and safe independent work. Do not have the child ask the user directly, end the goal, replace the plan, or start a competing lifecycle.
+
+The main orchestrator reconciles the question against the overall objective and uses this existing Shape conversation to ask the user only if needed. It may resolve the question from an approved decision, record a bounded residual assumption, or ask one product question. If the user does not know, preserve the uncertainty in Fog and continue independent work where possible. Block only the affected checkpoint when the answer is genuinely required; do not turn a local escalation into a global stop or a restart of shaping for the whole goal.
+
 Use existing handoffs, specifications, plans, and cited research as the source of settled knowledge. Do not replay a question or reread a whole artifact when its relevant section and evidence are unchanged. A new question or a fresh read needs a material trigger: changed scope or contract, relevant repository drift, a failed or newly relevant check, a new capability question, or stale evidence.
 
 ## Optional prototype probe
