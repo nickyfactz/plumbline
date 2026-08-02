@@ -30,9 +30,15 @@ def main() -> None:
         assert "permissionMode: plan" in researcher
         assert '"Agent"' not in researcher
         assert "Never invoke the Agent tool" in researcher
+        assert "main thread" in researcher
+        assert "dispatch another worker" in researcher
         assert "permissionMode: default" in implementer
         assert '"Edit"' in implementer and '"Write"' in implementer
-        assert "- `researcher`" in (root / "AGENTS.md").read_text(encoding="utf-8")
+        guidance = (root / "AGENTS.md").read_text(encoding="utf-8")
+        assert "- `researcher`" in guidance
+        assert "main-mediated" in guidance
+        assert "recommendations are advisory" in guidance
+        assert "parallel wave" in guidance
         assert ".claude/agents/" in (root / ".gitignore").read_text(encoding="utf-8")
         assert ".claude/agents/*.md" in (root / ".worktreeinclude").read_text(encoding="utf-8")
         assert not (root / ".claude" / "settings.json").exists()

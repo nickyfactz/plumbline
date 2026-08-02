@@ -57,7 +57,7 @@ CONTRACT_MARKERS = {
     "plumbline-init": (
         "wait for explicit approval",
         "personal/global custom-agent files",
-        "max_depth = 1",
+        "user-owned",
         "scripts/install_agent_team.py",
         "dry-run",
         "gitignore",
@@ -70,13 +70,20 @@ CONTRACT_MARKERS = {
     "plumbline-agent-team": (
         ".codex/agents/",
         "personal/global agent files",
-        "max_depth = 1",
+        "user-owned",
+        "main-mediated",
+        "recommendations are advisory",
         "spawn children",
         "scripts/install_agent_team.py",
         "dry-run",
         "gitignore",
         "selected roles",
         "report-only roles",
+        "main-mediated",
+        "parallel wave",
+        "stable contract",
+        "join condition",
+        "advisory",
         "effective sandbox",
         "no write set",
         "router",
@@ -96,6 +103,11 @@ CONTRACT_MARKERS = {
         "last_verified_commit",
         "known unrelated baseline failure",
         "one lifecycle owner",
+        "main-mediated",
+        "parallel wave",
+        "contract is stable",
+        "join condition",
+        "advisory",
         "compact resume record",
         "resume fingerprint",
         "does not invalidate evidence",
@@ -124,6 +136,9 @@ CONTRACT_MARKERS = {
         "external plan or work order",
         "competing candidates",
         "current checkpoint",
+        "ready independent",
+        "parallel waves",
+        "join condition",
     ),
     "plumbline-spec-engine": (
         "controlling product specification",
@@ -144,6 +159,8 @@ CONTRACT_MARKERS = {
         "direct: delegation prohibited or effective read-only isolation unavailable",
         "delegated wave:",
         "small, low-risk",
+        "main thread",
+        "parallel wave",
     ),
     "plumbline-shape-engine": (
         "external research",
@@ -421,8 +438,10 @@ def validate_references_and_templates(errors: list[str]) -> None:
             error(errors, f"{path.relative_to(ROOT)}: sandbox must be {AGENT_SANDBOXES[role]}")
         if "never spawn child agents" not in data.get("developer_instructions", "").lower():
             error(errors, f"{path.relative_to(ROOT)}: child-spawn boundary is required")
+        instructions = data.get("developer_instructions", "").lower()
+        if "main thread" not in instructions or "dispatch another worker" not in instructions:
+            error(errors, f"{path.relative_to(ROOT)}: main-mediated delegation boundary is required")
         if role != "implementer":
-            instructions = data.get("developer_instructions", "").lower()
             if "report-only" not in instructions:
                 error(errors, f"{path.relative_to(ROOT)}: report-only boundary is required")
             if "no write set" not in instructions:
@@ -436,10 +455,12 @@ def validate_references_and_templates(errors: list[str]) -> None:
     else:
         if config.get("features", {}).get("multi_agent") is not True:
             error(errors, "templates/agents/config.toml: multi_agent must be true")
-        if config.get("agents", {}).get("max_threads") != 6:
-            error(errors, "templates/agents/config.toml: max_threads must be 6")
-        if config.get("agents", {}).get("max_depth") != 1:
-            error(errors, "templates/agents/config.toml: max_depth must be 1")
+        max_threads = config.get("agents", {}).get("max_threads")
+        max_depth = config.get("agents", {}).get("max_depth")
+        if type(max_threads) is not int or max_threads < 1:
+            error(errors, "templates/agents/config.toml: max_threads must be a positive integer")
+        if type(max_depth) is not int or max_depth < 0:
+            error(errors, "templates/agents/config.toml: max_depth must be a non-negative integer")
 
     worktreeinclude = agents_root / "worktreeinclude"
     try:

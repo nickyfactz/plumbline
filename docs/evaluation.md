@@ -33,9 +33,9 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 9. Router deletion stops automatic routing.
 10. Plugin disable prevents the router's engine path.
 11. Init proposal shows every selected role's model, reasoning effort, sandbox, config, AGENTS, ignore, and worktree changes before approval.
-12. Approved setup creates only project-local `.codex/config.toml` and `.codex/agents/*.toml`, with `multi_agent=true`, `max_depth=1`, and explicit model/reasoning fields.
+12. Approved setup creates only project-local `.codex/config.toml` and `.codex/agents/*.toml`, with `multi_agent=true`, structurally valid user-owned thread/depth values, and explicit model/reasoning fields; 6 threads and depth 1 are recommendations, not requirements.
 13. A project-local role is selected when available; a missing role reports `Direct` and never uses a personal/global fallback.
-14. Workers cannot spawn children and the project stays at delegation depth one.
+14. Workers cannot spawn children by Plumbline guidance, while the user's host-configured depth value remains preserved and user-owned.
 15. A committed `.worktreeinclude` manifest makes the ignored team files eligible for new managed worktrees while leaving them untracked; existing worktrees are not retroactive.
 16. Audit is read-only and preserves deliberately different per-role model, reasoning, sandbox, and custom instruction values.
 17. Retune without flags changes nothing; explicit instruction retune changes only `developer_instructions` and reports that field exactly.
@@ -48,6 +48,8 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 24. A stale repository-local router or AGENTS guidance section is reported with a proposed refresh and no automatic overwrite.
 25. An explicitly selected competing orchestration loop is named as lifecycle owner; Plumbline does not stack or advance it.
 26. A delegation wave reports role names, host-native model and reasoning/effort values, and the report-only/no-write-set/no-child boundary in one compact line.
+26a. Worker recommendations return to the main thread; only the main thread selects and dispatches the next capability, with no worker-created delegation wave or visible graph telemetry.
+26b. Independent research, architecture, QA, or implementation scopes may run in one parallel wave only with a stable contract, disjoint scopes, no result dependency, and a clear main-thread join; shared contracts and moving deltas remain serial.
 27. Phase entry resolves the current installed Plumbline root once; reference paths resolve from that root and no absolute versioned cache path is persisted.
 28. The active plan's compact resume record is updated together when checkpoint status, owner, verified commit, or next action changes.
 29. An unchanged resume emits a compact transition and skips repeated routing, doctrine, lifecycle, and broad-document narration.
@@ -78,7 +80,7 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 52. Plan and Execute reject inconsistent current-checkpoint/frontmatter state before advancement, while retained external artifacts are not rewritten merely for format compliance.
 53. Rolling telemetry is recorded as timestamped sample evidence and does not force acceptance rewrites or evidence-only commits when stable assertions remain valid.
 54. Closeout uses explicit acceptance or integration as its gate and does not require a Plumbline-generated specification or plan.
-55. Execute traverses all remaining serial checkpoints through final plan completion without requiring `/goal` or a user prompt between checkpoints.
+55. Execute traverses all remaining dependency-ordered checkpoints through final plan completion without requiring `/goal` or a user prompt between checkpoints, batching only safe main-mediated parallel waves.
 56. Explicit checkpoint-by-checkpoint wording pauses after the requested checkpoint and does not imply the default behavior.
 57. An architect's in-scope product-question label is resolved by the main thread from the approved plan and a safe reversible default without automatically reopening Shape.
 58. A named destructive or user-approval gate still pauses only at that gate while preserving the active plan.

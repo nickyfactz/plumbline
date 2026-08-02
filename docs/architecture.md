@@ -41,17 +41,29 @@ historical implementation plan as current product truth.
 Agent teams are optional and project-local:
 
 - Codex uses `.codex/config.toml` and selected `.codex/agents/*.toml` files.
-  The project config enables collaboration, caps threads, and recommends
-  `agents.max_depth = 1`.
+  The project config enables collaboration. Thread and depth values remain
+  user-owned host settings; Plumbline recommends `max_threads = 6` and
+  `max_depth = 1` as starting values but does not enforce them.
 - Claude Code uses selected `.claude/agents/*.md` files with Claude-native
   model, effort, tool, and permission fields. Plumbline does not edit global
   Claude settings or enable the separate experimental Agent Teams feature.
 
 The shared role contracts keep researchers, architects, and QA report-only;
-only an approved implementer receives a bounded write set. Workers do not own
+only an approved implementer receives a bounded write set. Every worker
+returns to the main thread, worker recommendations are advisory, and only the
+main thread selects and dispatches the next capability. Workers do not own
 Git, edit the active specification or plan, or spawn children. Codex
 `sandbox_mode = "read-only"` and Claude `permissionMode: plan` express intent,
 not guaranteed isolation from a writable parent session.
+
+The main thread may dispatch a dependency-aware parallel wave for independent
+research, architecture, QA, or implementation work only after the shared
+contract is stable, scopes are disjoint, no result dependency exists, and a
+clear join condition is known. Shared files, public interfaces, schemas,
+migrations, generated artifacts, unstable contracts, and moving review deltas
+remain serial. Results are classified and integrated at the main thread before
+downstream work is dispatched; this is guidance, not a scheduler or graph
+runtime.
 
 ## Ownership and worktrees
 

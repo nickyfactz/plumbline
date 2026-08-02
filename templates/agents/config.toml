@@ -1,4 +1,6 @@
 # Plumbline project-local agent settings. Keep this file untracked.
+# The values below are recommended starting points (6 threads, depth 1) and remain user-owned.
+# Plumbline requires the capability switch, not these exact thread/depth values.
 [features]
 multi_agent = true
 

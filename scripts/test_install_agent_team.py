@@ -27,6 +27,16 @@ def run_git(*args: str, cwd: Path) -> None:
 
 def main() -> None:
     plugin_root = Path(__file__).resolve().parents[1]
+    orchestration = (plugin_root / "references" / "subagent-orchestration.md").read_text(encoding="utf-8").lower()
+    for marker in (
+        "independent research",
+        "architecture lenses",
+        "qa lenses",
+        "shares files",
+        "clear join condition",
+        "worker recommendation never creates a new delegation wave",
+    ):
+        assert marker in orchestration
     with tempfile.TemporaryDirectory() as raw_root:
         root = Path(raw_root)
         (root / ".git" / "info").mkdir(parents=True)
@@ -35,18 +45,23 @@ def main() -> None:
             root,
             model="gpt-5.6-luna",
             reasoning_effort="medium",
+            max_threads=12,
+            max_depth=2,
             update_agents=True,
             propagate=True,
         )
         config = tomllib.loads((root / ".codex" / "config.toml").read_text(encoding="utf-8"))
         assert config["features"]["multi_agent"] is True
-        assert config["agents"]["max_depth"] == 1
+        assert config["agents"]["max_threads"] == 12
+        assert config["agents"]["max_depth"] == 2
         for role in ROLES:
             data = tomllib.loads((root / ".codex" / "agents" / f"{role}.toml").read_text(encoding="utf-8"))
             assert data["model"] == "gpt-5.6-luna"
             assert data["model_reasoning_effort"] == "medium"
             assert data["sandbox_mode"]
             assert "spawn child" in data["developer_instructions"].lower()
+            assert "main thread" in data["developer_instructions"].lower()
+            assert "dispatch another worker" in data["developer_instructions"].lower()
         guidance = (root / "AGENTS.md").read_text(encoding="utf-8")
         assert "## Local agent team" in guidance
         assert "Delegated wave:" in guidance
@@ -54,7 +69,10 @@ def main() -> None:
         assert "model slugs" in guidance
         assert "reasoning efforts" in guidance
         assert "one compact line" in guidance
-        assert "max_depth = 1" in guidance
+        assert "user-owned host settings" in guidance
+        assert "main-mediated" in guidance
+        assert "recommendations are advisory" in guidance
+        assert "parallel wave" in guidance
         assert "personal or global agent files" in guidance
         assert "report-only roles" in guidance
         assert "no write set" in guidance
@@ -121,6 +139,10 @@ def main() -> None:
                 "gpt-5.6-luna",
                 "--reasoning-effort",
                 "medium",
+                "--max-threads",
+                "12",
+                "--max-depth",
+                "2",
                 "--propagate",
                 "--dry-run",
                 "--format",
@@ -242,6 +264,12 @@ def main() -> None:
     with tempfile.TemporaryDirectory() as raw_root:
         root = Path(raw_root)
         (root / ".git" / "info").mkdir(parents=True)
+        (root / ".codex").mkdir(parents=True)
+        config_path = root / ".codex" / "config.toml"
+        config_path.write_text(
+            "[features]\nmulti_agent = true\n\n[agents]\nmax_threads = 12\nmax_depth = 2\n",
+            encoding="utf-8",
+        )
         role_snapshots: dict[str, tuple[str, str, str, str]] = {}
         for index, role in enumerate(ROLES):
             model = f"custom-model-{index}"
@@ -267,19 +295,24 @@ custom_setting = "preserve-me"
             role: (root / ".codex" / "agents" / f"{role}.toml").read_text(encoding="utf-8")
             for role in ROLES
         }
+        config_before = config_path.read_text(encoding="utf-8")
         audit = install(plugin_root, root, mode="audit", roles=ROLES)
         assert not audit.changes
+        assert not any("max_depth" in finding or "max_threads" in finding for finding in audit.findings)
         assert all(
             (root / ".codex" / "agents" / f"{role}.toml").read_text(encoding="utf-8") == before[role]
             for role in ROLES
         )
+        assert config_path.read_text(encoding="utf-8") == config_before
 
         retune = install(plugin_root, root, mode="retune", roles=ROLES)
         assert not retune.changes
+        assert not any("max_depth" in finding or "max_threads" in finding for finding in retune.findings)
         assert all(
             (root / ".codex" / "agents" / f"{role}.toml").read_text(encoding="utf-8") == before[role]
             for role in ROLES
         )
+        assert config_path.read_text(encoding="utf-8") == config_before
 
         updated = install(plugin_root, root, mode="retune", roles=ROLES, update_instructions=True)
         for role in ROLES:

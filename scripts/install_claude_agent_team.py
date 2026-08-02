@@ -65,7 +65,8 @@ def _body(plugin: Path, role: str) -> str:
         str(template["developer_instructions"]).strip()
         + "\n"
         + "This is a project-local Claude Code subagent. Use only the tools listed above. "
-        + "Never invoke the Agent tool or spawn child agents."
+        + "Never invoke the Agent tool or spawn child agents. Return all results to the main thread. "
+        + "Recommendations are advisory; never hand off to or dispatch another worker."
     )
 
 
@@ -150,6 +151,8 @@ def _validate_agent(path: Path, role: str, text: str) -> list[str]:
         findings.append(f"{path}: Agent tool would permit child delegation")
     if "spawn child" not in body.lower():
         findings.append(f"{path}: missing no-child boundary")
+    if "main thread" not in body.lower() or "dispatch another worker" not in body.lower():
+        findings.append(f"{path}: missing main-mediated delegation boundary")
     return findings
 
 
@@ -161,7 +164,7 @@ Use only the approved project-local Claude Code subagents under `.claude/agents/
 
 {role_lines}
 
-The main thread owns product decisions, active specifications and plans, integration, and Git. Give subagents anchored briefs and disjoint write sets. Researcher, architect, and QA roles are report-only and receive no write set; their `permissionMode = plan` and restricted tools are intent, while the parent permission context can take precedence. Only the approved implementer receives write-capable tools. Subagents never invoke the Agent tool or spawn children. Report each delegation wave with role names, configured model values, effort values, and the report-only/no-write-set/no-child boundary. Claude model and effort choices are host-native starting points and remain adjustable; do not copy Codex model slugs into these files. Plumbline does not edit global Claude settings or enable experimental Agent Teams.
+The main thread owns product decisions, active specifications and plans, integration, and Git. Give subagents anchored briefs and disjoint write sets. Researcher, architect, and QA roles are report-only and receive no write set; their `permissionMode = plan` and restricted tools are intent, while the parent permission context can take precedence. Only the approved implementer receives write-capable tools. Delegation is main-mediated: every worker returns to the main thread, worker recommendations are advisory, and only the main thread selects and dispatches the next capability. Subagents never invoke the Agent tool or spawn children. When independent work is ready, the main thread may dispatch one parallel wave only with a stable contract, disjoint scopes, no result dependency, and a clear join condition; otherwise keep it serial. Report each delegation wave with role names, configured model values, effort values, and the report-only/no-write-set/no-child boundary. Claude model and effort choices are host-native starting points and remain adjustable; do not copy Codex model slugs into these files. Plumbline does not edit global Claude settings or enable experimental Agent Teams.
 """
 
 

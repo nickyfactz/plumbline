@@ -10,7 +10,9 @@ Record one owner in the active plan and report it only when ownership changes, a
 
 Use only a matching project-local definition under `.codex/agents/` for Codex or `.claude/agents/` for Claude Code. Check `.codex/config.toml` for Codex capability settings; Claude project agents do not require a Plumbline project config. Global config may explain host capability or provide a model candidate, but personal/global agent files are never selected or used as fallback. If no local role is available, keep the work on the main thread and report `Direct: <reason>`. At a delegation wave, state the selected role names with the host-native model and reasoning/effort values in one compact line.
 
-For Codex, project `agents.max_depth = 1` is the recommended ceiling. Claude roles use the equivalent explicit instruction and omit the `Agent` tool. The main thread may create direct workers; workers must never create children, delegate further, or form a second agent hierarchy.
+For Codex, project `agents.max_depth = 1` is a recommended starting value, not a Plumbline-enforced ceiling; users may choose another host-supported value. Claude roles use the equivalent explicit instruction and omit the `Agent` tool. The main thread may create direct workers; workers must never create children, delegate further, or form a second agent hierarchy.
+
+Delegation is hub-and-spoke: every worker returns evidence to the main thread. A worker recommendation is advisory; only the main thread selects the next capability, builds the next brief, and dispatches it. Workers never invoke, hand off to, or dispatch another worker. This rule does not require visible `main -> worker -> main` telemetry or a graph artifact.
 
 ## Capability versus assignment
 
@@ -42,7 +44,7 @@ If the architect cannot resolve an uncertainty without choosing a material produ
 
 For material risk, carry one compact scenario-to-proof matrix from the architect brief into the plan and downstream worker briefs. Add only applicable scenarios and omit the matrix for mechanical or otherwise low-risk work; it is not a universal checklist or a new artifact.
 
-Run independent work packages in parallel only after shared contracts are stable. Serialize any package that touches a shared file, public interface, schema, migration, or generated artifact. If a worker needs another file, pause and renegotiate ownership in the main thread.
+Run independent work packages in parallel only after shared contracts are stable and the main thread can name disjoint scopes, no result dependency, and a clear join condition. This applies equally to independent research, architecture lenses, QA lenses, and disjoint implementation checkpoints. Keep work serial when it shares files, public interfaces, schemas, migrations, generated artifacts, unstable contracts, or a moving review delta. The main thread classifies and integrates every result before dispatching downstream work; a worker recommendation never creates a new delegation wave.
 
 Worker reports should name changed files, behavior, checks run, failures, residual risk, and follow-up without pasting large successful command logs. The main thread inspects and integrates the result, updates the plan, runs checkpoint verification, and summarizes evidence as command, outcome, counts or failure tail, and artifact path where applicable. Do not let agents create recursive agent organizations or write commits behind the main thread.
 

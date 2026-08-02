@@ -68,7 +68,8 @@ Use `$plumbline-init` for the combined router/team setup and `$plumbline-agent-t
 {role_lines}
 
 Keep direct low-risk or contract-complete work in the main thread. The main thread owns product decisions, active specs and plans, integration, and Git. Give workers context-bounded briefs with anchored read sections and disjoint write sets; do not pass full history or whole documentation trees when unchanged artifacts answer the question. The report-only roles (researcher, architect, and QA) receive no write set. Their `sandbox_mode = "read-only"` is intent; a writable parent is normal for a goal and may affect the child's effective sandbox. At each delegation wave, emit one compact line such as `Delegated wave: researcher [model=<slug>, reasoning=<effort>] — Boundary: report-only; no write set; no child agents`; report selected role names with configured model slugs and reasoning efforts, include effective model, reasoning, or sandbox values only when observable and materially different, and do not repeat unchanged configuration on resume. Inspect Git status/diff after the child returns, and never silently integrate unexpected edits. Only the approved implementer receives a bounded write set. Workers never spawn child agents. Do not use personal or global agent files as fallbacks. If no local role is available, state `Direct: <reason>` and continue on the main thread.
-Keep `features.multi_agent = true` and `agents.max_depth = 1` in project `.codex/config.toml`. Every role TOML must carry explicit `model`, `model_reasoning_effort`, and `sandbox_mode` values approved during setup.
+Delegation is main-mediated: every worker returns to the main thread, worker recommendations are advisory, and only the main thread selects and dispatches the next capability. Workers never invoke, hand off to, or dispatch another worker. When independent work is ready, the main thread may use one parallel wave only with a stable contract, disjoint scopes, no result dependency, and a clear join condition; otherwise keep it serial.
+Keep `features.multi_agent = true` in project `.codex/config.toml`. Treat `agents.max_threads` and `agents.max_depth` as user-owned host settings; the setup template recommends 6 and 1 as starting values, but approved alternatives are preserved. Every role TOML must carry explicit `model`, `model_reasoning_effort`, and `sandbox_mode` values approved during setup.
 Treat the approved model and reasoning values as adjustable starting points, not permanent policy: prefer the cheapest effective setting supported by the task, revisit it with evidence, and preserve tuned role fields during audit/retune unless explicitly approved.
 
 Before dispatch, identify one lifecycle owner. Installed or enabled skills are available capabilities, not active ownership; an explicitly selected competing controller owns its own checkpoint and closeout flow.
@@ -82,7 +83,10 @@ AGENT_GUIDANCE_MARKERS = (
     "model slugs",
     "reasoning efforts",
     "one compact line",
-    "max_depth = 1",
+    "recommended starting values",
+    "main-mediated",
+    "recommendations are advisory",
+    "parallel wave",
     "report-only roles",
     "no write set",
     "effective sandbox",
@@ -200,22 +204,25 @@ def _config_changes(before: str | None, after: str) -> tuple[str, ...]:
 def _ensure_config(
     repo: Path,
     max_threads: int,
+    max_depth: int,
     replace: bool,
     *,
     apply: bool = True,
 ) -> tuple[Path, tuple[str, ...]]:
     target = repo / ".codex" / "config.toml"
-    desired = {"features.multi_agent": True, "agents.max_threads": max_threads, "agents.max_depth": 1}
+    desired = {"features.multi_agent": True, "agents.max_threads": max_threads, "agents.max_depth": max_depth}
     if not target.exists():
         if apply:
             _write(
                 target,
                 "# Plumbline project-local agent settings. Workers never spawn children.\n"
+                "# Recommended starting values are 6 threads and depth 1; approved alternatives are valid.\n"
+                "# Thread and depth values remain approved, user-owned host settings.\n"
                 "[features]\n"
                 "multi_agent = true\n\n"
                 "[agents]\n"
                 f"max_threads = {max_threads}\n"
-                "max_depth = 1\n",
+                f"max_depth = {max_depth}\n",
             )
         return target, CONFIG_FIELDS
 
@@ -228,7 +235,7 @@ def _ensure_config(
             f"project config differs at {target}; show and approve the exact patch, then rerun with --replace-config"
         )
     text = _set_table_values(before, "features", {"multi_agent": "true"})
-    text = _set_table_values(text, "agents", {"max_threads": str(max_threads), "max_depth": "1"})
+    text = _set_table_values(text, "agents", {"max_threads": str(max_threads), "max_depth": str(max_depth)})
     if apply:
         _write(target, text)
     return target, _config_changes(before, text)
@@ -333,10 +340,10 @@ def _audit_config(repo: Path) -> list[str]:
     findings = []
     if values["features.multi_agent"] is not True:
         findings.append(f"{target}: features.multi_agent must be true")
-    if not isinstance(values["agents.max_threads"], int) or values["agents.max_threads"] < 1:
+    if type(values["agents.max_threads"]) is not int or values["agents.max_threads"] < 1:
         findings.append(f"{target}: agents.max_threads must be a positive integer")
-    if values["agents.max_depth"] != 1:
-        findings.append(f"{target}: agents.max_depth must be 1")
+    if type(values["agents.max_depth"]) is not int or values["agents.max_depth"] < 0:
+        findings.append(f"{target}: agents.max_depth must be a non-negative integer")
     return findings
 
 
@@ -404,6 +411,7 @@ def _retune(
     fill_missing: bool,
     update_instructions: bool,
     max_threads: int,
+    max_depth: int,
     replace_config: bool,
     dry_run: bool,
 ) -> InstallReport:
@@ -416,7 +424,7 @@ def _retune(
     findings.extend(_audit_agents_guidance(repo))
     if replace_config:
         config_existed = (repo / ".codex" / "config.toml").exists()
-        config_path, config_fields = _ensure_config(repo, max_threads, True, apply=not dry_run)
+        config_path, config_fields = _ensure_config(repo, max_threads, max_depth, True, apply=not dry_run)
         if config_fields:
             changes[config_path] = config_fields
             operations[config_path] = "modify" if config_existed else "create"
@@ -496,6 +504,7 @@ def _initialize(
     model: str | None,
     reasoning_effort: str | None,
     max_threads: int,
+    max_depth: int,
     replace: bool,
     replace_config: bool,
     update_agents: bool,
@@ -514,7 +523,7 @@ def _initialize(
     guidance = _prepare_agents_guidance(repo, roles) if update_agents else None
     config_target = repo / ".codex" / "config.toml"
     config_existed = config_target.exists()
-    config_path, config_fields = _ensure_config(repo, max_threads, replace_config, apply=not dry_run)
+    config_path, config_fields = _ensure_config(repo, max_threads, max_depth, replace_config, apply=not dry_run)
     if config_fields:
         changes[config_path] = config_fields
         operations[config_path] = "modify" if config_existed else "create"
@@ -572,6 +581,7 @@ def install(
     reasoning_effort: str | None = None,
     roles: tuple[str, ...] = ROLES,
     max_threads: int = 6,
+    max_depth: int = 1,
     replace: bool = False,
     replace_config: bool = False,
     fill_missing: bool = False,
@@ -588,6 +598,8 @@ def install(
         raise ValueError(f"roles must be selected from: {', '.join(ROLES)}")
     if max_threads < 1:
         raise ValueError("max_threads must be at least 1")
+    if max_depth < 0:
+        raise ValueError("max_depth must be non-negative")
     if mode == "audit":
         if any((replace, replace_config, fill_missing, update_instructions, update_agents, propagate)):
             raise ValueError("audit is read-only; remove mutation flags")
@@ -606,6 +618,7 @@ def install(
             fill_missing=fill_missing,
             update_instructions=update_instructions,
             max_threads=max_threads,
+            max_depth=max_depth,
             replace_config=replace_config,
             dry_run=dry_run,
         )
@@ -618,6 +631,7 @@ def install(
         model=model,
         reasoning_effort=reasoning_effort,
         max_threads=max_threads,
+        max_depth=max_depth,
         replace=replace,
         replace_config=replace_config,
         update_agents=update_agents,
@@ -679,6 +693,7 @@ def main() -> int:
     parser.add_argument("--reasoning-effort", help="Approved reasoning effort for new or missing project fields")
     parser.add_argument("--roles", type=_parse_roles, default=ROLES, help="Comma-separated roles")
     parser.add_argument("--max-threads", type=int, default=6)
+    parser.add_argument("--max-depth", type=int, default=1)
     parser.add_argument("--replace", action="store_true", help="Replace existing role files during initialize only")
     parser.add_argument("--replace-config", action="store_true", help="Apply the approved project config patch")
     parser.add_argument("--fill-missing", action="store_true", help="Retune by adding missing fields only")
@@ -698,6 +713,7 @@ def main() -> int:
             reasoning_effort=args.reasoning_effort,
             roles=args.roles,
             max_threads=args.max_threads,
+            max_depth=args.max_depth,
             replace=args.replace,
             replace_config=args.replace_config,
             fill_missing=args.fill_missing,
