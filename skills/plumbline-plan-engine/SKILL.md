@@ -17,7 +17,7 @@ For a checkpoint involving material state, persistence, concurrency, security, a
 
 If a checkpoint architect finds a material product uncertainty, route the structured escalation to the main orchestrator. The main thread may use Shape within the active goal, preserve the plan and lifecycle owner, and block only the dependent checkpoint while independent work continues. Do not ask the user to choose an implementation mechanism, end the goal, or create a parallel shaping or planning lifecycle.
 
-Carry the compact matrix into the implementer and QA acceptance brief when it exists. For mechanical or otherwise low-risk work, omit it and keep the existing lightweight checkpoint card.
+Carry the compact matrix into the implementer and QA acceptance brief when it exists. For a material checkpoint, make the existing checkpoint card or matrix sufficient to form a transient dispatch contract: observable outcome, invariants and owners, operation or partial-failure boundary, applicable edge behavior, proof, write set, and non-goals or assumptions. This is prompt content only, not a new durable artifact or approval gate. For mechanical or otherwise low-risk work, omit it and keep the existing lightweight checkpoint card.
 
 Use the repository's existing plan location only when a durable plan is warranted; for a blank repository default to docs/plans/<feature-slug>.md. Track statuses Pending, In Progress, Blocked, Complete, Reopened, and Superseded when using a Plumbline plan. Keep the plan resumable from the controlling source/spec/plan/Git state after compaction. Do not put full implementation code or two-minute task transcripts in it. Every plan artifact or announcement must support recovery, validation, authorization, or ownership.
 
