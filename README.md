@@ -33,6 +33,29 @@ codex
 
 Choose the `plumbline` marketplace and install `Plumbline`. The browser path is available in Codex CLI and the Codex desktop app.
 
+#### Codex desktop app
+
+In the ChatGPT desktop app, open the repository as your project and select
+the **Codex** surface. Open **Plugins**, choose the `plumbline` marketplace,
+and install **Plumbline**. The repository includes
+`.agents/plugins/marketplace.json`, so a local checkout can provide the
+marketplace entry. Start a new chat after installation.
+
+If the marketplace is not visible, restart the app after opening the project.
+You can also ask Codex to perform the setup:
+
+```text
+Install the Plumbline plugin from the GitHub repository nickyfactz/plumbline.
+Register its plugin marketplace and install plumbline@plumbline. Do not modify
+the repository files or initialize Plumbline; only configure the plugin, then
+tell me what changed.
+```
+
+The equivalent CLI fallback is `codex plugin marketplace add
+nickyfactz/plumbline@main`, followed by `codex plugin add plumbline@plumbline`.
+See the [official Codex plugin documentation](https://learn.chatgpt.com/docs/plugins)
+for the current desktop and marketplace UI.
+
 For a local checkout of this repository:
 
 ```bash
@@ -57,6 +80,34 @@ claude plugin install plumbline@plumbline
 ```
 
 Reload the current session with `/reload-plugins`, or start a new Claude Code session. Claude Code uses the same platform-neutral `SKILL.md` workflows; the Claude manifest and marketplace provide the installation surface.
+
+#### Claude Code desktop app
+
+Open the repository in the Claude desktop app's **Code** tab. Select the `+`
+button beside the prompt, choose **Plugins**, then **Add plugin**. If the
+Plumbline marketplace is already configured, select **Plumbline** and install
+it at the user, project, or local scope you prefer. Start a new session or run
+`/reload-plugins` after installation.
+
+If the marketplace is not listed, ask Claude Code from the Code session:
+
+```text
+Add the GitHub plugin marketplace nickyfactz/plumbline@main, install
+plumbline@plumbline, and reload the plugins. Do not edit this repository or
+initialize Plumbline; only configure the plugin and report what changed.
+```
+
+The direct in-session commands are:
+
+```text
+/plugin marketplace add nickyfactz/plumbline@main
+/plugin install plumbline@plumbline
+/reload-plugins
+```
+
+See the [Claude Code desktop plugin guide](https://code.claude.com/docs/en/desktop)
+and [marketplace guide](https://code.claude.com/docs/en/discover-plugins) if
+the labels differ in your installed version.
 
 ## Your first project
 
