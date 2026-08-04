@@ -25,6 +25,28 @@ At each delegation wave, emit one compact line such as Delegated wave: researche
 
 ## Worker briefs
 
+Treat each independent assignment as a fresh worker context by default. Reuse a
+worker only when continuity materially benefits the same active slice with the
+same outcome, contract, write set, and acceptance condition. A changed
+objective, seam, contract, write set, acceptance condition, or materially new
+failure requires a fresh context; previous worker conclusions are context, not
+evidence. The main thread makes this reuse decision explicitly without adding
+user-facing ceremony. A completed worker is retired for default dispatch and
+must not be awakened for unrelated follow-up work.
+
+When continuity is genuinely useful, begin the reused-worker brief with a
+reset capsule: current assignment, current commit or artifact, exact failure or
+question, write set, acceptance condition, and exclusions. Tell the worker to
+inspect the current repository and treat its prior conclusions as untrusted.
+Keep this policy host-neutral; do not encode a provider-specific follow-up,
+fork, or worker-retirement API.
+
+For live or recovery work, add an optional transient runtime-state capsule to
+fresh or reused worker briefs: verified commit or deployed artifact, active
+symptom, last known-good observation, exact write set, acceptance condition,
+and exclusions. Omit it for non-runtime work and refresh it only after a
+material code, artifact, deployment, restart, or failure-state change.
+
 Give each worker a context-bounded brief containing:
 
 - the checkpoint outcome and acceptance criteria;
@@ -45,6 +67,12 @@ If the architect cannot resolve an uncertainty without choosing a material produ
 For material risk, carry one compact scenario-to-proof matrix from the architect brief into the plan and downstream worker briefs. Add only applicable scenarios and omit the matrix for mechanical or otherwise low-risk work; it is not a universal checklist or a new artifact.
 
 Run independent work packages in parallel only after shared contracts are stable and the main thread can name disjoint scopes, no result dependency, and a clear join condition. This applies equally to independent research, architecture lenses, QA lenses, and disjoint implementation checkpoints. Keep work serial when it shares files, public interfaces, schemas, migrations, generated artifacts, unstable contracts, or a moving review delta. The main thread classifies and integrates every result before dispatching downstream work; a worker recommendation never creates a new delegation wave.
+
+Do not let parallel workers concurrently build, deploy, restart, or mutate a
+shared or singleton runtime. The main thread or a named project owner performs
+that operation; workers may inspect the result or run disjoint checks. Reuse
+the resulting artifact and classify the operation's evidence at the main-thread
+join.
 
 Worker reports should name changed files, behavior, checks run, failures, residual risk, and follow-up without pasting large successful command logs. The main thread inspects and integrates the result, updates the plan, runs checkpoint verification, and summarizes evidence as command, outcome, counts or failure tail, and artifact path where applicable. Do not let agents create recursive agent organizations or write commits behind the main thread.
 

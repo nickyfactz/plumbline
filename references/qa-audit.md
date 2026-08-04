@@ -2,7 +2,7 @@
 
 QA is an independent report-only check. Standard review asks whether the implementation satisfies the active spec, plan, public behavior, security expectations, verification evidence, and canonical-document impact. Deep review adds adversarial edge cases and targeted non-mutating probes.
 
-Do not write tests, edit code, update snapshots, install dependencies, or rerun a full suite merely to duplicate closeout evidence. Keep small, low-risk, direct, documentation-only, and process reviews on the main thread; prefer a fresh `qa-auditor` when migration, security, concurrency, data, public-contract, high-risk runtime behavior, a plan requirement, or an explicit independent review justifies it. A probe must answer a named uncertainty and stop when it does.
+Do not write tests, edit code, update snapshots, install dependencies, or rerun a full suite merely to duplicate closeout evidence. Keep small, low-risk, direct, documentation-only, and process reviews on the main thread; prefer a fresh `qa-auditor` when migration, security, concurrency, data, public-contract, high-risk runtime behavior, a plan requirement, or an explicit independent review justifies it. Use a fresh reviewer for each materially changed delta; reuse a reviewer only to clarify evidence for an unchanged delta. A probe must answer a named uncertainty and stop when it does.
 
 Use the verdicts:
 

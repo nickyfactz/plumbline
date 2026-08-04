@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.11 - 2026-08-04
+
+- Prefer fresh worker contexts for independent assignments and fresh QA for materially changed deltas.
+- Batch same-seam corrective fixes before repeating expensive runtime gates.
+- Add proportional runtime preflight, bounded observation, runtime-state capsule, and singleton-operation ownership guidance.
+
 ## 0.1.8 - 2026-08-01
 
 - Add a Claude Code project-local agent-team adapter using shared role instructions and native Markdown subagent fields.
