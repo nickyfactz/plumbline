@@ -1,6 +1,6 @@
 ---
 name: plumbline-shape
-description: Shape a product concept through repository research and one product-level question at a time, without implementing it.
+description: Shape a product concept through repository research and one product-level question or bounded batch of independent questions at a time, without implementing it.
 disable-model-invocation: true
 ---
 

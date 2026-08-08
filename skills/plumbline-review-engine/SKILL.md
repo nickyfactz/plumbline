@@ -5,11 +5,52 @@ description: Internal Plumbline engine. Use only after the Plumbline router or a
 
 # Review engine
 
-Report only. Choose `standard` for the normal completion audit or `deep` when the user requests stronger adversarial scrutiny. Read the active specification and plan, the requested fixed point or current diff, repository standards, canonical docs, and validation evidence. For small, low-risk, direct, documentation-only, or process questions, perform the standard audit on the main thread without dispatching QA merely for ceremony. Dispatch a fresh report-only `qa-auditor` for migrations, security, concurrency, data, public contracts, high-risk runtime behavior, a plan-required review, or an explicit independent-review request. When dispatching, emit one line such as `Delegated wave: qa-auditor [model=<host-native-model>, reasoning=<effort>] - Boundary: report-only; no write set; no child agents`; include effective values only when the host exposes them. Codex `sandbox_mode = "read-only"` and Claude `permissionMode: plan` are intent; a writable or permissive parent may affect the effective sandbox or permission. Record configured/effective values when observable, inspect the diff after the child returns, and never claim hard isolation from the role file alone. A worker that authored the patch cannot count as its independent reviewer. Never select a personal/global QA agent or another global fallback. If the local role is absent, state `Direct: qa-auditor unavailable` and perform the report on the main thread. If hard read-only isolation is required but unavailable, state `Direct: delegation prohibited or effective read-only isolation unavailable` and perform the report directly. Workers never spawn children or invoke, hand off to, or dispatch another worker; their findings are advisory and return to the main thread. Independent QA lenses may share one parallel wave only against the same stable delta with disjoint review scopes and a clear main-thread join; otherwise review serially.
+## Outcome and completion
 
-Treat minimality as subordinate to completeness: a smaller diff is not a pass if it omits required behavior, companion surfaces, failure/recovery paths, compatibility, or meaningful proof. Check behavior, security, failure/recovery, acceptance-criterion coverage, valuable regression protection, and documentation truth. Use a specification-to-diff matrix for planned features. Review at public seams, not private implementation details. A targeted non-mutating probe is allowed only to settle a material uncertainty; do not write tests, edit code, update snapshots, install dependencies, or duplicate the whole closeout suite.
+Produce one evidence-bound, report-only assessment of the requested stable
+delta. Complete Review with a verdict, findings tied to paths and evidence,
+acceptance coverage, residual risk, and any affected checkpoint. Review leaves
+the repository unchanged.
 
-Return one evidence-bound verdict:
+## Select the review depth
+
+Choose `standard` for the normal completion audit or `deep` when the user asks
+for stronger adversarial scrutiny. Read the active specification and plan, the
+requested fixed point or current diff, repository standards, canonical docs, and
+validation evidence. Review at public seams and use a specification-to-diff
+matrix for planned features.
+
+Keep small, low-risk, direct, documentation-only, and process reviews on the
+main thread. Dispatch a fresh report-only `qa-auditor` for migrations,
+security, concurrency, data, public contracts, high-risk runtime behavior, a
+plan-required review, or an explicit independent-review request. Use the
+existing one-line `Delegated wave:` report with role, host-native model,
+reasoning/effort, and a report-only boundary with no write set and no child
+agents. Independent QA lenses share one parallel wave only against one stable
+delta with disjoint scopes and a clear join condition.
+
+Use project-local roles only. If the role is absent, report
+`Direct: qa-auditor unavailable` and review on the main thread. If hard
+read-only isolation is required but unavailable, report
+`Direct: delegation prohibited or effective read-only isolation unavailable`.
+Codex `sandbox_mode = "read-only"` and Claude `permissionMode: plan` express
+intent; inspect the effective sandbox and result rather than claiming isolation
+from the role file.
+The author of a patch is not its independent reviewer. Workers return findings
+to the main thread, workers never spawn children, and they do not invoke or
+dispatch another worker. Personal/global QA agents are not fallback reviewers.
+
+## Check completeness and risk
+
+Treat minimality as a constraint inside completeness: a small diff passes only
+when it covers required behavior, companion surfaces, failure/recovery paths,
+compatibility, and meaningful proof. Check behavior, security,
+failure/recovery, acceptance coverage, valuable regression protection, and
+documentation truth. Use a targeted non-mutating probe only to settle a named
+material uncertainty. Keep tests, snapshots, dependencies, and closeout
+changes outside a report-only review.
+
+Return one verdict:
 
 - `PASS` — no material gap found;
 - `PASS_WITH_RESIDUAL_RISK` — acceptable with a named, bounded uncertainty;

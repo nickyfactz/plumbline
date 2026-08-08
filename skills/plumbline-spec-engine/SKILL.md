@@ -5,14 +5,55 @@ description: Internal Plumbline engine. Use only after the Plumbline router or a
 
 # Specification engine
 
-Create or adopt the controlling product specification for the current task. It may be a user-supplied internal or external design, handoff, attachment, or prior plan; do not require a generated file, path, frontmatter, or lifecycle vocabulary. Read references/specification-template.md, references/artifact-lifecycle.md, and references/product-autonomy.md when available.
+## Outcome and completion
 
-First assess sufficiency, not Plumbline conformance. If the supplied artifact already settles outcome, users/workflows, scope, non-goals, behavior, constraints, and acceptance/proof, adopt it at the latest safe phase without re-grilling. If it is sufficient for execution but lacks a separate specification file, do not create a duplicate merely to satisfy Plumbline. Recommend a companion specification only when it materially improves product clarity or recovery. If product intent is materially unresolved, return to Shape for one blocking product question.
+Create or adopt one controlling product specification for the current task. A
+specification is complete when it states the product outcome, users/workflows,
+scope, non-goals, required behavior, constraints, acceptance/proof direction,
+and remaining assumptions or residual questions clearly enough for planning.
 
-Materialize chat-only or attachment-only requirements before long-running work when a durable record is needed. Preserve original source and provenance; do not rewrite a large or binary input wholesale. Hash large inputs, avoid secrets, and use a safe Markdown extraction when committing the original would be unsafe.
+## Adopt the strongest source
 
-Use the repository's existing canonical/transient locations when a repository artifact is warranted. For a blank repository, default to docs/specs/<feature-slug>.md. Select one controlling specification for this task; unrelated specifications are not blockers. If several competing candidates could control the same task, report the ambiguity and ask the user to select one rather than silently merging them.
+Assess sufficiency, not Plumbline conformance. Accept a user-supplied internal
+or external design, handoff, attachment, or prior plan when it settles outcome,
+users/workflows, scope, non-goals, behavior, constraints, and acceptance/proof.
+Adopt it at the latest safe phase without replaying settled shaping.
 
-When an approved shaping handoff already exists, adopt it in place and promote its status to the active specification. Expand its compact headings into the existing specification template instead of creating a second file. Preserve decisions, research findings and source links, open product questions, fog items, rejected alternatives, and non-goals. Carry non-blocking fog into assumptions or residual questions; do not block planning merely to eliminate uncertainty that does not affect the product outcome.
+When an artifact is sufficient for execution but lacks a separate specification
+file, preserve the artifact. Do not require a separate file when the supplied
+artifact is sufficient. Recommend a companion only when it materially
+improves product clarity or recovery. Keep one controlling source for the task;
+name competing candidates and ask the user to select one rather than silently
+merging them.
 
-Ask only blocking product questions, one at a time, with a recommendation. Technical choices belong to the agent. Record product amendments explicitly; do not silently change an approved source. Do not implement code. When the controlling artifact is sufficient for the next phase, report the adoption or companion recommendation once and tell the user to use the explicit `plumbline-plan` or `plumbline-execute` skill as appropriate.
+Read `references/specification-template.md`,
+`references/artifact-lifecycle.md`, and `references/product-autonomy.md` when
+creating, adopting, or expanding a specification. Use the repository's
+existing canonical/transient locations. For a blank repository, use
+`docs/specs/<feature-slug>.md`.
+
+## Adopt a shaping handoff
+
+When an approved shaping handoff exists, promote it in place as the active
+specification. Expand its compact headings into the existing specification
+template instead of creating a competing file. Preserve decisions, research
+findings and source links, open product questions, fog items, rejected
+alternatives, and non-goals. Carry non-blocking fog into assumptions or
+residual questions; leave it visible without blocking planning.
+
+Materialize chat-only or attachment-only requirements before long-running work
+when a durable record is needed. Preserve source and provenance, avoid
+rewriting large or binary inputs wholesale, hash large inputs when appropriate,
+and use a safe Markdown extraction when committing the original is unsafe.
+
+## Resolve product questions only
+
+Ask only blocking product questions, one at a time, with a recommendation. Technical
+choices belong to the agent and should come from repository evidence, research,
+conventions, and safe defaults. Record product amendments explicitly and keep
+the approved source's intent intact.
+
+When the controlling artifact is sufficient for the next phase, report the
+adoption or companion recommendation once and direct the user to
+`plumbline-plan` or `plumbline-execute`. Specification creates or adopts the
+contract; it does not implement code.

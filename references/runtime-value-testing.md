@@ -20,3 +20,13 @@ environment. Stop when a prerequisite fails, the artifact is wrong, a named
 stop condition occurs, or repeated observations add no new evidence; classify
 the result and diagnose instead of retrying indefinitely. Do not hardcode a
 universal retry count.
+
+## Deterministic operations
+
+Keep known commands and singleton operations with the main thread or a named
+project owner: builds, deployments, restarts, migrations, package publication,
+and other actions that have one authoritative invocation or shared side effect.
+Workers may recommend a command, inspect its result, or run disjoint checks;
+they do not duplicate the owner operation. Record the command, owner, artifact,
+and result at the main-thread join so downstream work uses one authoritative
+state.

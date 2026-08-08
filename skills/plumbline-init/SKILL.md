@@ -58,3 +58,13 @@ Apply only the approved items. Rerun the dry-run manifest; if the target changed
 Validate Plumbline setup separately from repository product checks. Report Plumbline files/config/TOML-or-Markdown/ignore/worktree validation as passed or failed; preflight repository commands for missing dependencies or executables; and label repository checks as passed, skipped, or blocked. Missing dependencies are a repository bootstrap blocker, not a Plumbline setup failure, and do not justify starting `npm ci` or another install without approval. Validate required host fields, Codex `multi_agent=true` and structurally valid user-owned thread/depth values where applicable, AGENTS guidance, local discovery paths, ignore rules, exact changed-field output, `git diff --check`, and the `.worktreeinclude` contents. Explain that propagation affects new managed worktrees only when the host/repository workflow supports it; the `.worktreeinclude` manifest must be committed for future worktrees to see it, and existing worktrees need explicit refresh or local copy. A delegation wave must report selected role names with host-native model and reasoning/effort values in one compact line; otherwise report `Direct: <reason>` and continue on the main thread. End initialization and recommend a fresh task for feature work.
 
 A writable parent is normal during a goal. For researcher, architect, and QA dispatches, require a report-only brief with no write set. Codex `sandbox_mode = "read-only"` and Claude `permissionMode: plan` are intent rather than proof of hard isolation when a parent is writable or permissive. If the host cannot provide hard read-only isolation when it is required, use `Direct: delegation prohibited or effective read-only isolation unavailable`.
+
+## Completion
+
+The read-only proposal is complete when it names the host, selected roles,
+model/reasoning or effort values, permission intent, config changes, file
+manifest, propagation effects, and validation expectations. Approved setup is
+complete when only the approved files changed, exact changed fields are
+reported, Plumbline validation is separated from repository bootstrap checks,
+and the resulting local discovery and worktree-propagation state is verified.
+Recommend a fresh task for feature work after setup.

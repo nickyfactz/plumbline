@@ -5,24 +5,119 @@ description: Internal Plumbline engine. Use only after the Plumbline router or a
 
 # Plan engine
 
-Create one live implementation plan for one product outcome. Read the active specification, repository instructions, canonical docs, current Git state, validation commands, and relevant code seams. Read references/plan-schema.md, references/artifact-lifecycle.md, and references/research-policy.md when available.
+## Outcome and completion
 
-Planning is artifact-agnostic. Adopt a sufficient external specification, design, handoff, external plan or work order even when it has no Plumbline frontmatter or conventional path. A separate active specification is recommended only when the product contract is incomplete or recovery would materially benefit. If a supplied plan already contains scope, boundaries, checkpoints, proof, and the next safe action, adopt it instead of creating a competing plan. If several artifacts could control the same task, report the competing candidates and ambiguity; do not merge them silently.
+Create one live implementation plan for one product outcome. The plan is the
+execution itinerary, not a task transcript or an implementation diary.
 
-Keep the feature whole. Use meaningful chronological checkpoints, usually a small handful rather than micro-tasks. Batch adjacent evidence-only, packaging, receipt, or documentation work into its parent implementation checkpoint. Create a separate checkpoint only when the work has an independent outcome or acceptance gate, rollback boundary, material risk/contract boundary, or owner. Do not split a coherent outcome only to narrate proof steps. Use the compact checkpoint card from references/plan-schema.md by default and expand only for material boundaries. Map every acceptance criterion to a checkpoint. Mark shared contracts and shared files so false parallelism is visible. Within that topology, identify ready independent research, architecture, review, or implementation work and its main-thread join condition; do not split work merely to manufacture parallelism.
+Planning is artifact-agnostic. Accept a sufficient external plan or work order
+without forcing it into Plumbline's file shape.
 
-Unless the user explicitly requests checkpoint-by-checkpoint execution or a checkpoint contains a deliberate user approval gate, the checkpoint sequence is the execution itinerary for the whole plan. Design checkpoints as internal team handoffs that Execute can complete and report back through serially or in safe main-mediated parallel waves; do not treat each checkpoint as a separate user session or an implicit pause.
+Planning is complete when one controlling plan records the outcome, scope,
+non-goals, checkpoint dependency order, proof, current checkpoint, lifecycle
+owner, and one safe next action. Stop after planning; the user or router selects
+the explicit `plumbline-execute` phase when implementation is wanted.
 
-For a checkpoint involving material state, persistence, concurrency, security, a public contract, or cross-boundary ownership transfer, make the acceptance expose the applicable identity/ownership, transition and terminal-ordering, failure/recovery/cancellation or shutdown, compatibility, and runtime-proof requirements. Express the applicable cases in one compact scenario-to-proof matrix: scenario, expected observable behavior, terminal owner/order, and proof. Include only relevant rows such as normal completion, interruption or shutdown, partial failure/recovery, late or duplicate input, compatibility, security rejection, or restart. Do not combine independently mutable state machines or ownership transfers unless they share one acceptance and rollback boundary. This is a risk filter, not a universal checklist, and must not create micro-checkpoints.
+## Read the controlling inputs
 
-If a checkpoint architect finds a material product uncertainty, route the structured escalation to the main orchestrator. The main thread may use Shape within the active goal, preserve the plan and lifecycle owner, and block only the dependent checkpoint while independent work continues. Do not ask the user to choose an implementation mechanism, end the goal, or create a parallel shaping or planning lifecycle.
+Read the active specification, supplied design or work order, repository
+guidance, canonical documentation, current Git state, validation commands, and
+the relevant code seams. When creating or updating a Plumbline plan, read
+`references/plan-schema.md` and `references/artifact-lifecycle.md`. Read
+`references/research-policy.md` when the plan depends on external capability
+evidence. Resolve the repository's existing plan location before choosing a
+blank-repository default of `docs/plans/<feature-slug>.md`.
 
-Carry the compact matrix into the implementer and QA acceptance brief when it exists. For a material checkpoint, make the existing checkpoint card or matrix sufficient to form a transient dispatch contract: observable outcome, invariants and owners, operation or partial-failure boundary, applicable edge behavior, proof, write set, and non-goals or assumptions. This is prompt content only, not a new durable artifact or approval gate. For mechanical or otherwise low-risk work, omit it and keep the existing lightweight checkpoint card.
+Adopt a sufficient external specification, design, handoff, plan, or work order
+even when it has no Plumbline frontmatter or conventional path. A companion
+specification or plan is useful only when it materially improves product
+clarity or recovery. When several artifacts could control the same task, name
+the competing candidates and the ambiguity; keep one controlling source rather
+than silently merging them.
 
-Use the repository's existing plan location only when a durable plan is warranted; for a blank repository default to docs/plans/<feature-slug>.md. Track statuses Pending, In Progress, Blocked, Complete, Reopened, and Superseded when using a Plumbline plan. Keep the plan resumable from the controlling source/spec/plan/Git state after compaction. Do not put full implementation code or two-minute task transcripts in it. Every plan artifact or announcement must support recovery, validation, authorization, or ownership.
+## Shape meaningful checkpoints
 
-Before saving a plan update, verify exactly one current checkpoint, matching frontmatter status, and a next_safe_action that points to that checkpoint. Classify unresolved items as Acceptance blocker, Residual risk, Operational follow-up, or Future enhancement; only the first blocks advancement. Treat changing telemetry as timestamped sample evidence rather than a reason to rewrite acceptance.
+Keep the product outcome whole and use a small number of meaningful
+checkpoints. Batch adjacent evidence-only, packaging, receipt, and
+documentation work into its parent implementation checkpoint. Split only for
+an independent outcome or acceptance gate, rollback boundary, material
+contract/risk boundary, or distinct owner.
 
-If implementation or review reveals a material contract, ownership, or state-transition invariant missing from the plan, mark the affected checkpoint Reopened and return to Plan or the applicable architect review before continuing. Keep a small implementation defect in Execute when the accepted contract remains unchanged.
+Prefer a **vertical slice**: one observable behavior carried through the
+relevant storage, service, interface, and proof seams. Internal implementation
+may still proceed in layers; the checkpoint is complete when the behavior works
+as a whole. For each slice, state its observable outcome, completion condition,
+proof, dependencies, write/review scope, and main-thread join condition.
 
-Create a kickoff or recovery-boundary commit before implementation when the user or repository requires it, when work must survive multi-session/operator recovery, when a material ABI/schema/product contract is being established, or when an auditable approval boundary needs it. Otherwise, keep the intended source/spec/plan artifacts tracked but uncommitted until the first coherent boundary. Stage only intended files; never absorb unrelated dirty work. Explicit planning stops after the plan and its current recovery state. Tell the user to use the explicit `plumbline-execute` skill when ready.
+Use a horizontal checkpoint when a shared contract, migration, build
+foundation, authentication seam, or other prerequisite genuinely must precede
+the behavior. Label the prerequisite, identify the downstream slice it
+unlocks, and keep it minimal. For broad refactors, use expand, migrate in
+bounded batches, then contract. Never split or merge work merely to satisfy a
+planning label. Do not split a coherent outcome only to narrate proof steps.
+
+Map every acceptance criterion to a checkpoint. Mark shared contracts and
+shared files so false parallelism is visible. Within that topology, identify
+ready independent research, architecture, review, or implementation work and
+its main-thread join condition for safe parallel waves. Parallelism is useful
+only when it shortens the path without weakening the contract.
+
+Use the compact checkpoint card from `references/plan-schema.md` by default.
+Expand it only for a material boundary. Every plan should answer:
+
+- What observable behavior or prerequisite is this checkpoint delivering?
+- What proves completion, and what is the `Done when` condition?
+- What does it depend on, own, or share?
+- What must the main thread join before downstream work begins?
+
+## Add risk-shaped proof
+
+For a checkpoint involving material state, persistence, concurrency, security,
+a public contract, or cross-boundary ownership transfer, expose the applicable
+identity/ownership, transition and terminal-ordering, failure/recovery/
+cancellation or shutdown, compatibility, and runtime-proof requirements in one
+compact scenario-to-proof matrix. Include only relevant rows. This is a risk
+filter, not a universal checklist and not a reason to create micro-checkpoints.
+
+Carry that matrix into the implementer and QA briefs when it exists. For a
+material checkpoint, make the checkpoint card or matrix sufficient to form a
+transient dispatch contract: outcome, invariants and owners, operation or
+partial-failure boundary, edge behavior, proof, write set, non-goals, and
+assumptions. Keep it in the prompt; it is not a new durable artifact.
+
+## Resolve uncertainty at the right level
+
+Resolve technical boundaries, names, module placement, test seams, and ordinary
+implementation choices from repository evidence and safe reversible defaults.
+If an architect finds a material product uncertainty, return a structured
+escalation to the main orchestrator. The main thread may use the existing Shape
+conversation inside the active goal, preserve the lifecycle owner, and block
+only the dependent checkpoint while independent work continues. The escalation
+does not end the goal or create a competing plan.
+
+## Maintain resumable state
+
+Use statuses `Pending`, `In Progress`, `Blocked`, `Complete`, `Reopened`, and
+`Superseded` when the plan is Plumbline-managed. Keep the compact resume fields
+and the body synchronized. Before saving a plan update, verify exactly one
+current checkpoint, matching frontmatter status, and a `next_safe_action` that
+points to it. Classify unresolved items as Acceptance blocker, Residual risk,
+Operational follow-up, or Future enhancement; only an Acceptance blocker stops
+advancement.
+
+Treat changing telemetry as timestamped sample evidence rather than a reason to
+rewrite stable acceptance. Keep the plan recoverable from the controlling
+source, specification, Git state, and last verified evidence after compaction.
+Every artifact or announcement must support recovery, validation,
+authorization, or ownership; omit the rest.
+
+Create a kickoff or recovery-boundary commit only when the user or repository
+requires it, recovery across sessions needs it, a material contract is being
+established, or an auditable approval boundary calls for it. Otherwise keep
+source, specification, and plan changes uncommitted until the first coherent
+boundary. Stage only intended files and preserve unrelated dirty work.
+
+Unless the user explicitly requests checkpoint-by-checkpoint execution or a
+checkpoint contains a deliberate approval gate, the checkpoint sequence is the
+full execution itinerary. Checkpoints are internal team handoffs, not implicit
+user pauses.

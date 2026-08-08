@@ -217,6 +217,8 @@ It does not restart the lifecycle merely because an artifact came from ChatGPT, 
 
 For a material capability or design question, Shape first checks local repository facts and then performs bounded external research when the option space is open. It presents a concise recommendation, realistic alternatives, tradeoffs, source links, and remaining uncertainty before asking you to choose.
 
+For broad shaping, it keeps a lightweight decision frontier: the currently answerable product decisions whose factual and research prerequisites are settled. It asks the highest-leverage frontier question one at a time by default, or presents a small `❓ Q1`/`➡️ Recommendation` batch when several independent questions are ready. It defers dependent questions, accepts partial answers, and moves on when only fog or non-blocking uncertainty remains. It does not create a permanent decision tree or interview you through every theoretical branch.
+
 Shape may also offer:
 
 - a small throwaway prototype when a behavioral unknown would be cheaper to test than to debate;
@@ -240,6 +242,20 @@ Plumbline adopts settled decisions instead of grilling you again. It may recomme
 For broad work, let the main thread maintain one active specification and one live checkpoint plan. Ask to resume from the current checkpoint rather than restating the whole history. Plumbline uses the plan, handoff, specification, and verification evidence as durable working memory and avoids broad rereads when nothing material has changed.
 
 You remain the owner of product intent and irreversible choices. The agent owns ordinary implementation judgment within the agreed scope. If you do not know an answer yet, Plumbline can preserve it as fog and continue with independent decisions instead of forcing speculation.
+
+### Shape checkpoints around complete behavior
+
+Plans prefer vertical slices: one observable behavior carried through the relevant storage, service, interface, and proof seams. The implementation may still work internally in layers; the checkpoint is simply not considered complete until the behavior works as a whole.
+
+Foundational migrations, shared contracts, build foundations, and similar prerequisites remain valid horizontal checkpoints when they genuinely unlock later behavior. Plumbline labels those prerequisites, keeps them minimal, and connects them to the downstream slice. Broad refactors can use expand, migrate in bounded batches, then contract. This is planning guidance, not a requirement to reorganize every repository into a particular architecture.
+
+### Keep deterministic operations single-owner
+
+The main thread or a named project owner performs singleton builds, deployments, restarts, migrations, and package publication. Workers can recommend or inspect those commands, but they do not duplicate shared side effects. This prevents parallel agents from creating competing artifacts or runtime state.
+
+### Ask for an explanation before changing the phase
+
+If you are confused by a decision, ask Plumbline to re-explain it. It should restate the outcome, current choice, alternatives, and tradeoff in plain language using the project's terms, then continue the existing phase. Confusion alone does not create a new document, phase, or approval gate.
 
 ### Use the agent team as a tool, not a requirement
 

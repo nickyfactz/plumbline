@@ -25,11 +25,31 @@ For a Plumbline-managed feature, keep one controlling feature and one plan. A su
 **Status:** Pending | In Progress | Blocked | Complete | Reopened | Superseded
 | Boundary | <write, ownership, and risk boundary> |
 | Acceptance | <proof that makes the outcome complete> |
+| Done when | <observable completion condition> |
 | Evidence | <commands, artifacts, or UAT result> |
 | Next action | <one safe next step> |
 ```
 
 Expand the card with Outcome, Specification coverage, Dependencies, Execution topology, Shared ownership, Likely files and seams, Runtime protection, Verification, Canonical documentation impact, Completion criterion, Completion evidence, and Deviations and corrections only when a security, schema, rollback, public-contract, process-owner, irreversible, or similarly material boundary needs the detail. Execution topology may identify ready independent work, dependency edges, disjoint scopes, and a main-thread join condition; it does not name a fixed role map or create a scheduler artifact.
+
+## Checkpoint shape
+
+Prefer a **vertical slice**: one observable product behavior carried through the
+relevant storage, service, interface, and proof seams. A slice may contain
+internal layering such as schema, service, UI, and tests; the checkpoint is
+complete when the behavior works as a whole, not when one technical layer is
+finished in isolation.
+
+Use a horizontal checkpoint when it is a real prerequisite, such as a shared
+contract, migration, build foundation, or authentication seam. Label the
+prerequisite, name the downstream slice it unlocks, and keep it minimal. For a
+wide refactor, use expand, migrate in bounded batches, then contract. Never
+split or merge work merely to satisfy the vocabulary of vertical slicing.
+
+For every new or materially changed checkpoint, make the card answer four
+questions: what will be observable, what proves it, what it depends on, and
+what the main thread must join before downstream work starts. Use the smallest
+card that answers those questions; do not turn it into a task transcript.
 
 The frontmatter fields current_checkpoint, checkpoint_status, lifecycle_owner, last_verified_commit, and next_safe_action are the single compact resume record. Update them together when the active checkpoint or safe next action changes; do not create a second checkpoint receipt. Checkpoints are coherent milestones, not micro-task transcripts. Blocked and Reopened stop advancement of that checkpoint; Execute may continue independent checkpoints when their dependencies permit. Update the record after a checkpoint transition, evidence invalidation or material new evidence, a verified-commit change, a next-action change, or a material correction/blocker. Reconcile the expanded body at the same meaningful boundary; do not rewrite it after every command.
 

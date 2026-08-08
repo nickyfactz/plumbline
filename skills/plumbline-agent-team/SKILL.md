@@ -39,3 +39,13 @@ Before asking for approval, run the host-specific candidate installer with `--dr
 After approval, audit and retune output must also report router freshness and AGENTS guidance drift without overwriting either file. A stale router produces a proposed refresh only; applying it requires the explicit router installer `--replace` path.
 
 After approval, rerun the dry-run manifest; if the target changed, refresh the proposal before writing. Then rerun the host-specific installer in `initialize|audit|retune` mode. Retune does not require `--replace`; its output reports the exact changed fields for every file and preserves existing model, effort/reasoning, permission/sandbox, custom fields, and instructions unless explicitly approved. Use `--update-agents` and `--propagate` during initialize only, when approved. Validate every host role's required model, reasoning/effort, permission/sandbox, and no-child boundary, structurally valid user-owned host settings, AGENTS guidance, actual project-local discovery, ignore rules, and the manifest. Report one compact delegation-wave line with selected role names and host-native model plus reasoning/effort values; include effective values only when the host exposes a meaningful difference or the user asks, and use `Direct: <reason>` when no local role is available. If a matching local role is absent, stay on the main thread or report the capability gap; never fall back to a personal/global agent. Report that `.worktreeinclude` must be committed for future worktrees and that existing worktrees need explicit refresh. Run only a bounded, read-only discovery smoke test after approval.
+
+## Completion
+
+An audit is complete when it reports current role fields, instruction and
+boundary drift, router/AGENTS guidance drift, and a read-only change proposal
+without overwriting existing customization. Initialize or retune is complete
+when the approved manifest is applied, exact changed fields are reported,
+required host fields and no-child boundaries validate, project-local discovery
+works, and worktree propagation is explained. The main thread remains the sole
+dispatcher and Git owner after team setup.

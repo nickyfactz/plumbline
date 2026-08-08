@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.1.14 - 2026-08-08
+
+- Allow Shape to batch two to four independent frontier questions with numbered `❓` prompts and `➡️ Recommendation` lines while preserving one-at-a-time handling for dependent or high-consequence decisions.
+- Accept partial batch answers and recompute the frontier before the next shaping round.
+
+## 0.1.13 - 2026-08-08
+
+- Add a lightweight Shape decision frontier inspired by dependency-aware grilling: ask one highest-leverage product question at a time, defer dependent questions, and stop when only fog or non-blocking uncertainty remains.
+- Keep grilling bounded and project-agnostic; no durable decision tree, exhaustive interview, or universal confirmation gate is introduced.
+
+## 0.1.12 - 2026-08-08
+
+- Add lightweight vertical-slice planning guidance with explicit checkpoint completion conditions and prerequisite handling.
+- Add plain-language recovery guidance for confused users and single-owner guidance for deterministic build, deploy, restart, migration, and publication operations.
+- Rewrite phase-engine instructions for progressive disclosure, anchored context reuse, explicit outcomes, and source-of-truth references without adding a new workflow or artifact type.
+- Clarify agent-team and setup completion evidence while preserving main-thread dispatch, fresh-worker, parallel-wave, and user-owned host configuration boundaries.
+
 ## 0.1.11 - 2026-08-04
 
 - Prefer fresh worker contexts for independent assignments and fresh QA for materially changed deltas.
