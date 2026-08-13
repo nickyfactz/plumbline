@@ -41,6 +41,14 @@ inspect the current repository and treat its prior conclusions as untrusted.
 Keep this policy host-neutral; do not encode a provider-specific follow-up,
 fork, or worker-retirement API.
 
+When a Codex dispatch surface exposes `fork_turns`, pass `fork_turns="none"`
+for a fresh independent worker. This is a per-dispatch context choice, not a
+project config or agent-file setting: the worker still receives its role,
+project guidance, bounded brief, and checkout. Use inherited turns only when
+continuity is intentionally valuable, and fall back to the fresh-worker brief
+when the host does not expose this parameter. Do not claim that the setting was
+applied unless the dispatch surface exposes or confirms it.
+
 For live or recovery work, add an optional transient runtime-state capsule to
 fresh or reused worker briefs: verified commit or deployed artifact, active
 symptom, last known-good observation, exact write set, acceptance condition,
