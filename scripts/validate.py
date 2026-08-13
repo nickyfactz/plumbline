@@ -270,8 +270,10 @@ def validate_manifest(errors: list[str]) -> None:
         error(errors, "manifest name/version is invalid")
     if data.get("skills") != "./skills/":
         error(errors, "manifest skills must be ./skills/")
-    if any(key in data for key in ("hooks", "apps", "mcpServers")):
-        error(errors, "v1 manifest must not declare hooks, apps, or MCP servers")
+    if data.get("hooks") != "./hooks/hooks.json":
+        error(errors, "manifest hooks must be ./hooks/hooks.json")
+    if any(key in data for key in ("apps", "mcpServers")):
+        error(errors, "Plumbline must not declare apps or MCP servers")
     interface = data.get("interface", {})
     for key in ("displayName", "shortDescription", "longDescription", "developerName", "category", "capabilities", "defaultPrompt"):
         if not interface.get(key):
@@ -302,6 +304,45 @@ def validate_claude_manifest(errors: list[str]) -> None:
     expected = [f"./skills/{name}" for name in sorted(PUBLIC)]
     if sorted(data.get("skills", [])) != expected:
         error(errors, "Claude plugin manifest must expose only the public Plumbline skills")
+
+
+def validate_hooks(errors: list[str]) -> None:
+    path = ROOT / "hooks" / "hooks.json"
+    script = ROOT / "hooks" / "plumbline-session.js"
+    if not path.is_file() or not script.is_file():
+        error(errors, "continuity hook files are required")
+        return
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        error(errors, f"hooks/hooks.json: invalid JSON: {exc}")
+        return
+    hooks = data.get("hooks")
+    if not isinstance(hooks, dict) or set(hooks) != {"UserPromptSubmit", "SessionStart"}:
+        error(errors, "hooks/hooks.json must contain only UserPromptSubmit and SessionStart")
+        return
+    for event in ("UserPromptSubmit", "SessionStart"):
+        groups = hooks.get(event)
+        if not isinstance(groups, list) or len(groups) != 1:
+            error(errors, f"hooks/hooks.json: {event} must have one matcher group")
+            continue
+        group = groups[0]
+        if event == "SessionStart" and group.get("matcher") != "^(resume|compact)$":
+            error(errors, "hooks/hooks.json: SessionStart must match only resume and compact")
+        handlers = group.get("hooks")
+        if not isinstance(handlers, list) or len(handlers) != 1:
+            error(errors, f"hooks/hooks.json: {event} must have one command handler")
+            continue
+        handler = handlers[0]
+        command = handler.get("command", "")
+        if handler.get("type") != "command" or "plumbline-session.js" not in command:
+            error(errors, f"hooks/hooks.json: {event} must run plumbline-session.js")
+        if "CLAUDE_PLUGIN_ROOT" not in command:
+            error(errors, f"hooks/hooks.json: {event} must resolve from the installed plugin root")
+    source = script.read_text(encoding="utf-8")
+    for marker in ("UserPromptSubmit", "SessionStart", "not a new invocation", "session_id", "cwd"):
+        if marker not in source:
+            error(errors, f"hooks/plumbline-session.js: missing marker {marker}")
 
 
 def validate_marketplace(errors: list[str]) -> None:
@@ -487,6 +528,7 @@ def validate_scripts(errors: list[str]) -> None:
         "test_install_agent_team.py",
         "install_claude_agent_team.py",
         "test_install_claude_agent_team.py",
+        "test_plumbline_hook.py",
     ):
         path = ROOT / "scripts" / name
         try:
@@ -504,6 +546,10 @@ def validate_scripts(errors: list[str]) -> None:
                 for marker in ("dry_run", "output_format", "router template", "requires_replace"):
                     if marker not in source:
                         error(errors, f"scripts/{name}: missing dry-run marker {marker}")
+            elif name == "test_plumbline_hook.py":
+                for marker in ("SessionStart", "UserPromptSubmit", "compact", "front door", "isolation"):
+                    if marker.lower() not in source.lower():
+                        error(errors, f"scripts/{name}: missing hook test marker {marker}")
         except (OSError, SyntaxError) as exc:
             error(errors, f"scripts/{name}: {exc}")
 
@@ -512,6 +558,7 @@ def main() -> int:
     errors: list[str] = []
     validate_manifest(errors)
     validate_claude_manifest(errors)
+    validate_hooks(errors)
     validate_marketplace(errors)
     validate_claude_marketplace(errors)
     validate_skills(errors)

@@ -1,6 +1,6 @@
 {
   "name": "plumbline",
-  "version": "0.1.14+codex.20260808222752",
+  "version": "0.1.15+codex.20260813013756",
   "description": "Proportional, evidence-driven engineering workflows for Codex.",
   "homepage": "https://github.com/nickyfactz/plumbline",
   "repository": "https://github.com/nickyfactz/plumbline",
@@ -17,10 +17,11 @@
     "repository-alignment"
   ],
   "skills": "./skills/",
+  "hooks": "./hooks/hooks.json",
   "interface": {
     "displayName": "Plumbline",
     "shortDescription": "Aligned engineering workflows for agentic development",
-    "longDescription": "Plumbline helps Codex move from product intent to implementation, verification, acceptance, and current repository documentation with only the process the work needs. Plugin installation is inert; the front door detects an uninitialized repository and presents the explicit setup proposal before any repository writes.",
+    "longDescription": "Plumbline helps Codex move from product intent to implementation, verification, acceptance, and current repository documentation with only the process the work needs. Plugin installation is inert; the front door detects an uninitialized repository and presents the explicit setup proposal before any repository writes. An optional trusted continuity hook restores an explicitly activated session after compaction or resume without auto-invoking a phase.",
     "developerName": "Plumbline contributors",
     "category": "Coding",
     "capabilities": [

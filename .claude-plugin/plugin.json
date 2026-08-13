@@ -1,7 +1,7 @@
 {
   "name": "plumbline",
-  "description": "Proportional, evidence-driven engineering workflows for Claude Code.",
-  "version": "0.1.14",
+  "description": "Proportional, evidence-driven engineering workflows for Claude Code with optional front-door-gated continuity after resume or compaction.",
+  "version": "0.1.15",
   "homepage": "https://github.com/nickyfactz/plumbline",
   "repository": "https://github.com/nickyfactz/plumbline",
   "author": {

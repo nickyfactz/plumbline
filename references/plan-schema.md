@@ -57,6 +57,8 @@ The current checkpoint is the resume location, not an implicit Execute stop. Unl
 
 Treat checkout/worktree identity, HEAD/last_verified_commit, the plan-record hash, the applicable host configuration hash, and selected project-local role-file hashes as the resume fingerprint. For Codex, the applicable files include `.codex/config.toml` and selected role TOMLs; for Claude Code, they include selected `.claude/agents/*.md` files. Treat last_verified_commit and checkpoint completion evidence as the baseline until that fingerprint or a material contract/evidence input changes. A task resume, compaction, or conversational reminder alone does not invalidate it. At the next checkpoint, inspect the current delta and referenced paths first. Reuse unchanged evidence instead of rereading whole documents or rerunning broad checks. Reassess when the fingerprint changes, a new or failed check matters, a contract boundary changes, a defect appears, or the prior evidence may be stale.
 
+A trusted host continuity hook may reintroduce a compact reminder after resume or compaction. It is not a new invocation and never replaces this resume record, changes the lifecycle owner, or advances the checkpoint; read the record and current delta first.
+
 Every plan artifact or status announcement must support recovery, validation, authorization, or ownership. Omit ceremony that serves none of those purposes.
 
 Whenever the plan is written, verify that exactly one current checkpoint is named, its frontmatter status matches the checkpoint, and next_safe_action points to that checkpoint. Do not leave a later checkpoint active while an earlier checkpoint is unresolved unless the plan explicitly records the dependency and current owner.

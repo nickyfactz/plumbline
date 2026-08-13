@@ -13,7 +13,7 @@ The front door decides how much process the task needs. A small rename may stay 
 
 ## Install
 
-Plumbline is distributed from this GitHub repository. Plugin installation makes the skills available to your tool; it does not modify the project you are working in.
+Plumbline is distributed from this GitHub repository. Plugin installation makes the skills and optional continuity hook available to your tool; it does not modify the project you are working in.
 
 ### Codex
 
@@ -32,6 +32,8 @@ codex
 ```
 
 Choose the `plumbline` marketplace and install `Plumbline`. The browser path is available in Codex CLI and the Codex desktop app.
+
+If you want compaction/resume continuity, review and trust Plumbline's optional hook in `/hooks`. You can leave the plugin enabled while keeping this hook disabled.
 
 #### Codex desktop app
 
@@ -81,6 +83,8 @@ claude plugin install plumbline@plumbline
 
 Reload the current session with `/reload-plugins`, or start a new Claude Code session. Claude Code uses the same platform-neutral `SKILL.md` workflows; the Claude manifest and marketplace provide the installation surface.
 
+The continuity hook is optional. Claude Code can disable the plugin from its plugin controls if you do not want resume reminders; run `/reload-plugins` after changing the setting. Even when enabled, the hook remains inert until the front door is explicitly invoked.
+
 #### Claude Code desktop app
 
 Open the repository in the Claude desktop app's **Code** tab. Select the `+`
@@ -116,7 +120,19 @@ There are two separate decisions:
 - **Install the plugin** so the skills are available.
 - **Initialize a repository** if you want project-local automatic routing, a local agent team, or both.
 
-Installation alone is inert. Plumbline never silently creates project files, global files, agents, hooks, worktrees, or trackers.
+Installation alone is inert. Plumbline never silently creates project files, global files, agents, project hook configuration, worktrees, or trackers. Its bundled continuity hook is also inert until the host enables it and you explicitly invoke the front door.
+
+### Optional compaction continuity
+
+The plugin includes one small, optional lifecycle hook for long-running sessions. It is designed to restore awareness after compaction without turning Plumbline into an automatic workflow controller:
+
+- `$plumbline` in Codex or `/plumbline:plumbline` in Claude Code arms continuity for the current session and repository.
+- On `resume` or `compact`, the hook adds one short reminder to read the active plan or resume record and continue the current phase.
+- Ordinary prompts, Plumbline mentions, phase side doors, and unrelated repositories do not arm it.
+- The hook never runs setup, selects a phase, creates files, dispatches agents, or replaces the active plan.
+- State is host-local and session/repository keyed; no repository artifact or global configuration is created.
+
+The hook has no npm dependencies but requires `node` on the host. If it is unavailable, disable the hook; the Plumbline skills remain usable through explicit invocation. Codex lets you review/trust or disable it from `/hooks`; Claude Code lets you enable or disable the plugin from `/plugin`.
 
 ### Use an uninitialized repository
 
@@ -295,10 +311,10 @@ Most users only need the front door. Use a side door when you already know the p
 
 ## What Plumbline does not do
 
-Plumbline is intentionally project-agnostic and skills-only. It does not:
+Plumbline is intentionally project-agnostic and skills-first. It does not:
 
 - create GitHub issues, tickets, pull requests, labels, or an external tracker;
-- install global agents, global instructions, hooks, MCP servers, or personal configuration;
+- install global agents, global instructions, or personal configuration, or modify project hook configuration;
 - use global custom agents as a fallback for a missing project role;
 - create a custom worktree system or silently create branches;
 - require a specification, plan, handoff, prototype, or review for every request;
@@ -328,6 +344,8 @@ Run the repository checks for setup or packaging changes:
 ```bash
 python scripts/validate.py
 python scripts/test_install_agent_team.py
+python scripts/test_install_claude_agent_team.py
+python scripts/test_plumbline_hook.py
 git diff --check
 ```
 
@@ -338,6 +356,7 @@ The validation script uses only the Python standard library. GitHub Actions runs
 - `.codex-plugin/plugin.json` - Codex plugin manifest.
 - `.agents/plugins/marketplace.json` - Codex marketplace for GitHub and local installation.
 - `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` - Claude Code manifests.
+- `hooks/` - the optional, front-door-gated Codex/Claude continuity hook.
 - `skills/` - public entry skills and narrow internal workflow engines.
 - `references/` - progressive-disclosure workflow policy.
 - `templates/router/` - the repository-local activation shim.

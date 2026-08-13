@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.15 - 2026-08-12
+
+- Add an optional Codex/Claude lifecycle hook that restores Plumbline awareness after resume or compaction only when the front door was explicitly invoked earlier in the same session and repository.
+- Keep hook state host-local, avoid repository artifacts and global configuration, and preserve the inert-install/front-door-only boundary.
+- Add validator and smoke-test coverage for explicit activation, session/repository isolation, and deactivation.
+
 ## 0.1.14 - 2026-08-08
 
 - Allow Shape to batch two to four independent frontier questions with numbered `❓` prompts and `➡️ Recommendation` lines while preserving one-at-a-time handling for dependent or high-consequence decisions.
