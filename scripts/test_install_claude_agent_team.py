@@ -48,6 +48,82 @@ def main() -> None:
         assert ".claude/agents/*.md" in (root / ".worktreeinclude").read_text(encoding="utf-8")
         assert not (root / ".claude" / "settings.json").exists()
 
+        role_path = root / ".claude" / "agents" / "researcher.md"
+        role_before = role_path.read_text(encoding="utf-8")
+        agents = root / "AGENTS.md"
+        stale_guidance = agents.read_text(encoding="utf-8").replace("delegation is the default", "delegation is available")
+        agents.write_text(stale_guidance + "\n## Project notes\nKeep this text.\n", encoding="utf-8")
+        preview = install(
+            plugin_root,
+            root,
+            mode="initialize",
+            roles=("researcher", "implementer"),
+            update_agents=True,
+            refresh_agents=True,
+            dry_run=True,
+        )
+        assert preview.requires_replace is False
+        assert preview.changes == {agents: ("local Claude agent-team guidance",)}
+        assert role_path.read_text(encoding="utf-8") == role_before
+        install(
+            plugin_root,
+            root,
+            mode="initialize",
+            roles=("researcher", "implementer"),
+            update_agents=True,
+            refresh_agents=True,
+        )
+        refreshed = agents.read_text(encoding="utf-8")
+        assert "<!-- plumbline:managed-agent-team:start -->" in refreshed
+        assert "## Project notes\nKeep this text." in refreshed
+        assert role_path.read_text(encoding="utf-8") == role_before
+
+    with tempfile.TemporaryDirectory() as raw_root:
+        root = Path(raw_root)
+        (root / ".git" / "info").mkdir(parents=True)
+        agents = root / "AGENTS.md"
+        agents.write_text(
+            "# Project\n\n## Local Claude agent team\n\nCustom legacy guidance.\n\n## Notes\nKeep this text.\n",
+            encoding="utf-8",
+        )
+        preview = install(
+            plugin_root,
+            root,
+            mode="initialize",
+            roles=("researcher",),
+            update_agents=True,
+            refresh_agents=True,
+            dry_run=True,
+        )
+        assert preview.requires_replace is True
+        assert preview.changes == {agents: ("local Claude agent-team guidance",)}
+        try:
+            install(
+                plugin_root,
+                root,
+                mode="initialize",
+                roles=("researcher",),
+                update_agents=True,
+                refresh_agents=True,
+            )
+        except ValueError as exc:
+            assert "--replace-agents-guidance" in str(exc)
+        else:
+            raise AssertionError("legacy Claude guidance refresh must require explicit replacement")
+        install(
+            plugin_root,
+            root,
+            mode="initialize",
+            roles=("researcher",),
+            update_agents=True,
+            refresh_agents=True,
+            replace_guidance=True,
+        )
+        refreshed = agents.read_text(encoding="utf-8")
+        assert "<!-- plumbline:managed-agent-team:start -->" in refreshed
+        assert "# Project" in refreshed
+        assert "## Notes\nKeep this text." in refreshed
+
     with tempfile.TemporaryDirectory() as raw_root:
         root = Path(raw_root)
         (root / ".git" / "info").mkdir(parents=True)

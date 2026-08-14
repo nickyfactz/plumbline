@@ -50,6 +50,9 @@ LOCAL_IGNORE_FILES = (
     ".agents/skills/plumbline-router/",
 )
 ROUTER_RELATIVE_PATH = ".agents/skills/plumbline-router/SKILL.md"
+AGENT_GUIDANCE_HEADING = "## Local agent team"
+AGENT_GUIDANCE_START = "<!-- plumbline:managed-agent-team:start -->"
+AGENT_GUIDANCE_END = "<!-- plumbline:managed-agent-team:end -->"
 ROLE_DESCRIPTIONS = {
     "researcher": "repository or external fact-finding",
     "backend-architect": "backend contracts, persistence, and ownership",
@@ -61,7 +64,8 @@ ROLE_DESCRIPTIONS = {
 
 def _agent_section(roles: tuple[str, ...]) -> str:
     role_lines = "\n".join(f"- `{role}` for {ROLE_DESCRIPTIONS[role]}." for role in roles)
-    return f"""## Local agent team
+    return f"""{AGENT_GUIDANCE_START}
+## Local agent team
 
 Use `$plumbline-init` for the combined router/team setup and `$plumbline-agent-team` explicitly for initialize, audit, retune, or add requests. Do not invoke setup for ordinary feature work. Use only the project-local agents in `.codex/agents/` for bounded work that an approved role can own:
 
@@ -74,8 +78,11 @@ Keep `features.multi_agent = true` in project `.codex/config.toml`. Treat `agent
 Treat the approved model and reasoning values as the selected project baseline: preserve the role's configured fields during execution and change them only through an explicit audit or retune approval.
 
 Before dispatch, identify one lifecycle owner. Installed or enabled skills are available capabilities, not active ownership; an explicitly selected competing controller owns its own checkpoint and closeout flow.
+{AGENT_GUIDANCE_END}
 """
 AGENT_GUIDANCE_MARKERS = (
+    AGENT_GUIDANCE_START,
+    AGENT_GUIDANCE_END,
     ".codex/agents/",
     "Workers never spawn child agents",
     "personal or global agent files",
@@ -105,6 +112,7 @@ class InstallReport:
     changes: dict[Path, tuple[str, ...]]
     findings: tuple[str, ...] = ()
     operations: dict[Path, str] = field(default_factory=dict)
+    requires_replace: bool = False
 
 
 def _write(path: Path, text: str) -> None:
@@ -244,14 +252,74 @@ def _ensure_config(
     return target, _config_changes(before, text)
 
 
-def _prepare_agents_guidance(repo: Path, roles: tuple[str, ...]) -> tuple[Path, str]:
+def _guidance_section_bounds(text: str, heading: str) -> tuple[int, int] | None:
+    heading_match = re.search(rf"(?m)^{re.escape(heading)}[ \t]*$", text)
+    if not heading_match:
+        return None
+    following = text[heading_match.end() :]
+    next_heading = re.search(r"(?m)^## (?!#)", following)
+    end = heading_match.end() + next_heading.start() if next_heading else len(text)
+    return heading_match.start(), end
+
+
+def _guidance_block_bounds(text: str, heading: str) -> tuple[int, int] | None:
+    section = _guidance_section_bounds(text, heading)
+    if not section:
+        return None
+    start_match = re.search(rf"(?m)^{re.escape(AGENT_GUIDANCE_START)}[ \t]*$", text)
+    end_match = re.search(rf"(?m)^{re.escape(AGENT_GUIDANCE_END)}[ \t]*$", text)
+    if start_match and end_match and start_match.start() <= section[0] <= end_match.end():
+        return start_match.start(), end_match.end()
+    return section
+
+
+def _guidance_has_markers(text: str, heading: str) -> bool:
+    section = _guidance_section_bounds(text, heading)
+    if not section:
+        return False
+    start_match = re.search(rf"(?m)^{re.escape(AGENT_GUIDANCE_START)}[ \t]*$", text)
+    end_match = re.search(rf"(?m)^{re.escape(AGENT_GUIDANCE_END)}[ \t]*$", text)
+    return bool(start_match and end_match and start_match.start() <= section[0] <= end_match.end())
+
+
+def _replace_guidance_section(text: str, heading: str, replacement: str) -> str:
+    bounds = _guidance_block_bounds(text, heading)
+    if not bounds:
+        return text.rstrip() + "\n\n" + replacement.strip() + "\n"
+    before = text[: bounds[0]].rstrip("\n")
+    after = text[bounds[1] :].lstrip("\n")
+    result = before + "\n\n" + replacement.strip()
+    if after:
+        result += "\n\n" + after
+    return result.rstrip() + "\n"
+
+
+def _prepare_agents_guidance(
+    repo: Path,
+    roles: tuple[str, ...],
+    *,
+    refresh: bool = False,
+    replace_guidance: bool = False,
+) -> tuple[Path, str, bool, str | None]:
     target = repo / "AGENTS.md"
     text = target.read_text(encoding="utf-8") if target.is_file() else "# AGENTS.md\n"
-    if "## Local agent team" in text:
-        if not all(value in text for value in AGENT_GUIDANCE_MARKERS):
-            raise ValueError(f"existing Local agent team section needs a reviewed manual patch: {target}")
-        return target, text
-    return target, text.rstrip() + "\n\n" + _agent_section(roles)
+    section = _guidance_block_bounds(text, AGENT_GUIDANCE_HEADING)
+    if not section:
+        return target, text.rstrip() + "\n\n" + _agent_section(roles), False, None
+    if not refresh:
+        return target, text, False, None
+
+    replacement = _agent_section(roles)
+    has_managed_markers = _guidance_has_markers(text, AGENT_GUIDANCE_HEADING)
+    if not has_managed_markers and not replace_guidance:
+        proposed = _replace_guidance_section(text, AGENT_GUIDANCE_HEADING, replacement)
+        return (
+            target,
+            proposed,
+            True,
+            f"{target}: existing guidance is an unmarked legacy section; previewed refresh requires --replace-agents-guidance",
+        )
+    return target, _replace_guidance_section(text, AGENT_GUIDANCE_HEADING, replacement), False, None
 
 
 def _render_agent(template: Path, model: str, reasoning_effort: str) -> tuple[str, dict]:
@@ -377,13 +445,42 @@ def _audit_agents_guidance(repo: Path) -> list[str]:
         text = target.read_text(encoding="utf-8")
     except OSError as exc:
         return [f"{target}: could not read project agent-team guidance: {exc}"]
-    if "## Local agent team" not in text:
+    section = _guidance_block_bounds(text, AGENT_GUIDANCE_HEADING)
+    if not section:
         return [f"{target}: missing `## Local agent team` guidance section"]
+    section_text = text[section[0] : section[1]]
     return [
         f"{target}: Local agent team guidance missing marker {marker!r}"
         for marker in AGENT_GUIDANCE_MARKERS
-        if marker not in text
+        if marker not in section_text
     ]
+
+
+def _refresh_agents_guidance(
+    repo: Path,
+    roles: tuple[str, ...],
+    *,
+    replace_guidance: bool,
+    dry_run: bool,
+) -> InstallReport:
+    target, proposed, requires_replace, finding = _prepare_agents_guidance(
+        repo,
+        roles,
+        refresh=True,
+        replace_guidance=replace_guidance,
+    )
+    if requires_replace and not dry_run:
+        raise ValueError(finding or f"{target} requires explicit guidance replacement approval")
+    current = target.read_text(encoding="utf-8") if target.is_file() else ""
+    changes: dict[Path, tuple[str, ...]] = {}
+    operations: dict[Path, str] = {}
+    findings = [finding] if finding else []
+    if current != proposed:
+        changes[target] = ("local agent-team guidance",)
+        operations[target] = "modify" if target.exists() else "create"
+        if not dry_run:
+            _write(target, proposed)
+    return InstallReport(changes, tuple(findings), operations, requires_replace=requires_replace)
 
 
 def _audit(plugin: Path, repo: Path, roles: tuple[str, ...]) -> InstallReport:
@@ -511,6 +608,8 @@ def _initialize(
     replace: bool,
     replace_config: bool,
     update_agents: bool,
+    refresh_agents: bool,
+    replace_guidance: bool,
     propagate: bool,
     dry_run: bool,
 ) -> InstallReport:
@@ -523,7 +622,18 @@ def _initialize(
 
     changes: dict[Path, tuple[str, ...]] = {}
     operations: dict[Path, str] = {}
-    guidance = _prepare_agents_guidance(repo, roles) if update_agents else None
+    guidance = (
+        _prepare_agents_guidance(
+            repo,
+            roles,
+            refresh=refresh_agents,
+            replace_guidance=replace_guidance,
+        )
+        if update_agents
+        else None
+    )
+    if guidance and guidance[2] and not dry_run:
+        raise ValueError(guidance[3] or f"{guidance[0]} requires explicit guidance replacement approval")
     config_target = repo / ".codex" / "config.toml"
     config_existed = config_target.exists()
     config_path, config_fields = _ensure_config(repo, max_threads, max_depth, replace_config, apply=not dry_run)
@@ -552,8 +662,9 @@ def _initialize(
     if _ensure_lines(git_exclude, LOCAL_IGNORE_FILES, apply=not dry_run):
         changes[git_exclude] = ("ignore rules",)
         operations[git_exclude] = "modify" if git_exclude_existed else "create"
+    findings: list[str] = []
     if guidance:
-        target, text = guidance
+        target, text, requires_replace, finding = guidance
         current = target.read_text(encoding="utf-8") if target.is_file() else ""
         if current != text:
             operation = "modify" if target.exists() else "create"
@@ -561,6 +672,8 @@ def _initialize(
                 _write(target, text)
             changes[target] = ("local agent-team guidance",)
             operations[target] = operation
+        if finding:
+            findings.append(finding)
     if propagate:
         manifest = repo / ".worktreeinclude"
         manifest_existed = manifest.exists()
@@ -572,7 +685,7 @@ def _initialize(
         if _ensure_lines(gitignore, LOCAL_IGNORE_FILES, apply=not dry_run):
             changes[gitignore] = ("ignore rules",)
             operations[gitignore] = "modify" if gitignore_existed else "create"
-    return InstallReport(changes, operations=operations)
+    return InstallReport(changes, tuple(findings), operations, requires_replace=guidance[2] if guidance else False)
 
 
 def install(
@@ -590,6 +703,8 @@ def install(
     fill_missing: bool = False,
     update_instructions: bool = False,
     update_agents: bool = False,
+    refresh_agents: bool = False,
+    replace_guidance: bool = False,
     propagate: bool = False,
     dry_run: bool = False,
 ) -> InstallReport:
@@ -604,13 +719,13 @@ def install(
     if max_depth < 0:
         raise ValueError("max_depth must be non-negative")
     if mode == "audit":
-        if any((replace, replace_config, fill_missing, update_instructions, update_agents, propagate)):
+        if any((replace, replace_config, fill_missing, update_instructions, update_agents, refresh_agents, replace_guidance, propagate)):
             raise ValueError("audit is read-only; remove mutation flags")
         return _audit(plugin, repo, roles)
     if mode == "retune":
         if replace:
             raise ValueError("retune preserves existing roles; use --update-instructions or --fill-missing")
-        if update_agents or propagate:
+        if update_agents or refresh_agents or replace_guidance or propagate:
             raise ValueError("retune only changes roles; use initialize for AGENTS/worktree setup")
         return _retune(
             plugin,
@@ -625,6 +740,14 @@ def install(
             replace_config=replace_config,
             dry_run=dry_run,
         )
+    if refresh_agents:
+        if not update_agents:
+            raise ValueError("--refresh-agents requires --update-agents")
+        if replace or replace_config or propagate:
+            raise ValueError("--refresh-agents is a guidance-only initialization update; remove role/config/worktree mutation flags")
+        return _refresh_agents_guidance(repo, roles, replace_guidance=replace_guidance, dry_run=dry_run)
+    if replace_guidance:
+        raise ValueError("--replace-agents-guidance requires --refresh-agents")
     if fill_missing or update_instructions:
         raise ValueError("initialize creates templates; use retune for preserve-existing updates")
     return _initialize(
@@ -638,6 +761,8 @@ def install(
         replace=replace,
         replace_config=replace_config,
         update_agents=update_agents,
+        refresh_agents=refresh_agents,
+        replace_guidance=replace_guidance,
         propagate=propagate,
         dry_run=dry_run,
     )
@@ -668,6 +793,7 @@ def _print_report(mode: str, report: InstallReport, *, dry_run: bool, output_for
                     "writes_applied": not dry_run and mode != "audit",
                     "changes": changes,
                     "findings": list(report.findings),
+                    "requires_replace": report.requires_replace,
                     "global_agents_selected": False,
                 },
                 indent=2,
@@ -683,6 +809,8 @@ def _print_report(mode: str, report: InstallReport, *, dry_run: bool, output_for
         print("Changed: none")
     for finding in report.findings:
         print(f"Finding: {finding}")
+    if report.requires_replace:
+        print("Approval required: rerun with --replace-agents-guidance after reviewing the proposed AGENTS.md refresh.")
     if mode == "audit":
         print("Audit was read-only; no files were written.")
     print("Global/personal agent files were not selected.")
@@ -702,6 +830,16 @@ def main() -> int:
     parser.add_argument("--fill-missing", action="store_true", help="Retune by adding missing fields only")
     parser.add_argument("--update-instructions", action="store_true", help="Retune by explicitly updating instructions")
     parser.add_argument("--update-agents", action="store_true", help="Add the approved AGENTS.md section")
+    parser.add_argument(
+        "--refresh-agents",
+        action="store_true",
+        help="During an explicit initialization rerun, refresh only the managed AGENTS.md section",
+    )
+    parser.add_argument(
+        "--replace-agents-guidance",
+        action="store_true",
+        help="Allow explicit replacement of a stale unmarked AGENTS.md team section",
+    )
     parser.add_argument("--propagate", action="store_true", help="Add ignored-file worktree propagation")
     parser.add_argument("--dry-run", action="store_true", help="Preview the exact changes without writing files")
     parser.add_argument("--format", choices=("text", "json"), default="text", dest="output_format")
@@ -722,6 +860,8 @@ def main() -> int:
             fill_missing=args.fill_missing,
             update_instructions=args.update_instructions,
             update_agents=args.update_agents,
+            refresh_agents=args.refresh_agents,
+            replace_guidance=args.replace_agents_guidance,
             propagate=args.propagate,
             dry_run=args.dry_run,
         )

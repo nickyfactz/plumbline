@@ -14,6 +14,8 @@ Use `$plumbline-init` for the combined router/team setup and `$plumbline-agent-t
 
 When changing initialization or agent-team behavior, keep the flow read-only until explicit approval, show the role/model/reasoning/sandbox/config proposal, update the installer and validator together, and verify new managed-worktree propagation without copying secrets or dependencies.
 
+When a user explicitly invokes Plumbline initialization again, audit the managed `AGENTS.md` guidance and offer the guidance-only refresh path. Preview `--update-agents --refresh-agents` before writing; preserve content outside the managed block, and require explicit `--replace-agents-guidance` approval for an older unmarked section. Do not refresh guidance during ordinary feature work, audit, or retune.
+
 ## Verification
 
 Run `python scripts/validate.py`, `python scripts/test_install_agent_team.py`, and `python scripts/test_install_claude_agent_team.py` for setup or packaging changes. Use `git diff --check` before handoff. Do not commit or push unless the user asks.

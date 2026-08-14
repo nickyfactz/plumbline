@@ -337,6 +337,100 @@ custom_setting = "preserve-me"
     with tempfile.TemporaryDirectory() as raw_root:
         root = Path(raw_root)
         (root / ".git" / "info").mkdir(parents=True)
+        install(
+            plugin_root,
+            root,
+            model="gpt-5.6-luna",
+            reasoning_effort="medium",
+            roles=("researcher",),
+            update_agents=True,
+        )
+        role_path = root / ".codex" / "agents" / "researcher.toml"
+        config_path = root / ".codex" / "config.toml"
+        role_before = role_path.read_text(encoding="utf-8")
+        config_before = config_path.read_text(encoding="utf-8")
+        agents = root / "AGENTS.md"
+        stale_guidance = agents.read_text(encoding="utf-8").replace("delegation is the default", "delegation is available")
+        agents.write_text(stale_guidance + "\n## Project notes\nKeep this text.\n", encoding="utf-8")
+
+        preview = install(
+            plugin_root,
+            root,
+            mode="initialize",
+            roles=("researcher",),
+            update_agents=True,
+            refresh_agents=True,
+            dry_run=True,
+        )
+        assert preview.requires_replace is False
+        assert preview.changes == {agents: ("local agent-team guidance",)}
+        assert role_path.read_text(encoding="utf-8") == role_before
+        assert config_path.read_text(encoding="utf-8") == config_before
+
+        install(
+            plugin_root,
+            root,
+            mode="initialize",
+            roles=("researcher",),
+            update_agents=True,
+            refresh_agents=True,
+        )
+        refreshed = agents.read_text(encoding="utf-8")
+        assert "<!-- plumbline:managed-agent-team:start -->" in refreshed
+        assert "## Project notes\nKeep this text." in refreshed
+        assert role_path.read_text(encoding="utf-8") == role_before
+        assert config_path.read_text(encoding="utf-8") == config_before
+
+    with tempfile.TemporaryDirectory() as raw_root:
+        root = Path(raw_root)
+        (root / ".git" / "info").mkdir(parents=True)
+        agents = root / "AGENTS.md"
+        agents.write_text(
+            "# Project\n\n## Local agent team\n\nCustom legacy guidance.\n\n## Notes\nKeep this text.\n",
+            encoding="utf-8",
+        )
+        preview = install(
+            plugin_root,
+            root,
+            mode="initialize",
+            roles=("researcher",),
+            update_agents=True,
+            refresh_agents=True,
+            dry_run=True,
+        )
+        assert preview.requires_replace is True
+        assert preview.changes == {agents: ("local agent-team guidance",)}
+        assert "Custom legacy guidance." in agents.read_text(encoding="utf-8")
+        try:
+            install(
+                plugin_root,
+                root,
+                mode="initialize",
+                roles=("researcher",),
+                update_agents=True,
+                refresh_agents=True,
+            )
+        except ValueError as exc:
+            assert "--replace-agents-guidance" in str(exc)
+        else:
+            raise AssertionError("legacy guidance refresh must require explicit replacement")
+        install(
+            plugin_root,
+            root,
+            mode="initialize",
+            roles=("researcher",),
+            update_agents=True,
+            refresh_agents=True,
+            replace_guidance=True,
+        )
+        refreshed = agents.read_text(encoding="utf-8")
+        assert "<!-- plumbline:managed-agent-team:start -->" in refreshed
+        assert "# Project" in refreshed
+        assert "## Notes\nKeep this text." in refreshed
+
+    with tempfile.TemporaryDirectory() as raw_root:
+        root = Path(raw_root)
+        (root / ".git" / "info").mkdir(parents=True)
         path = root / ".codex" / "agents" / "researcher.toml"
         path.parent.mkdir(parents=True)
         path.write_text(

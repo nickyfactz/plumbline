@@ -103,3 +103,9 @@ git diff --check
 These checks prove repository and workflow intent. They do not claim to prove
 effective child permissions in every host session; that remains a bounded
 interactive UAT concern.
+
+Initialization is repeatable without being destructive. An explicit repeat
+initialization may refresh only the marked Plumbline section in `AGENTS.md`.
+The installer previews this as a guidance-only change and leaves roles and host
+config untouched. Older unmarked sections require a separate explicit
+replacement approval; text outside the managed section is preserved.

@@ -5,6 +5,7 @@
 - Make useful bounded Execute delegation the default for available project-local roles across research, architecture, implementation, review, testing, and future capabilities while preserving direct main-thread ownership for lifecycle and tightly coupled work.
 - Persist delegation roles/status in the active checkpoint resume record and restore the obligation after compaction or conversational resume.
 - Align generated Codex/Claude guidance and the optional continuity reminder with approved project-local role selection and configured model/reasoning values.
+- Add an explicit repeat-initialization refresh for the managed `AGENTS.md` section. Preview and apply it without replacing roles or config; require separate approval for legacy unmarked sections and preserve content outside the managed block.
 
 ## 0.1.15 - 2026-08-12
 

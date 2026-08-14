@@ -11,12 +11,17 @@ import tomllib
 from pathlib import Path
 
 from install_agent_team import (
+    AGENT_GUIDANCE_END,
+    AGENT_GUIDANCE_START,
     InstallReport,
     ROLE_DESCRIPTIONS,
     ROLES,
     _ensure_lines,
     _git_dir,
+    _guidance_block_bounds,
+    _guidance_has_markers,
     _repo_root,
+    _replace_guidance_section,
     _write,
 )
 
@@ -41,6 +46,19 @@ ROLE_PERMISSION_MODES = {
     "implementer": "default",
     "qa-auditor": "plan",
 }
+CLAUDE_GUIDANCE_MARKERS = (
+    AGENT_GUIDANCE_START,
+    AGENT_GUIDANCE_END,
+    ".claude/agents/",
+    "main-mediated",
+    "recommendations are advisory",
+    "parallel wave",
+    "delegation is the default",
+    "delegation_roles",
+    "delegation_status",
+    "bounded research",
+    "configured model",
+)
 
 
 def _template_data(plugin: Path, role: str) -> dict:
@@ -158,23 +176,43 @@ def _validate_agent(path: Path, role: str, text: str) -> list[str]:
 
 def _guidance(roles: tuple[str, ...]) -> str:
     role_lines = "\n".join(f"- `{role}` for {ROLE_DESCRIPTIONS[role]}." for role in roles)
-    return f"""## Local Claude agent team
+    return f"""{AGENT_GUIDANCE_START}
+## Local Claude agent team
 
 Use only the approved project-local Claude Code subagents under `.claude/agents/` for bounded work that a role can own:
 
 {role_lines}
 
 The main thread owns product decisions, active specifications and plans, integration, and Git. Give subagents anchored briefs and disjoint write sets. Researcher, architect, and QA roles are report-only and receive no write set; their `permissionMode = plan` and restricted tools are intent, while the parent permission context can take precedence. Each write-capable role receives only its approved bounded write set. Delegation is main-mediated: every worker returns to the main thread, worker recommendations are advisory, and only the main thread selects and dispatches the next capability. Subagents never invoke the Agent tool or spawn children. When independent work is ready, the main thread may dispatch one parallel wave only with a stable contract, disjoint scopes, no result dependency, and a clear join condition; otherwise keep it serial. For Execute checkpoints, delegation is the default: when an approved project-local role can own useful bounded research, architecture, implementation, review, testing, or another capability with a clear boundary, dispatch that role before the main thread duplicates the work. Use its configured model, effort, and permission intent; do not invent or substitute a personal/global role. Record `delegation_roles` and `delegation_status` in the checkpoint resume record and restore them after compaction. Keep product decisions, lifecycle/plan state, joins, integration, Git, singleton operations, or tiny coupled actions on the main thread; otherwise a missing role is an explicit `Direct: <reason>` fallback. Report each delegation wave with role names, configured model values, effort values, and the report-only/no-write-set/no-child boundary. Claude model and effort choices are host-native starting points and remain adjustable; do not copy Codex model slugs into these files. Plumbline does not edit global Claude settings or enable experimental Agent Teams.
+{AGENT_GUIDANCE_END}
 """
 
 
-def _prepare_guidance(repo: Path, roles: tuple[str, ...]) -> tuple[Path, str]:
+def _prepare_guidance(
+    repo: Path,
+    roles: tuple[str, ...],
+    *,
+    refresh: bool = False,
+    replace_guidance: bool = False,
+) -> tuple[Path, str, bool, str | None]:
     target = repo / "AGENTS.md"
     text = target.read_text(encoding="utf-8") if target.is_file() else "# AGENTS.md\n"
-    marker = "## Local Claude agent team"
-    if marker in text:
-        return target, text
-    return target, text.rstrip() + "\n\n" + _guidance(roles)
+    section = _guidance_block_bounds(text, "## Local Claude agent team")
+    if not section:
+        return target, text.rstrip() + "\n\n" + _guidance(roles), False, None
+    if not refresh:
+        return target, text, False, None
+    replacement = _guidance(roles)
+    has_managed_markers = _guidance_has_markers(text, "## Local Claude agent team")
+    if not has_managed_markers and not replace_guidance:
+        proposed = _replace_guidance_section(text, "## Local Claude agent team", replacement)
+        return (
+            target,
+            proposed,
+            True,
+            f"{target}: existing Claude guidance is an unmarked legacy section; previewed refresh requires --replace-agents-guidance",
+        )
+    return target, _replace_guidance_section(text, "## Local Claude agent team", replacement), False, None
 
 
 def _audit(repo: Path, roles: tuple[str, ...]) -> InstallReport:
@@ -191,9 +229,48 @@ def _audit(repo: Path, roles: tuple[str, ...]) -> InstallReport:
             continue
         findings.extend(_validate_agent(path, role, text))
     guidance = repo / "AGENTS.md"
-    if not guidance.is_file() or "## Local Claude agent team" not in guidance.read_text(encoding="utf-8"):
+    if not guidance.is_file():
         findings.append(f"{guidance}: missing `## Local Claude agent team` guidance")
+    else:
+        text = guidance.read_text(encoding="utf-8")
+        section = _guidance_block_bounds(text, "## Local Claude agent team")
+        if not section:
+            findings.append(f"{guidance}: missing `## Local Claude agent team` guidance")
+        else:
+            section_text = text[section[0] : section[1]]
+            findings.extend(
+                f"{guidance}: Local Claude agent-team guidance missing marker {marker!r}"
+                for marker in CLAUDE_GUIDANCE_MARKERS
+                if marker not in section_text
+            )
     return InstallReport({}, tuple(findings))
+
+
+def _refresh_guidance(
+    repo: Path,
+    roles: tuple[str, ...],
+    *,
+    replace_guidance: bool,
+    dry_run: bool,
+) -> InstallReport:
+    target, proposed, requires_replace, finding = _prepare_guidance(
+        repo,
+        roles,
+        refresh=True,
+        replace_guidance=replace_guidance,
+    )
+    if requires_replace and not dry_run:
+        raise ValueError(finding or f"{target} requires explicit guidance replacement approval")
+    current = target.read_text(encoding="utf-8") if target.is_file() else ""
+    changes: dict[Path, tuple[str, ...]] = {}
+    operations: dict[Path, str] = {}
+    findings = [finding] if finding else []
+    if current != proposed:
+        changes[target] = ("local Claude agent-team guidance",)
+        operations[target] = "modify" if target.exists() else "create"
+        if not dry_run:
+            _write(target, proposed)
+    return InstallReport(changes, tuple(findings), operations, requires_replace=requires_replace)
 
 
 def _retune(
@@ -260,6 +337,8 @@ def _initialize(
     effort: str,
     replace: bool,
     update_agents: bool,
+    refresh_agents: bool,
+    replace_guidance: bool,
     propagate: bool,
     dry_run: bool,
 ) -> InstallReport:
@@ -284,13 +363,26 @@ def _initialize(
         operations[exclude] = "modify" if exclude.exists() else "create"
 
     if update_agents:
-        target, text = _prepare_guidance(repo, roles)
+        target, text, requires_replace, finding = _prepare_guidance(
+            repo,
+            roles,
+            refresh=refresh_agents,
+            replace_guidance=replace_guidance,
+        )
+        if requires_replace and not dry_run:
+            raise ValueError(finding or f"{target} requires explicit guidance replacement approval")
         current = target.read_text(encoding="utf-8") if target.is_file() else ""
         if current != text:
             if not dry_run:
                 _write(target, text)
             changes[target] = ("local Claude agent-team guidance",)
             operations[target] = "modify" if target.exists() else "create"
+        if finding:
+            findings = [finding]
+        else:
+            findings = []
+    else:
+        findings = []
 
     if propagate:
         manifest = repo / ".worktreeinclude"
@@ -301,7 +393,7 @@ def _initialize(
         if _ensure_lines(gitignore, LOCAL_IGNORE_FILES, apply=not dry_run):
             changes[gitignore] = ("Claude agent ignore rules",)
             operations[gitignore] = "modify" if gitignore.exists() else "create"
-    return InstallReport(changes, operations=operations)
+    return InstallReport(changes, tuple(findings), operations, requires_replace=requires_replace if update_agents else False)
 
 
 def install(
@@ -316,6 +408,8 @@ def install(
     fill_missing: bool = False,
     update_instructions: bool = False,
     update_agents: bool = False,
+    refresh_agents: bool = False,
+    replace_guidance: bool = False,
     propagate: bool = False,
     dry_run: bool = False,
 ) -> InstallReport:
@@ -326,11 +420,11 @@ def install(
     repo = _repo_root(target_root)
     plugin = plugin_root.resolve()
     if mode == "audit":
-        if any((replace, fill_missing, update_instructions, update_agents, propagate)):
+        if any((replace, fill_missing, update_instructions, update_agents, refresh_agents, replace_guidance, propagate)):
             raise ValueError("audit is read-only; remove mutation flags")
         return _audit(repo, roles)
     if mode == "retune":
-        if replace or update_agents or propagate:
+        if replace or update_agents or refresh_agents or replace_guidance or propagate:
             raise ValueError("retune preserves existing roles; use initialize for replacement, guidance, or propagation")
         return _retune(
             plugin,
@@ -342,6 +436,14 @@ def install(
             update_instructions=update_instructions,
             dry_run=dry_run,
         )
+    if refresh_agents:
+        if not update_agents:
+            raise ValueError("--refresh-agents requires --update-agents")
+        if replace or propagate:
+            raise ValueError("--refresh-agents is a guidance-only initialization update; remove role/worktree mutation flags")
+        return _refresh_guidance(repo, roles, replace_guidance=replace_guidance, dry_run=dry_run)
+    if replace_guidance:
+        raise ValueError("--replace-agents-guidance requires --refresh-agents")
     if fill_missing or update_instructions:
         raise ValueError("initialize creates templates; use retune for preserve-existing updates")
     return _initialize(
@@ -352,6 +454,8 @@ def install(
         effort=effort,
         replace=replace,
         update_agents=update_agents,
+        refresh_agents=refresh_agents,
+        replace_guidance=replace_guidance,
         propagate=propagate,
         dry_run=dry_run,
     )
@@ -380,6 +484,7 @@ def _print_report(mode: str, report: InstallReport, *, dry_run: bool, output_for
         "writes_applied": not dry_run and mode != "audit",
         "changes": changes,
         "findings": list(report.findings),
+        "requires_replace": report.requires_replace,
         "global_agents_selected": False,
         "claude_settings_modified": False,
         "experimental_agent_teams_enabled": False,
@@ -392,6 +497,8 @@ def _print_report(mode: str, report: InstallReport, *, dry_run: bool, output_for
         print(f"{change['operation'].title()} {change['path']}: {', '.join(change['fields'])}")
     for finding in report.findings:
         print(f"Finding: {finding}")
+    if report.requires_replace:
+        print("Approval required: rerun with --replace-agents-guidance after reviewing the proposed AGENTS.md refresh.")
     if mode == "audit":
         print("Audit was read-only; no files were written.")
     print("Global Claude settings and experimental Agent Teams were not changed.")
@@ -408,6 +515,16 @@ def main() -> int:
     parser.add_argument("--fill-missing", action="store_true", help="Retune by adding missing frontmatter only")
     parser.add_argument("--update-instructions", action="store_true", help="Retune by explicitly updating instructions")
     parser.add_argument("--update-agents", action="store_true", help="Add the approved AGENTS.md section")
+    parser.add_argument(
+        "--refresh-agents",
+        action="store_true",
+        help="During an explicit initialization rerun, refresh only the managed AGENTS.md section",
+    )
+    parser.add_argument(
+        "--replace-agents-guidance",
+        action="store_true",
+        help="Allow explicit replacement of a stale unmarked AGENTS.md team section",
+    )
     parser.add_argument("--propagate", action="store_true", help="Add ignored-file worktree propagation")
     parser.add_argument("--dry-run", action="store_true", help="Preview exact changes without writing files")
     parser.add_argument("--format", choices=("text", "json"), default="text", dest="output_format")
@@ -425,6 +542,8 @@ def main() -> int:
             fill_missing=args.fill_missing,
             update_instructions=args.update_instructions,
             update_agents=args.update_agents,
+            refresh_agents=args.refresh_agents,
+            replace_guidance=args.replace_agents_guidance,
             propagate=args.propagate,
             dry_run=args.dry_run,
         )

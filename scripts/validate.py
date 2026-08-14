@@ -66,6 +66,9 @@ CONTRACT_MARKERS = {
         ".worktreeinclude",
         "writable parent",
         "available, not active",
+        "refresh-agents",
+        "replace-agents-guidance",
+        "guidance-only refresh",
     ),
     "plumbline-agent-team": (
         ".codex/agents/",
@@ -89,6 +92,8 @@ CONTRACT_MARKERS = {
         "router",
         "AGENTS schema drift",
         "proposed refresh",
+        "repeat initialization",
+        "replace-agents-guidance",
     ),
     "plumbline-execute-engine": (
         ".codex/agents/",
