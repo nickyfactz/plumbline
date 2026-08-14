@@ -35,6 +35,10 @@ def main() -> None:
         "shares files",
         "clear join condition",
         "worker recommendation never creates a new delegation wave",
+        "delegation-first ownership",
+        "delegation_roles",
+        "delegation_status",
+        "bounded research",
     ):
         assert marker in orchestration
     with tempfile.TemporaryDirectory() as raw_root:
@@ -80,7 +84,11 @@ def main() -> None:
         assert "writable parent" in guidance
         assert "one lifecycle owner" in guidance
         assert "explicitly selected competing controller" in guidance
-        assert "cheapest effective setting" in guidance
+        assert "delegation is the default" in guidance
+        assert "delegation_roles" in guidance
+        assert "delegation_status" in guidance
+        assert "bounded research" in guidance
+        assert "configured model" in guidance
         included = (root / ".worktreeinclude").read_text(encoding="utf-8")
         assert ".codex/agents/*.toml" in included
         ignored = (root / ".gitignore").read_text(encoding="utf-8")

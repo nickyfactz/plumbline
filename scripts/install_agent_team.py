@@ -63,14 +63,15 @@ def _agent_section(roles: tuple[str, ...]) -> str:
     role_lines = "\n".join(f"- `{role}` for {ROLE_DESCRIPTIONS[role]}." for role in roles)
     return f"""## Local agent team
 
-Use `$plumbline-init` for the combined router/team setup and `$plumbline-agent-team` explicitly for initialize, audit, retune, or add requests. Do not invoke setup for ordinary feature work. Use only the project-local agents in `.codex/agents/` when work benefits from delegation:
+Use `$plumbline-init` for the combined router/team setup and `$plumbline-agent-team` explicitly for initialize, audit, retune, or add requests. Do not invoke setup for ordinary feature work. Use only the project-local agents in `.codex/agents/` for bounded work that an approved role can own:
 
 {role_lines}
 
-Keep direct low-risk or contract-complete work in the main thread. The main thread owns product decisions, active specs and plans, integration, and Git. Give workers context-bounded briefs with anchored read sections and disjoint write sets; do not pass full history or whole documentation trees when unchanged artifacts answer the question. The report-only roles (researcher, architect, and QA) receive no write set. Their `sandbox_mode = "read-only"` is intent; a writable parent is normal for a goal and may affect the child's effective sandbox. At each delegation wave, emit one compact line such as `Delegated wave: researcher [model=<slug>, reasoning=<effort>] — Boundary: report-only; no write set; no child agents`; report selected role names with configured model slugs and reasoning efforts, include effective model, reasoning, or sandbox values only when observable and materially different, and do not repeat unchanged configuration on resume. Inspect Git status/diff after the child returns, and never silently integrate unexpected edits. Only the approved implementer receives a bounded write set. Workers never spawn child agents. Do not use personal or global agent files as fallbacks. If no local role is available, state `Direct: <reason>` and continue on the main thread.
+Keep direct low-risk or contract-complete work in the main thread. The main thread owns product decisions, active specs and plans, integration, and Git. Give workers context-bounded briefs with anchored read sections and disjoint write sets; do not pass full history or whole documentation trees when unchanged artifacts answer the question. The report-only roles (researcher, architect, and QA) receive no write set. Their `sandbox_mode = "read-only"` is intent; a writable parent is normal for a goal and may affect the child's effective sandbox. At each delegation wave, emit one compact line such as `Delegated wave: researcher [model=<slug>, reasoning=<effort>] — Boundary: report-only; no write set; no child agents`; report selected role names with configured model slugs and reasoning efforts, include effective model, reasoning, or sandbox values only when observable and materially different, and do not repeat unchanged configuration on resume. Inspect Git status/diff after the child returns, and never silently integrate unexpected edits. Each write-capable role receives only its approved bounded write set. Workers never spawn child agents. Do not use personal or global agent files as fallbacks. If no local role is available, state `Direct: <reason>` and continue on the main thread.
 Delegation is main-mediated: every worker returns to the main thread, worker recommendations are advisory, and only the main thread selects and dispatches the next capability. Workers never invoke, hand off to, or dispatch another worker. When independent work is ready, the main thread may use one parallel wave only with a stable contract, disjoint scopes, no result dependency, and a clear join condition; otherwise keep it serial.
+For Execute checkpoints, delegation is the default: when an approved project-local role can own useful bounded research, architecture, implementation, review, testing, or another capability with a clear boundary, dispatch that role before the main thread duplicates the work. Use its configured model, reasoning effort, and sandbox intent; do not invent or substitute a personal/global role. Record `delegation_roles` and `delegation_status` in the checkpoint resume record and restore them after compaction. Keep product decisions, lifecycle/plan state, joins, integration, Git, singleton operations, or tiny coupled actions on the main thread; otherwise a missing role is an explicit `Direct: <reason>` fallback.
 Keep `features.multi_agent = true` in project `.codex/config.toml`. Treat `agents.max_threads` and `agents.max_depth` as user-owned host settings; the setup template recommends 6 and 1 as starting values, but approved alternatives are preserved. Every role TOML must carry explicit `model`, `model_reasoning_effort`, and `sandbox_mode` values approved during setup.
-Treat the approved model and reasoning values as adjustable starting points, not permanent policy: prefer the cheapest effective setting supported by the task, revisit it with evidence, and preserve tuned role fields during audit/retune unless explicitly approved.
+Treat the approved model and reasoning values as the selected project baseline: preserve the role's configured fields during execution and change them only through an explicit audit or retune approval.
 
 Before dispatch, identify one lifecycle owner. Installed or enabled skills are available capabilities, not active ownership; an explicitly selected competing controller owns its own checkpoint and closeout flow.
 """
@@ -93,7 +94,9 @@ AGENT_GUIDANCE_MARKERS = (
     "writable parent",
     "one lifecycle owner",
     "explicitly selected competing controller",
-    "cheapest effective setting",
+    "delegation is the default",
+    "delegation_roles",
+    "delegation_status",
 )
 
 

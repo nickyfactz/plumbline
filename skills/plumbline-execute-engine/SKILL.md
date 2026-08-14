@@ -77,8 +77,8 @@ The main thread selects, briefs, dispatches, integrates, and advances every
 capability. Workers return evidence to the main thread; their recommendations
 are advisory. Use only project-local roles under `.codex/agents/` or
 `.claude/agents/`. Give report-only roles (researcher, architect, and QA) no
-write set. Give an implementer only its bounded write set. Keep Git, active-plan
-edits, integration, and lifecycle ownership in the main thread. Workers return
+write set. Give each write-capable role only its bounded write set. Keep Git,
+active-plan edits, integration, and lifecycle ownership in the main thread. Workers return
 to that hub, workers never spawn children, and they do not create another
 delegation hierarchy.
 
@@ -112,16 +112,47 @@ shared interfaces, schemas, migrations, generated artifacts, and moving review
 deltas remain serial. Fresh workers are the default; reuse requires continuity
 to be valuable for the same outcome, contract, write set, and acceptance.
 
+## Delegation-first ownership
+
+For every approved Execute checkpoint, classify each bounded work unit before
+doing it on the main thread. Delegation is the default whenever an approved
+project-local role can own useful research, architecture, implementation,
+review, testing, or another capability with a clear read, report, or write
+boundary. Dispatch the matching role or roles before the main thread duplicates
+that work. Use the role definitions selected for this repository and preserve
+their configured model, reasoning/effort, and sandbox/permission intent; do not
+invent or substitute personal/global roles. The main thread should not absorb a
+bounded task merely because it can perform it.
+
+Keep the main thread for product decisions, lifecycle and plan state, worker
+joins and integration, Git, singleton build/deploy/restart/migration/publication
+operations, and work too small or coupled to justify a worker. A direct action
+must be already understood, trivial to verify, and have no independent
+delegation boundary; record `Direct: <reason>` when using that fallback. If no
+matching local role or host dispatch exists, state the capability reason and
+continue directly rather than pausing the user.
+
+For a Plumbline-managed plan, keep `delegation_roles` and
+`delegation_status` in the active checkpoint resume record. Use
+`not-applicable`, `not-dispatched`, `direct`, `dispatched`, `returned`, or
+`integrating`. For an imported plan, use its existing equivalent compact state
+instead of rewriting the artifact only to add these fields. On every compaction
+or conversational resume, restore the delegation state before continuing. If a
+bounded task has no dispatched or returned role, dispatch it before the main
+thread repeats that work.
+
 ## Dispatch the contract, not the whole history
 
-Before an implementer dispatch, synthesize the transient contract capsule
+Before a material role dispatch, synthesize the transient contract capsule
 defined by `references/subagent-orchestration.md` from the exact checkpoint and
 specification sections. Put it in the prompt, not in a new file. The capsule
 names the observable outcome, owners/invariants, partial-failure boundary,
-applicable edge behavior, proof, write set, non-goals, and assumptions. The
-implementer chooses mechanics within that envelope and uses repository
-conventions plus a safe reversible default. Return a contract gap only when the
-missing choice changes observable behavior or contradicts the approved plan.
+applicable edge behavior, proof, boundary, non-goals, and assumptions. Add a
+bounded write set for a writing role and a report-only boundary for a reporting
+role. The worker chooses mechanics or analysis within that envelope and uses
+repository conventions plus a safe reversible default. Return a contract gap
+only when the missing choice changes observable behavior or contradicts the
+approved plan.
 
 Give every worker the checkpoint outcome, acceptance criteria, anchored read
 set, disjoint write set, relevant paths, expected validation, report format,
@@ -142,9 +173,9 @@ For each checkpoint:
 
 1. Read the exact checkpoint and referenced contract sections, then inspect the
    current delta and last verified state.
-2. Implement the bounded vertical slice, or the explicitly labeled prerequisite
-   that unlocks it. Choose the smallest complete solution: avoid speculative
-   abstractions and dependencies while retaining required behavior,
+2. Apply the delegation-first ownership rule above, then dispatch or perform
+   the bounded work unit. Choose the smallest complete solution: avoid
+   speculative abstractions and dependencies while retaining required behavior,
    companion surfaces, failure/recovery paths, compatibility, and proof.
 3. Run the narrowest meaningful checks and apply
    `references/runtime-value-testing.md`. A focused test, static check,

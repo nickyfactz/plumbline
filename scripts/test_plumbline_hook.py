@@ -60,6 +60,8 @@ def main() -> None:
         assert "explicitly activated" in context
         assert "not a new invocation" in context
         assert "resume record" in context
+        assert "delegation_roles" in context
+        assert "delegation_status" in context
 
         resume = run_hook({**base, "hook_event_name": "SessionStart", "source": "resume"}, state_root)
         assert json.loads(resume)["hookSpecificOutput"]["hookEventName"] == "SessionStart"

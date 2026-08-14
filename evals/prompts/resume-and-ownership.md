@@ -9,6 +9,7 @@
 - Compact resume: "Update CP-03 after validation. Keep the plan's checkpoint status, owner, last verified commit, and next safe action synchronized in its resume record."
 - Evidence batching: "The implementation is complete; packaging receipts and documentation evidence are adjacent and have no independent acceptance or rollback boundary. Plan them without creating extra checkpoints."
 - Bounded worker context: "Delegate this review with the exact checkpoint sections and changed paths; do not pass full history or reread unchanged repository guidance."
+- Delegation ownership: "Resume Execute after compaction on a checkpoint with bounded research, architecture, implementation, and QA work. Restore delegation roles/status, dispatch the approved project-local roles with their configured model and reasoning before the main thread repeats their work, and keep only main-owned or tightly coupled actions direct."
 - Proportional closeout: "This small accepted docs-only change has no transient plan. Use the light closeout path and report the focused check and residual risk."
 
 # Architect boundary and evidence prompts

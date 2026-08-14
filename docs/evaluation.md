@@ -71,6 +71,9 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 44. Execute reaches Ready for Acceptance without deleting transient artifacts; accepted Closeout handles integration, retirement, and cleanup.
 45. A supporting construction-policy skill may constrain implementation choices but does not add lifecycle ownership, checkpoints, or competing acceptance gates.
 46. An accepted equivalent evidence path is reused before slice-specific packaging or receipt machinery is introduced.
+46a. An approved Execute checkpoint dispatches approved project-local roles for useful bounded research, architecture, implementation, review, testing, or other capability work before the main thread repeats it; role selection remains project-local and configured.
+46b. Product decisions, lifecycle/plan state, joins, integration, Git, singleton operations, and tightly coupled or trivial work may remain direct; missing local capability reports `Direct` instead of blocking.
+46c. After compaction or conversational resume, Execute restores `delegation_roles` and `delegation_status` from the active checkpoint before continuing bounded work.
 
 47. An explicit phase skill accepts a sufficient external specification, plan, handoff, or work order in an uninitialized repository without requiring setup, Plumbline frontmatter, or generated paths.
 48. A sufficient external specification with no separate plan receives a companion-plan recommendation but does not block execution when it contains execution topology, the next safe slice, and acceptance proof.

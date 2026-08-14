@@ -39,6 +39,11 @@ def main() -> None:
         assert "main-mediated" in guidance
         assert "recommendations are advisory" in guidance
         assert "parallel wave" in guidance
+        assert "delegation is the default" in guidance
+        assert "delegation_roles" in guidance
+        assert "delegation_status" in guidance
+        assert "bounded research" in guidance
+        assert "configured model" in guidance
         assert ".claude/agents/" in (root / ".gitignore").read_text(encoding="utf-8")
         assert ".claude/agents/*.md" in (root / ".worktreeinclude").read_text(encoding="utf-8")
         assert not (root / ".claude" / "settings.json").exists()

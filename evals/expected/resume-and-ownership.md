@@ -9,6 +9,7 @@
 7. The plan's compact resume fields stay synchronized and are treated as the authoritative checkpoint summary.
 8. An unchanged resume uses one compact transition and existing evidence instead of replaying routing and doctrine.
 9. Evidence-only work is attached to its parent checkpoint unless it crosses an independent acceptance, rollback, risk, contract, or ownership boundary.
+9a. A checkpoint with useful bounded work restores its delegation roles/status after compaction and dispatches the approved project-local roles before the main thread repeats research, architecture, implementation, review, or testing; only main-owned or tightly coupled actions remain direct.
 
 10. A material stateful checkpoint uses one compact scenario-to-proof matrix with only applicable cases, including expected observable behavior, terminal owner/order, and proof; it is passed to implementer and QA.
 11. A mechanical rename stays lightweight and does not receive a universal matrix or extra review loop.

@@ -23,6 +23,34 @@ A role has two separate boundaries:
 
 At each delegation wave, emit one compact line such as Delegated wave: researcher [model=<slug>, reasoning=<effort>] - Boundary: report-only; no write set; no child agents; include each selected role, configured values, and effective model/reasoning/sandbox values only when the host exposes a meaningful difference or the user asks. Add the report-only/no-write-set/no-child boundary to the wave report. Do not invent effective values. After a child returns, inspect Git status and the diff; unexpected edits are not silently integrated. Use Direct: delegation prohibited or effective read-only isolation unavailable when the task requires a hard read-only boundary that the host cannot provide.
 
+## Delegation-first ownership
+
+For an approved Execute checkpoint, delegation is the default whenever an
+approved project-local role can own useful research, architecture,
+implementation, review, testing, or another capability with a clear read,
+report, or write boundary. Dispatch the matching role or roles before the main
+thread duplicates that work. Preserve each selected role's configured model,
+reasoning/effort, and sandbox/permission intent; do not invent or substitute a
+personal/global role. This supports one bounded worker or a dependency-safe
+parallel wave without a fixed role map.
+
+Keep the main thread for product decisions, lifecycle and plan state, worker
+joins and integration, Git, singleton operations, and work too small or coupled
+to justify a worker. A direct action must be already understood, trivial to
+verify, and have no independent delegation boundary; record `Direct: <reason>`
+when using that fallback. If no matching local role or host dispatch exists,
+record the capability reason and continue directly rather than pausing the
+user.
+
+For a Plumbline-managed plan, persist `delegation_roles` and
+`delegation_status` in the active checkpoint resume record. Use
+`not-applicable`, `not-dispatched`, `direct`, `dispatched`, `returned`, or
+`integrating`. For an imported plan, use its existing equivalent compact state
+instead of rewriting the artifact only to add these fields. Restore the state
+after compaction or conversational resume before continuing; a bounded task
+without a dispatched or returned role must be delegated before the main thread
+repeats it.
+
 ## Worker briefs
 
 Treat each independent assignment as a fresh worker context by default. Reuse a

@@ -105,6 +105,12 @@ points to it. Classify unresolved items as Acceptance blocker, Residual risk,
 Operational follow-up, or Future enhancement; only an Acceptance blocker stops
 advancement.
 
+For a checkpoint with useful delegated work, reserve the compact
+`delegation_roles`/`delegation_status` fields for Execute to carry delegation
+across compaction. Use `not-applicable` when no bounded role-owned unit exists;
+an imported plan may use its existing equivalent state instead of being
+rewritten into this schema.
+
 Treat changing telemetry as timestamped sample evidence rather than a reason to
 rewrite stable acceptance. Keep the plan recoverable from the controlling
 source, specification, Git state, and last verified evidence after compaction.

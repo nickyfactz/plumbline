@@ -125,6 +125,10 @@ CONTRACT_MARKERS = {
         "companion plan",
         "exactly one current checkpoint",
         "timestamped sample",
+        "delegation-first ownership",
+        "delegation_roles",
+        "delegation_status",
+        "bounded work unit",
     ),
     "plumbline-plan-engine": (
         "evidence-only",
@@ -340,7 +344,15 @@ def validate_hooks(errors: list[str]) -> None:
         if "CLAUDE_PLUGIN_ROOT" not in command:
             error(errors, f"hooks/hooks.json: {event} must resolve from the installed plugin root")
     source = script.read_text(encoding="utf-8")
-    for marker in ("UserPromptSubmit", "SessionStart", "not a new invocation", "session_id", "cwd"):
+    for marker in (
+        "UserPromptSubmit",
+        "SessionStart",
+        "not a new invocation",
+        "session_id",
+        "cwd",
+        "delegation_roles",
+        "delegation_status",
+    ):
         if marker not in source:
             error(errors, f"hooks/plumbline-session.js: missing marker {marker}")
 

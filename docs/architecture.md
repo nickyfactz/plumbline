@@ -48,8 +48,8 @@ Agent teams are optional and project-local:
   model, effort, tool, and permission fields. Plumbline does not edit global
   Claude settings or enable the separate experimental Agent Teams feature.
 
-The shared role contracts keep researchers, architects, and QA report-only;
-only an approved implementer receives a bounded write set. Every worker
+The shared role contracts keep report-only roles without write sets; each
+approved write-capable role receives only a bounded write set. Every worker
 returns to the main thread, worker recommendations are advisory, and only the
 main thread selects and dispatches the next capability. Workers do not own
 Git, edit the active specification or plan, or spawn children. Codex
@@ -64,6 +64,17 @@ migrations, generated artifacts, unstable contracts, and moving review deltas
 remain serial. Results are classified and integrated at the main thread before
 downstream work is dispatched; this is guidance, not a scheduler or graph
 runtime.
+
+For an approved Execute checkpoint, delegation is the default whenever an
+approved project-local role can own useful bounded research, architecture,
+implementation, review, testing, or another capability with a clear boundary.
+The main thread dispatches that role before duplicating the work and preserves
+its configured model, reasoning/effort, and sandbox/permission intent. Product
+decisions, lifecycle/plan state, joins, integration, Git, singleton operations,
+and tiny coupled actions remain direct. The active checkpoint resume record
+carries `delegation_roles` and `delegation_status` so compaction restores this
+obligation. A missing local role is an explicit direct fallback, not a user
+pause.
 
 ## Ownership and worktrees
 

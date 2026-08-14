@@ -278,12 +278,13 @@ If you are confused by a decision, ask Plumbline to re-explain it. It should res
 When a project-local team is enabled, Plumbline recommends a role-aware starting profile aimed at the cheapest effective model and reasoning effort for each role. These are adjustable recommendations, not permanent policy; change or hot-swap them when evidence shows a better fit.
 
 - Researchers, architects, and QA auditors are report-only and receive no write set.
-- Implementers receive only the approved write set.
+- Write-capable roles receive only their approved bounded write sets.
 - The main thread owns specifications, plans, integration, and Git.
+- For an Execute checkpoint, the main thread dispatches approved local roles for useful bounded research, architecture, implementation, review, testing, or other capability work before duplicating it. The active checkpoint records delegation roles/status so compaction can restore the delegation obligation. Product decisions, lifecycle/plan state, joins, integration, Git, singleton operations, and tiny coupled actions remain direct.
 - Workers return to the main thread and never invoke, hand off to, or dispatch another worker; `agents.max_depth = 1` is a recommended starting boundary, not a host limit enforced by Plumbline.
 - If no suitable local role exists, Plumbline reports `Direct: <reason>` and continues on the main thread rather than using a global fallback.
 
-Each delegation wave reports the selected role names with the host-native model and reasoning/effort values in one compact line. Codex shows model slugs and reasoning efforts; Claude Code shows its model and effort values. This keeps delegation visible without turning every worker response into a ceremony.
+Each delegation wave reports the selected role names with the host-native model and reasoning/effort values in one compact line. Codex shows model slugs and reasoning efforts; Claude Code shows its model and effort values. Use the approved project-local role that matches the capability and preserve its configured values; Plumbline does not substitute arbitrary or global agents. This keeps the team visible without turning every worker response into a ceremony.
 
 ### Keep orchestration explicit
 

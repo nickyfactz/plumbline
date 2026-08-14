@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Make useful bounded Execute delegation the default for available project-local roles across research, architecture, implementation, review, testing, and future capabilities while preserving direct main-thread ownership for lifecycle and tightly coupled work.
+- Persist delegation roles/status in the active checkpoint resume record and restore the obligation after compaction or conversational resume.
+- Align generated Codex/Claude guidance and the optional continuity reminder with approved project-local role selection and configured model/reasoning values.
+
 ## 0.1.15 - 2026-08-12
 
 - Add an optional Codex/Claude lifecycle hook that restores Plumbline awareness after resume or compaction only when the front door was explicitly invoked earlier in the same session and repository.
