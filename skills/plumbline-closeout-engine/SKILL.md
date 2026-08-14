@@ -13,6 +13,12 @@ canonical documentation, transient cleanup decision, integration result, and
 final branch/worktree/publishing preparation report. Closeout does not redo
 first-time implementation proof.
 
+Normal Closeout refuses to retire an objective with any required checkpoint in
+`Blocked`, `Reopened`, `CHANGES_REQUIRED`, `INCONCLUSIVE`, or another unresolved
+state. Preserve the failed attempt and return the work to Execute/Diagnose.
+Only explicit user approval may defer or abandon the objective; do not infer
+that decision from severity, rollback, or a proposed successor.
+
 Execute owns implementation, focused/full proof, acceptance-required canonical
 documentation, and stable-delta review until `Ready for Acceptance`. Closeout
 then owns integration, transient cleanup, plan retirement, worktree/branch
@@ -28,9 +34,9 @@ signal, competing artifact set, or destructive cleanup decision that actually
 blocks the requested operation.
 
 Classify remaining items as Acceptance blocker, Residual risk, Operational
-follow-up, or Future enhancement. Only an Acceptance blocker prevents
-closeout; keep the other categories visible without starting a new planning
-cycle.
+follow-up, or Future enhancement. An Acceptance blocker or any unresolved
+`Blocked`/`Reopened` checkpoint prevents closeout; keep non-blocking categories
+visible without starting a new planning cycle.
 
 ## Choose the smallest closeout mode that is sufficient
 

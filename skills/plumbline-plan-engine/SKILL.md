@@ -18,6 +18,10 @@ non-goals, checkpoint dependency order, proof, current checkpoint, lifecycle
 owner, and one safe next action. Stop after planning; the user or router selects
 the explicit `plumbline-execute` phase when implementation is wanted.
 
+Plans cannot override Plumbline lifecycle invariants. A failed attempt keeps
+the same candidate and objective active until it is accepted or the user
+explicitly defers or abandons it.
+
 ## Read the controlling inputs
 
 Read the active specification, supplied design or work order, repository
@@ -102,8 +106,24 @@ Use statuses `Pending`, `In Progress`, `Blocked`, `Complete`, `Reopened`, and
 and the body synchronized. Before saving a plan update, verify exactly one
 current checkpoint, matching frontmatter status, and a `next_safe_action` that
 points to it. Classify unresolved items as Acceptance blocker, Residual risk,
-Operational follow-up, or Future enhancement; only an Acceptance blocker stops
-advancement.
+Operational follow-up, or Future enhancement. `Blocked` and `Reopened` stop the
+affected checkpoint and never count as completion. An Acceptance blocker or an
+unresolved `Blocked`/`Reopened` checkpoint prevents `Ready for Acceptance`; it
+does not authorize abandoning the objective. Use `Superseded` only after
+accepted work or an explicit user-approved defer or abandonment.
+
+## Preserve failed attempts
+
+Normalize checkpoint outcomes as follows: `CHANGES_REQUIRED` reopens the
+affected checkpoint; `INCONCLUSIVE`, environment failures, and harness
+failures block it until Diagnose repairs or replaces the evidence path. Then
+the same candidate returns through correction and review. P0/P1 severity does
+not automatically mean rejection, rollback, abandonment, or fresh owner
+selection. Reject a plan clause that maps severity directly to those terminal
+actions. If safety requires a rollback, preserve the candidate in durable Git
+history before the main thread rolls it back; an ignored patch or build output
+is supporting evidence, not candidate retention. A successor objective is not
+eligible while the current objective is unresolved.
 
 For a checkpoint with useful delegated work, reserve the compact
 `delegation_roles`/`delegation_status` fields for Execute to carry delegation

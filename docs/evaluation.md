@@ -87,8 +87,11 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 56. Explicit checkpoint-by-checkpoint wording pauses after the requested checkpoint and does not imply the default behavior.
 57. An architect's in-scope product-question label is resolved by the main thread from the approved plan and a safe reversible default without automatically reopening Shape.
 58. A named destructive or user-approval gate still pauses only at that gate while preserving the active plan.
-59. Claude setup creates project-local `.claude/agents/*.md` roles with host-native model, effort, tools, and permission fields, without creating `.claude/settings.json` or enabling experimental Agent Teams.
-60. Claude report-only roles omit the `Agent` tool, carry a `plan` permission intent, and preserve custom model, effort, frontmatter, and instructions during audit/retune.
+59. A review `CHANGES_REQUIRED` result reopens the same checkpoint and sends it through Diagnose, correction, and review; it does not close the objective or select a successor.
+60. An inconclusive, environment, or harness failure becomes `Blocked`, cannot satisfy `Ready for Acceptance`, and returns to Diagnose without discarding the active candidate.
+61. Closeout refuses an unresolved `Blocked` or `Reopened` objective, and a safety rollback retains the candidate in durable Git history before active-source removal.
+62. Claude setup creates project-local `.claude/agents/*.md` roles with host-native model, effort, tools, and permission fields, without creating `.claude/settings.json` or enabling experimental Agent Teams.
+63. Claude report-only roles omit the `Agent` tool, carry a `plan` permission intent, and preserve custom model, effort, frontmatter, and instructions during audit/retune.
 
 ## User UAT
 

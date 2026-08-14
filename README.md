@@ -227,6 +227,8 @@ Plumbline chooses the smallest suitable path:
 
 Execute normally runs every remaining checkpoint in dependency order and may batch ready independent research, architecture, QA, or implementation work into a main-mediated parallel wave when contracts are stable, scopes are disjoint, results do not depend on one another, and the join condition is clear. Checkpoint boundaries are internal team handoffs; say “only execute CP-02” or “pause after CP-02” when you want slice-by-slice control. A worker's uncertainty does not automatically prompt the user or cancel the plan—the main thread resolves ordinary in-scope decisions and records them.
 
+Failed work remains active work. `CHANGES_REQUIRED` reopens the affected checkpoint; `INCONCLUSIVE`, environment, and test-harness failures block it and return to Diagnose. `Blocked` and `Reopened` never satisfy plan completion or Closeout, and severity alone never authorizes rollback, abandonment, or successor selection. If a safety rollback is needed, the active candidate is preserved in durable Git history first.
+
 It does not restart the lifecycle merely because an artifact came from ChatGPT, Claude, another repository, or a previous session. A sufficient external plan can go straight to execution; a sufficient specification can go to planning; unresolved material product choices return to Shape.
 
 ### Let Shape reduce uncertainty

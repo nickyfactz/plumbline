@@ -15,4 +15,11 @@ A throwaway Shape prototype is transient scratch evidence, not a fifth artifact 
 
 Imported source, specs, and plans are lifecycle-owned and may be transient. They may be removed at accepted closeout only after the user explicitly accepts the result and canonical docs contain the resulting truth. Retained specifications and plans may instead become decision records when they remain useful; retention does not make them canonical current-state documentation. Git history must retain deleted artifacts. Never use closeout to hide a disagreement between code and docs; investigate it and record the resolution.
 
+Failed evidence attempts are immutable supporting records. A corrected attempt
+supersedes their conclusion; it does not erase or reinterpret the earlier
+result. If a safety rollback is required, the main thread must preserve the
+candidate in durable Git history before removing it from the active source.
+An ignored patch, build directory, or transient target artifact is not enough
+to retain a candidate or recover the active objective.
+
 Every process artifact, announcement, or receipt must support recovery, validation, authorization, or ownership. Omit it when it serves none of those purposes.

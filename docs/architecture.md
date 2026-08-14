@@ -36,6 +36,12 @@ specifications, plans, imported source, and handoffs are removed only through
 accepted Closeout. Plumbline does not treat a conversation transcript or a
 historical implementation plan as current product truth.
 
+Failure is corrective state, not automatic abandonment. Review changes reopen
+the affected checkpoint; missing or inconclusive evidence blocks it for
+Diagnose. Execute and Closeout require all required checkpoints to be complete,
+and a new successor objective requires acceptance or explicit user-approved
+defer/abandonment.
+
 ## Agent-team boundary
 
 Agent teams are optional and project-local:

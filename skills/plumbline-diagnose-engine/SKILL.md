@@ -34,5 +34,9 @@ history selectively rather than automating `git bisect`.
 
 Add a regression test only at a stable public seam that exercises the real
 failure. When no correct seam exists, record the seam gap instead of creating
-false confidence. Report root cause, evidence, fix boundary, and remaining
-uncertainty.
+false confidence. When Diagnose follows a failed Execute checkpoint, keep the
+same candidate and checkpoint active. Return a correction path to Execute; do
+not close the objective or select a successor. Environment and harness
+failures may require repairing or replacing the evidence path before
+implementation resumes. Report root cause, evidence, fix boundary, and
+remaining uncertainty.

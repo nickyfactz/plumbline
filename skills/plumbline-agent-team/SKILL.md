@@ -19,6 +19,12 @@ The global Codex config may be inspected for host capability and the current mai
 
 A depth of one is a recommended delegation boundary, not a host setting Plumbline enforces. Claude applies the same recommended behavior by omitting the `Agent` tool from generated roles and stating it in every role prompt. Every worker instruction must say it cannot spawn children, own Git, or edit the active spec/plan. This main-mediated rule means every worker returns to the main thread; worker recommendations are advisory, and only the main thread selects and dispatches the next capability. When independent work is ready, the main thread may dispatch one parallel wave only after a stable contract, disjoint scopes, no result dependency, and a clear join condition are established. Give each worker only the exact read paths and anchored sections needed for its brief; do not pass full history or whole documentation trees when unchanged artifacts answer the question. Report-only roles (researcher, architect, and QA) receive no write set. Codex `sandbox_mode = "read-only"` and Claude `permissionMode: plan` are intent; a writable or permissive parent may affect effective permissions and effective sandbox. State the boundary when observable and inspect returned diffs; each approved write-capable role receives only its bounded write set.
 
+Worker reports cannot override lifecycle invariants. `CHANGES_REQUIRED` reopens
+the same candidate checkpoint; an inconclusive, environment, or harness result
+blocks it for Diagnose. Severity alone cannot abandon the objective or select a
+successor objective; the main thread preserves the candidate and owns that
+decision.
+
 ## Starting model recommendation
 
 During setup, recommend a role-aware starting profile aimed at the cheapest effective model and reasoning effort for each function: lower-cost settings for bounded research and mechanical work, and higher settings only when the task has material architecture, persistence, concurrency, security, ownership, or acceptance risk. Use the host's available model candidates and the user's project evidence; do not hard-code a model slug or reasoning policy into the shared role instructions. Codex proposals use model slugs and reasoning efforts; Claude proposals use a model alias or `inherit` and a Claude `effort` value.

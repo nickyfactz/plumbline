@@ -23,5 +23,9 @@
 19. Explicit checkpoint-by-checkpoint language opts into slice mode and pauses before later checkpoints.
 20. An in-scope architect uncertainty after plan approval is resolved by the main orchestrator from the approved contract, evidence, and a safe reversible default, then recorded without invoking Shape or asking the user.
 21. A deliberately named destructive or user-approval gate still pauses at that gate without deleting the plan or ending unrelated work.
+22. `CHANGES_REQUIRED` reopens the affected checkpoint and returns it through Diagnose, correction, and review; it does not abandon the candidate or objective.
+23. `INCONCLUSIVE`, environment, and test-harness failures block the affected checkpoint and return to Diagnose; they never satisfy Execute completion or Closeout.
+24. P0/P1 severity controls urgency but does not authorize rollback, abandonment, or successor selection; those actions require the lifecycle rules and explicit user approval where applicable.
+25. A safety rollback preserves the candidate in durable Git history first, and failed evidence remains immutable while a corrected attempt supersedes it.
 
 These are behavior-level expectations. They do not require exact wording or a particular implementation mechanism.

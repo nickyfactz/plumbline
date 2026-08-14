@@ -13,11 +13,12 @@ stop. Normal Execute is full-plan mode; checkpoint-by-checkpoint mode exists
 only when the user explicitly requests one checkpoint, a named pause, or
 approval at each boundary.
 
-Execute is complete when every required checkpoint is complete or has a
-recorded blocking classification, the stable delta has focused/full proof, the
-plan says `Ready for Acceptance`, and the main thread has reported the remaining
-risk. Execute does not delete transient artifacts or publish; those belong to
-accepted-work Closeout.
+Execute is complete only when every required checkpoint is `Complete`, the
+stable delta has focused/full proof, the plan says `Ready for Acceptance`, and
+the main thread has reported the remaining risk. `Blocked`, `Reopened`,
+`CHANGES_REQUIRED`, `INCONCLUSIVE`, or any other failure classification is
+unresolved work; it never satisfies completion. Execute does not delete
+transient artifacts or publish; those belong to accepted-work Closeout.
 
 ## Resume from the smallest sufficient evidence
 
@@ -59,10 +60,14 @@ one checkpoint, update its resume record, select the next safe checkpoint, and
 continue without waiting for a user prompt. Do not report `Ready for
 Acceptance` between checkpoints. Continue independent safe checkpoints when
 the topology permits, while a blocked or reopened checkpoint waits for its
-resolution.
+resolution. A failed checkpoint attempt returns to Diagnose, then correction
+of the same active candidate and checkpoint, followed by review. Do not revert
+a candidate, close the objective, or select a successor merely because a
+review found a defect or evidence is inconclusive.
 
-Once an approved specification and plan are active, they are delegated product
-authority for execution. The main orchestrator resolves ordinary in-scope
+Once an approved specification and plan are active, they are product-scope
+authority for execution, but they cannot override Plumbline lifecycle
+invariants. The main orchestrator resolves ordinary in-scope
 ambiguity from the approved outcome, repository evidence, and a safe reversible
 default, then records the decision, assumption, or residual risk. A worker's
 `Shape question` label is an internal escalation; it does not itself invoke
@@ -215,10 +220,14 @@ instead of retrying indefinitely; never use a universal retry count.
 Classify each failed or incomplete result once as a product defect, contract
 gap, environment failure, test-harness failure, known unrelated baseline
 failure, or unavailable evidence. A new checkpoint-invalidating product or
-contract failure stops that checkpoint. A known unrelated baseline failure may
-be recorded and bypassed when it does not affect the plan. Environment and
-harness failures are not implementation retries; escalate an inconclusive or
-missing capability.
+contract failure sets the affected checkpoint to `Reopened`. An inconclusive,
+environment, or harness failure sets it to `Blocked` until Diagnose repairs
+the evidence path or the main thread records why it cannot proceed. A known
+unrelated baseline failure may be recorded and bypassed when it does not
+affect the plan. None of these states abandons the candidate or objective.
+Severity controls urgency, not terminality. A successor objective requires
+accepted work or explicit user-approved defer/abandonment; a worker or plan
+clause cannot authorize it.
 
 Before advancing or saving plan state, verify exactly one current checkpoint,
 matching status, and a `next_safe_action` for it. Record rolling telemetry as

@@ -58,3 +58,9 @@ Return one verdict:
 - `INCONCLUSIVE` — required evidence or environment is unavailable.
 
 Quote paths, commands, and observed results. Do not manufacture style findings. If QA or UAT finds a defect in planned work, identify the affected checkpoint and the evidence that prior validation missed; the execution flow must reopen it.
+
+`CHANGES_REQUIRED` reopens the affected checkpoint and `INCONCLUSIVE` blocks
+it for Diagnose. Finding severity, including P0 or P1, controls urgency but
+does not decide candidate terminality. Review may block acceptance; it cannot
+abandon the objective, authorize a safety rollback without durable retention,
+or select a successor.
