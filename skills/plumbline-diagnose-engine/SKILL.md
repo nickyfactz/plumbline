@@ -7,10 +7,21 @@ description: Internal Plumbline engine. Use only after the Plumbline router or a
 
 ## Outcome and completion
 
-Identify the smallest evidence-backed root cause and the proportional next
-action for the user's symptom. Complete Diagnosis with a reproducible signal,
-ranked hypotheses or a clear evidence gap, root-cause evidence, fix boundary,
-and verification result. Keep a small bug fix outside feature-plan ceremony
+Identify the minimum sufficient root cause, not merely the next error, and
+choose the proportional next action for the user's symptom. For a runtime
+blocker, regression, contract violation, repeated failure, or failed expensive
+gate, complete a bounded failure-path trace before proposing the correction:
+reproduce the symptom, inspect the relevant caller and callee or state owner,
+compare observed behavior with the contract or invariant, and locate the fix
+boundary at the owner of the broken behavior. Expand the trace only when a
+shared caller, contract, or state transition makes it necessary. A trivial
+local fix may stay lightweight when the report records `Local cause confirmed`
+and why wider tracing is unnecessary.
+
+Complete Diagnosis with a reproducible signal, the relevant failure path,
+root-cause evidence, the violated contract or invariant, fix boundary,
+verification result, and remaining uncertainty. A green rerun that only moves
+the error is not diagnosis. Keep a small bug fix outside feature-plan ceremony
 unless its scope genuinely escalates.
 
 ## Reproduce the exact symptom
@@ -27,14 +38,18 @@ symptom: a focused test, CLI call, HTTP probe, trace replay, or narrow harness.
 If no red-capable loop exists, name the missing artifact or environment access
 and request the smallest useful addition.
 
-Reproduce and minimize before theorizing. Rank three to five falsifiable
-hypotheses and use one targeted probe per prediction. Keep temporary diagnostics
-tagged, remove them, and rerun the original loop after the fix. Use repository
-history selectively rather than automating `git bisect`.
+Reproduce and minimize before theorizing. Rank only the plausible falsifiable
+hypotheses needed to explain the failure and use discriminating probes rather
+than a fixed probe count. Keep temporary diagnostics tagged, remove them, and
+rerun the original loop after the fix. Use repository history selectively
+rather than automating `git bisect`.
 
 Add a regression test only at a stable public seam that exercises the real
 failure. When no correct seam exists, record the seam gap instead of creating
-false confidence. When Diagnose follows a failed Execute checkpoint, keep the
+false confidence. Do not patch the reported error line solely to make the
+current loop green before the failure path and fix boundary are understood,
+except for immediate safety containment; mark containment provisional and
+continue diagnosis. When Diagnose follows a failed Execute checkpoint, keep the
 same candidate and checkpoint active. Return a correction path to Execute; do
 not close the objective or select a successor. Environment and harness
 failures may require repairing or replacing the evidence path before

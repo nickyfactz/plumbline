@@ -1,6 +1,6 @@
 interface:
   display_name: "Plumbline Diagnose"
-  short_description: "Find the smallest evidence-backed cause"
-  default_prompt: "Diagnose this bug or regression proportionally."
+  short_description: "Find the minimum sufficient root cause"
+  default_prompt: "Trace the root cause of this bug or regression before correcting it."
 policy:
   allow_implicit_invocation: false

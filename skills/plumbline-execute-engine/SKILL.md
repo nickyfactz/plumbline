@@ -159,6 +159,14 @@ repository conventions plus a safe reversible default. Return a contract gap
 only when the missing choice changes observable behavior or contradicts the
 approved plan.
 
+For a corrective dispatch caused by a blocker, regression, repeated failure,
+or failed expensive gate, include the minimum sufficient root-cause capsule:
+symptom and reproduction, relevant failure path, contract or invariant,
+broken owner, fix boundary, proof, and exclusions. Do not dispatch a patch for
+the reported error line alone when the path is still unknown. A safety
+containment may be dispatched as provisional work, but it does not satisfy
+checkpoint acceptance until Diagnose establishes the cause.
+
 Give every worker the checkpoint outcome, acceptance criteria, anchored read
 set, disjoint write set, relevant paths, expected validation, report format,
 and the report-only/no-write-set/no-child boundaries from the orchestration
@@ -179,7 +187,9 @@ For each checkpoint:
 1. Read the exact checkpoint and referenced contract sections, then inspect the
    current delta and last verified state.
 2. Apply the delegation-first ownership rule above, then dispatch or perform
-   the bounded work unit. Choose the smallest complete solution: avoid
+   the bounded work unit. For a blocker or failed validation, complete the
+   minimum sufficient failure-path trace before correction. Choose the smallest
+   complete solution: avoid
    speculative abstractions and dependencies while retaining required behavior,
    companion surfaces, failure/recovery paths, compatibility, and proof.
 3. Run the narrowest meaningful checks and apply
@@ -207,7 +217,9 @@ Batch compatible same-seam corrective fixes before repeating expensive package,
 build, deployment, restart, or live-stack gates. Repeat a gate when a fix
 changes the contract or ownership, invalidates prior evidence, crosses a risk
 boundary, or requires immediate runtime recovery. Restore a safe runtime state
-first when necessary, then resume the smallest complete verification path.
+first when necessary, then resume the smallest complete verification path. Do
+not batch independent symptom patches before the shared cause and fix boundary
+are understood.
 
 Before an expensive live check, run the cheapest applicable prerequisite probes
 and state a bounded observation window plus an environment-appropriate
@@ -234,7 +246,9 @@ matching status, and a `next_safe_action` for it. Record rolling telemetry as
 timestamped sample evidence and keep stable acceptance separate from changing
 counts. Use a compact state/transition line only when phase, owner, evidence,
 or next action changes; unchanged resumes do not need repeated route,
-doctrine, lifecycle, or checkpoint narration.
+doctrine, lifecycle, or checkpoint narration. If a correction produces a new
+failure before the relevant contract and owner path are validated, return to
+the same Diagnose boundary instead of stacking another surface patch.
 
 ## Ownership and phase boundary
 

@@ -229,6 +229,8 @@ Execute normally runs every remaining checkpoint in dependency order and may bat
 
 Failed work remains active work. `CHANGES_REQUIRED` reopens the affected checkpoint; `INCONCLUSIVE`, environment, and test-harness failures block it and return to Diagnose. `Blocked` and `Reopened` never satisfy plan completion or Closeout, and severity alone never authorizes rollback, abandonment, or successor selection. If a safety rollback is needed, the active candidate is preserved in durable Git history first.
 
+For blockers, regressions, repeated failures, and expensive validation failures, Diagnose traces the relevant failure path, broken owner, and contract before another correction cycle. A green rerun that only moves the error is not enough; trivial local fixes may stay lightweight when the local cause is confirmed.
+
 It does not restart the lifecycle merely because an artifact came from ChatGPT, Claude, another repository, or a previous session. A sufficient external plan can go straight to execution; a sufficient specification can go to planning; unresolved material product choices return to Shape.
 
 ### Let Shape reduce uncertainty

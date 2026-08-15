@@ -6,4 +6,4 @@ disable-model-invocation: true
 
 # Diagnose
 
-This is the explicit user-facing wrapper. Select the `plumbline-diagnose-engine` through the host's skill dispatcher when available. Otherwise read `../plumbline-diagnose-engine/SKILL.md` relative to this skill and follow it directly. Keep diagnosis proportional and do not turn a small fix into feature ceremony.
+This is the explicit user-facing wrapper. Select the `plumbline-diagnose-engine` through the host's skill dispatcher when available. Otherwise read `../plumbline-diagnose-engine/SKILL.md` relative to this skill and follow it directly. Keep trivial local diagnosis lightweight; for blockers, regressions, repeated failures, and failed expensive gates, trace the minimum sufficient root cause before correction. Do not turn a small fix into feature ceremony.

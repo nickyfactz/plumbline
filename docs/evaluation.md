@@ -92,6 +92,9 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 61. Closeout refuses an unresolved `Blocked` or `Reopened` objective, and a safety rollback retains the candidate in durable Git history before active-source removal.
 62. Claude setup creates project-local `.claude/agents/*.md` roles with host-native model, effort, tools, and permission fields, without creating `.claude/settings.json` or enabling experimental Agent Teams.
 63. Claude report-only roles omit the `Agent` tool, carry a `plan` permission intent, and preserve custom model, effort, frontmatter, and instructions during audit/retune.
+64. A blocker, regression, repeated failure, or failed expensive gate establishes the relevant failure path, broken owner, and contract/invariant before another corrective cycle; moving the error is not sufficient proof.
+65. A trivial local fix may use the lightweight path only when the diagnosis records `Local cause confirmed` and why wider caller or contract tracing is unnecessary.
+66. Corrective review verifies the reported failure path and one focused adjacent proof, not only a green check for the original symptom.
 
 ## User UAT
 

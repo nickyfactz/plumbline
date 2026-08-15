@@ -7,6 +7,7 @@
 - Align generated Codex/Claude guidance and the optional continuity reminder with approved project-local role selection and configured model/reasoning values.
 - Add an explicit repeat-initialization refresh for the managed `AGENTS.md` section. Preview and apply it without replacing roles or config; require separate approval for legacy unmarked sections and preserve content outside the managed block.
 - Restore non-terminal failure handling: `CHANGES_REQUIRED` reopens the same checkpoint, inconclusive/environment/harness failures block it for Diagnose, and unresolved checkpoints cannot complete Execute or Closeout.
+- Require a minimum sufficient root-cause trace for blockers, regressions, repeated failures, and failed expensive gates before another correction cycle; keep trivial local fixes lightweight when their local cause is confirmed.
 
 ## 0.1.15 - 2026-08-12
 
