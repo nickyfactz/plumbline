@@ -9,6 +9,7 @@ feature: <name>
 specification: <relative path>
 source: <relative path or null>
 base_commit: <initial or recovery-boundary sha, or null>
+execution_mode: continuous | checkpoint_relay
 current_checkpoint: CP-01
 checkpoint_status: Pending
 lifecycle_owner: Plumbline Plan
@@ -19,6 +20,13 @@ delegation_status: not-applicable | not-dispatched | direct | dispatched | retur
 ready_for_acceptance: false
 ---
 ```
+
+`execution_mode` is optional for imported or older plans. A missing value means
+`continuous`, which preserves full-plan traversal. Use `checkpoint_relay` only
+when the user explicitly selects fresh root-conversation boundaries between
+checkpoints. Do not infer it from plan size or silently change it. Resolve the
+automatic or manual host boundary through `checkpoint-relay.md`; the shared
+plan contains no host transport details.
 
 For a Plumbline-managed feature, keep one controlling feature and one plan. A sufficient external plan or work order may serve that role without being rewritten into Plumbline's schema. Each checkpoint should use a compact card by default:
 
@@ -66,7 +74,7 @@ card that answers those questions; do not turn it into a task transcript.
 
 The frontmatter fields current_checkpoint, checkpoint_status, lifecycle_owner, last_verified_commit, next_safe_action, delegation_roles, and delegation_status are the single compact resume record. Update them together when the active checkpoint, safe next action, or delegation state changes; do not create a second checkpoint receipt. Checkpoints are coherent milestones, not micro-task transcripts. Blocked and Reopened stop advancement of that checkpoint; Execute may continue independent checkpoints when their dependencies permit, but neither status satisfies completion or authorizes closeout. Update the record after a checkpoint transition, evidence invalidation or material new evidence, a verified-commit change, a next-action change, or a material correction/blocker. Reconcile the expanded body at the same meaningful boundary; do not rewrite it after every command.
 
-The current checkpoint is the resume location, not an implicit Execute stop. Unless the user explicitly selects checkpoint-by-checkpoint mode or the plan names a user approval gate, Execute advances through the remaining dependency order automatically and may batch ready independent work into main-mediated parallel waves. For delegated checkpoints, `delegation_roles` and `delegation_status` preserve the dispatch obligation across compaction; use `not-applicable` for checkpoints with no useful delegated unit. `Ready for Acceptance` is a final-plan state after every required checkpoint is complete, not a per-checkpoint status.
+In `continuous` mode, the current checkpoint is the resume location, not an implicit Execute stop. Unless the user explicitly selects checkpoint-by-checkpoint control or the plan names a user approval gate, Execute advances through the remaining dependency order automatically and may batch ready independent work into main-mediated parallel waves. In explicit `checkpoint_relay` mode, complete the current checkpoint, establish the durable handoff defined by `checkpoint-relay.md`, and stop before the successor starts in the same root conversation. For delegated checkpoints, `delegation_roles` and `delegation_status` preserve the dispatch obligation across compaction; use `not-applicable` for checkpoints with no useful delegated unit. `Ready for Acceptance` is a final-plan state after every required checkpoint is complete, not a per-checkpoint status.
 
 Treat checkout/worktree identity, HEAD/last_verified_commit, the plan-record hash, the applicable host configuration hash, and selected project-local role-file hashes as the resume fingerprint. For Codex, the applicable files include `.codex/config.toml` and selected role TOMLs; for Claude Code, they include selected `.claude/agents/*.md` files. Treat last_verified_commit and checkpoint completion evidence as the baseline until that fingerprint or a material contract/evidence input changes. A task resume, compaction, or conversational reminder alone does not invalidate it. At the next checkpoint, inspect the current delta and referenced paths first. Reuse unchanged evidence instead of rereading whole documents or rerunning broad checks. Reassess when the fingerprint changes, a new or failed check matters, a contract boundary changes, a defect appears, or the prior evidence may be stale.
 

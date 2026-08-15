@@ -1,6 +1,6 @@
 {
   "name": "plumbline",
-  "description": "Proportional, evidence-driven engineering workflows for Claude Code with optional front-door-gated continuity after resume or compaction.",
+  "description": "Proportional, evidence-driven engineering workflows for Claude Code with optional front-door-gated continuity and manual Checkpoint Relay boundaries.",
   "version": "0.1.15",
   "homepage": "https://github.com/nickyfactz/plumbline",
   "repository": "https://github.com/nickyfactz/plumbline",

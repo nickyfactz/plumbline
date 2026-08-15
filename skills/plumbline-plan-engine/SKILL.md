@@ -13,6 +13,14 @@ execution itinerary, not a task transcript or an implementation diary.
 Planning is artifact-agnostic. Accept a sufficient external plan or work order
 without forcing it into Plumbline's file shape.
 
+Use `execution_mode: continuous` for a new Plumbline plan unless the user
+explicitly selects Checkpoint Relay. A missing mode in an imported plan also
+means continuous. When Relay is selected, record
+`execution_mode: checkpoint_relay`, load `references/checkpoint-relay.md`, and
+plan explicit durable checkpoint boundaries. Do not infer Relay from plan size,
+host capability, or checkpoint count, and do not put host transport details in
+the shared plan.
+
 Planning is complete when one controlling plan records the outcome, scope,
 non-goals, checkpoint dependency order, proof, current checkpoint, lifecycle
 owner, and one safe next action. Stop after planning; the user or router selects

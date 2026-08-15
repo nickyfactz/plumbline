@@ -13,6 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 HOOK = ROOT / "hooks" / "plumbline-session.js"
+RELAY_HOOK = ROOT / "hooks" / "plumbline-relay-signal.js"
 
 
 def run_hook(payload: dict[str, object], state_root: Path) -> str:
@@ -21,6 +22,22 @@ def run_hook(payload: dict[str, object], state_root: Path) -> str:
     environment["CLAUDE_PLUGIN_ROOT"] = str(ROOT)
     completed = subprocess.run(
         ["node", str(HOOK)],
+        cwd=ROOT,
+        env=environment,
+        input=json.dumps(payload),
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    assert not completed.stderr, completed.stderr
+    return completed.stdout.strip()
+
+
+def run_relay_hook(payload: dict[str, object], state_root: Path) -> str:
+    environment = os.environ.copy()
+    environment["PLUMBLINE_RELAY_STATE_ROOT"] = str(state_root)
+    completed = subprocess.run(
+        ["node", str(RELAY_HOOK)],
         cwd=ROOT,
         env=environment,
         input=json.dumps(payload),
@@ -74,6 +91,25 @@ def main() -> None:
         # Explicit closeout/offboarding clears the reminder for this session.
         assert run_hook({**base, "hook_event_name": "UserPromptSubmit", "prompt": "$plumbline-closeout"}, state_root) == ""
         assert run_hook({**base, "hook_event_name": "SessionStart", "source": "compact"}, state_root) == ""
+
+        # Stop is inert unless this exact repository task belongs to an active relay.
+        relay_root = root / "relay"
+        relay_root.mkdir()
+        stop = {**base, "hook_event_name": "Stop", "turn_id": "turn-1"}
+        assert run_relay_hook(stop, relay_root) == ""
+        assert not list(relay_root.glob("*.wake"))
+        relay_state = {
+            "repository_root": str(project),
+            "host_session_id": "session-1",
+            "status": "awaiting_signal",
+        }
+        (relay_root / "0123456789abcdef01234567.json").write_text(json.dumps(relay_state), encoding="utf-8")
+        assert run_relay_hook({**stop, "session_id": "session-2"}, relay_root) == ""
+        assert not list(relay_root.glob("*.wake"))
+        assert run_relay_hook(stop, relay_root) == ""
+        wake = json.loads((relay_root / "0123456789abcdef01234567.wake").read_text(encoding="utf-8"))
+        assert wake["session_id"] == "session-1"
+        assert wake["turn_id"] == "turn-1"
 
     print("plumbline-hook-smoke=passed")
 

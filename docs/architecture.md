@@ -42,6 +42,56 @@ Diagnose. Execute and Closeout require all required checkpoints to be complete,
 and a new successor objective requires acceptance or explicit user-approved
 defer/abandonment.
 
+Plans may explicitly select `execution_mode: checkpoint_relay`. Missing mode
+means `continuous`, preserving the existing full-plan Execute behavior. Relay
+uses the same host-neutral checkpoint and evidence rules but stops after one
+completed checkpoint and durable handoff. A host with automatic fresh-root
+capability may start the successor; other hosts use a supported manual boundary.
+Host transport details remain outside shared lifecycle skills and repository
+plans.
+
+Automatic Relay consumes only a normalized Relay Execution Contract. The
+internal plan-adoption engine preserves a sufficient external source and adds
+the smallest companion execution record when needed; it does not reopen
+settled product intent. A dependency-free readiness validator checks the
+normalized plan, checkpoint transition inputs, source references, and Git
+recovery boundary. It does not parse arbitrary external prose or perform Git
+integration.
+
+The host-neutral relay core contains no model call or host transport. It
+acquires one host-local controller lock, consumes a Relay Ready normalized
+plan, asks a capability adapter to start and observe one checkpoint, rereads
+durable state, validates the transition, and either exposes a handoff/acceptance
+boundary or pauses. Ambiguity never triggers an automatic engineering retry.
+
+The Codex adapter is the only module that knows App Server operations. It uses
+the supported stdio JSONL handshake, creates and names one fresh root thread,
+discovers and explicitly injects the installed Plumbline front door, starts one
+bounded turn, observes its terminal notification, records thread/turn identity
+in host-local state, and unsubscribes. It does not choose checkpoints or
+interpret product semantics.
+
+For a relay-owned Codex task, the bundled `Stop` hook writes only a host-local
+wake marker containing the matching task and turn identity. It is inert for
+ordinary sessions and cannot edit the repository, advance the plan, inject a
+prompt, or dispatch a successor. The locked relay controller consumes the
+marker and rereads durable plan state; unchanged state waits for another user
+turn, while an invalid mutation pauses.
+
+Relay recovery compares repository identity and a Git/source/plan fingerprint,
+reconciles a recorded Codex task through `thread/read`, and refuses duplicate
+dispatch when task state is active or unknown. Dead-process locks may be
+reclaimed; malformed or live locks remain fail-closed. Host-local pause/stop
+controls and App Server failures never alter repository lifecycle state or
+trigger an automatic engineering retry.
+
+The automatic runner serially dispatches each legal successor checkpoint. A
+structured checkpoint marker prevents a dispatched task from starting a nested
+controller. After the final transition, the adapter creates one fresh
+Acceptance task. That task reports the normal acceptance boundary and waits for
+explicit user acceptance; if accepted, it performs Closeout in the same task
+instead of adding a cosmetic final task.
+
 ## Agent-team boundary
 
 Agent teams are optional and project-local:

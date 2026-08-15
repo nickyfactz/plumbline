@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add explicit `checkpoint_relay` execution mode with Git-backed plan readiness, fresh Codex tasks per checkpoint, host-local wake/recovery state, duplicate protection, and a final explicit Acceptance task.
+- Preserve continuous Execute as the default and provide a manual fresh-conversation boundary for Claude Code and unsupported hosts without loading the Codex App Server adapter.
+- Add deterministic relay, hook, adapter, restart, fingerprint, pause/stop, acceptance, and native two-checkpoint UAT coverage.
 - Make useful bounded Execute delegation the default for available project-local roles across research, architecture, implementation, review, testing, and future capabilities while preserving direct main-thread ownership for lifecycle and tightly coupled work.
 - Persist delegation roles/status in the active checkpoint resume record and restore the obligation after compaction or conversational resume.
 - Align generated Codex/Claude guidance and the optional continuity reminder with approved project-local role selection and configured model/reasoning values.

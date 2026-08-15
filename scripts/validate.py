@@ -37,6 +37,7 @@ ENGINES = {f"{name}-engine" for name in {
     "plumbline-review",
     "plumbline-closeout",
 }}
+ENGINES.add("plumbline-plan-adoption-engine")
 EXPECTED_SKILLS = PUBLIC | ENGINES
 EXPLICIT = PUBLIC
 AGENT_ROLES = {
@@ -147,6 +148,15 @@ CONTRACT_MARKERS = {
         "root-cause capsule",
         "provisional",
         "surface patch",
+        "execution_mode",
+        "missing value means `continuous`",
+        "checkpoint_relay",
+        "checkpoint-relay.md",
+        "semantic durability check",
+        "generic handoff file",
+        "existing authoritative",
+        "PLUMBLINE_RELAY_CHECKPOINT",
+        "runtime/run-relay.js",
     ),
     "plumbline-diagnose-engine": (
         "same candidate",
@@ -180,6 +190,20 @@ CONTRACT_MARKERS = {
         "CHANGES_REQUIRED",
         "same candidate",
         "successor objective",
+        "execution_mode: continuous",
+        "execution_mode: checkpoint_relay",
+        "checkpoint-relay.md",
+    ),
+    "plumbline-plan-adoption-engine": (
+        "smallest companion live plan",
+        "relay_compatible",
+        "adoptable",
+        "insufficient",
+        "source as authority",
+        "checkpoint_relay",
+        "relay-readiness.js",
+        "main lifecycle owner",
+        "do not commit unrelated work",
     ),
     "plumbline-spec-engine": (
         "controlling product specification",
@@ -257,6 +281,8 @@ CONTRACT_MARKERS = {
         "controlling artifact set",
         "not a prerequisite",
         "explicitly invoked phase side door",
+        "missing `execution_mode` means normal continuous",
+        "checkpoint_relay",
     ),
 }
 WRAPPERS = {
@@ -283,6 +309,7 @@ REFERENCES = {
     "conflict-audit.md",
     "offboarding.md",
     "router-installation.md",
+    "checkpoint-relay.md",
 }
 FRONTMATTER_FIELD = re.compile(r"^(name|description):\s*(.+?)\s*$", re.MULTILINE)
 SEMVER = re.compile(r"^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$")
@@ -360,7 +387,8 @@ def validate_claude_manifest(errors: list[str]) -> None:
 def validate_hooks(errors: list[str]) -> None:
     path = ROOT / "hooks" / "hooks.json"
     script = ROOT / "hooks" / "plumbline-session.js"
-    if not path.is_file() or not script.is_file():
+    relay_script = ROOT / "hooks" / "plumbline-relay-signal.js"
+    if not path.is_file() or not script.is_file() or not relay_script.is_file():
         error(errors, "continuity hook files are required")
         return
     try:
@@ -369,10 +397,10 @@ def validate_hooks(errors: list[str]) -> None:
         error(errors, f"hooks/hooks.json: invalid JSON: {exc}")
         return
     hooks = data.get("hooks")
-    if not isinstance(hooks, dict) or set(hooks) != {"UserPromptSubmit", "SessionStart"}:
-        error(errors, "hooks/hooks.json must contain only UserPromptSubmit and SessionStart")
+    if not isinstance(hooks, dict) or set(hooks) != {"UserPromptSubmit", "SessionStart", "Stop"}:
+        error(errors, "hooks/hooks.json must contain only UserPromptSubmit, SessionStart, and Stop")
         return
-    for event in ("UserPromptSubmit", "SessionStart"):
+    for event in ("UserPromptSubmit", "SessionStart", "Stop"):
         groups = hooks.get(event)
         if not isinstance(groups, list) or len(groups) != 1:
             error(errors, f"hooks/hooks.json: {event} must have one matcher group")
@@ -386,8 +414,9 @@ def validate_hooks(errors: list[str]) -> None:
             continue
         handler = handlers[0]
         command = handler.get("command", "")
-        if handler.get("type") != "command" or "plumbline-session.js" not in command:
-            error(errors, f"hooks/hooks.json: {event} must run plumbline-session.js")
+        expected_script = "plumbline-relay-signal.js" if event == "Stop" else "plumbline-session.js"
+        if handler.get("type") != "command" or expected_script not in command:
+            error(errors, f"hooks/hooks.json: {event} must run {expected_script}")
         if "CLAUDE_PLUGIN_ROOT" not in command:
             error(errors, f"hooks/hooks.json: {event} must resolve from the installed plugin root")
     source = script.read_text(encoding="utf-8")
@@ -402,6 +431,10 @@ def validate_hooks(errors: list[str]) -> None:
     ):
         if marker not in source:
             error(errors, f"hooks/plumbline-session.js: missing marker {marker}")
+    relay_source = relay_script.read_text(encoding="utf-8")
+    for marker in ("signalRelay",):
+        if marker not in relay_source:
+            error(errors, f"hooks/plumbline-relay-signal.js: missing marker {marker}")
 
 
 def validate_marketplace(errors: list[str]) -> None:
@@ -502,6 +535,19 @@ def validate_references_and_templates(errors: list[str]) -> None:
     actual = {path.name for path in (ROOT / "references").glob("*.md")}
     if actual != REFERENCES:
         error(errors, f"reference set differs; missing={sorted(REFERENCES - actual)}, extra={sorted(actual - REFERENCES)}")
+    relay_contract = (ROOT / "references" / "checkpoint-relay.md").read_text(encoding="utf-8")
+    for marker in (
+        "A missing `execution_mode` means `continuous`",
+        "checkpoint_relay",
+        "automatic",
+        "manual",
+        "Ordinary continuous Execute remains unchanged",
+    ):
+        if marker not in relay_contract:
+            error(errors, f"references/checkpoint-relay.md: missing {marker}")
+    for forbidden in ("App Server", "thread/start", "turn/start"):
+        if forbidden in relay_contract:
+            error(errors, f"references/checkpoint-relay.md: host transport leaked into shared contract: {forbidden}")
     router = ROOT / "templates" / "router" / "SKILL.md"
     _name, _description, body = frontmatter(router, errors)
     if len(re.findall(r"\b[\w'-]+\b", body)) > 180:
@@ -588,6 +634,7 @@ def validate_scripts(errors: list[str]) -> None:
         "install_claude_agent_team.py",
         "test_install_claude_agent_team.py",
         "test_plumbline_hook.py",
+        "test_checkpoint_relay.py",
     ):
         path = ROOT / "scripts" / name
         try:
@@ -609,8 +656,36 @@ def validate_scripts(errors: list[str]) -> None:
                 for marker in ("SessionStart", "UserPromptSubmit", "compact", "front door", "isolation"):
                     if marker.lower() not in source.lower():
                         error(errors, f"scripts/{name}: missing hook test marker {marker}")
+            elif name == "test_checkpoint_relay.py":
+                for marker in ("relay_ready", "relay_compatible", "git", "next_safe_action"):
+                    if marker not in source:
+                        error(errors, f"scripts/{name}: missing Relay test marker {marker}")
         except (OSError, SyntaxError) as exc:
             error(errors, f"scripts/{name}: {exc}")
+
+    for name in (
+        "relay-readiness.js",
+        "relay-core.js",
+        "relay-signal.js",
+        "test-relay-core.js",
+        "codex-app-server.js",
+        "run-relay.js",
+        "fake-app-server.js",
+        "test-codex-adapter.js",
+    ):
+        path = ROOT / "runtime" / name
+        if not path.is_file():
+            error(errors, f"runtime/{name}: missing")
+            continue
+        source = path.read_text(encoding="utf-8")
+        if name == "relay-core.js":
+            for marker in ("RelayLockError", "automatic_relay", "manual_boundary", "handoff_ready", "validateTransition"):
+                if marker not in source:
+                    error(errors, f"runtime/{name}: missing relay-core marker {marker}")
+        elif name == "codex-app-server.js":
+            for marker in ("initialize", "initialized", "thread/start", "thread/name/set", "turn/start", "turn/completed", "thread/read", "skills/list"):
+                if marker not in source:
+                    error(errors, f"runtime/{name}: missing App Server marker {marker}")
 
 
 def main() -> int:

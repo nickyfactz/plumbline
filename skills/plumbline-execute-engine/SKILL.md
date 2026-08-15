@@ -20,6 +20,36 @@ the main thread has reported the remaining risk. `Blocked`, `Reopened`,
 unresolved work; it never satisfies completion. Execute does not delete
 transient artifacts or publish; those belong to accepted-work Closeout.
 
+Resolve `execution_mode` before traversal. A missing value means `continuous`.
+Continuous mode retains the full-plan behavior in this engine. An explicit
+`checkpoint_relay` value selects the host-neutral stop/handoff contract in
+`references/checkpoint-relay.md`: execute only the current checkpoint in this
+root conversation, establish its durable handoff, and stop before downstream
+work begins. Before automatic Relay, use the internal
+`plumbline-plan-adoption-engine` when an otherwise sufficient source needs a
+normalized companion, then require `runtime/relay-readiness.js` to report
+`relay_ready: true`. Never infer Relay from plan size or silently change the
+mode. Continuous execution does not require this preflight.
+
+For automatic Relay, distinguish the controller from its fresh checkpoint
+task. A checkpoint assignment containing `[PLUMBLINE_RELAY_CHECKPOINT ...]`
+executes that checkpoint and never starts another controller. Otherwise, when
+the installed host exposes the Codex automatic adapter, the lifecycle-owning
+conversation runs `node <plugin-root>/runtime/run-relay.js --plan <plan>` once
+and does not duplicate checkpoint work itself. On a host without that adapter,
+execute the current checkpoint and report the manual fresh-conversation
+boundary. Do not invent a background service or repository hook.
+
+Before a Relay checkpoint stops, perform one semantic durability check: could a
+fresh root conversation execute the named successor from the repository alone?
+Promote only downstream-relevant decisions, corrections, assumptions,
+constraints, and discovered invariants into their existing authoritative
+specification, plan, or canonical documentation. Keep proof and next action in
+the active plan. Do not create a generic handoff file, copy the transcript, or
+record local implementation minutiae that the successor can recover from code.
+If required context exists only in conversation, the checkpoint is not
+complete.
+
 ## Resume from the smallest sufficient evidence
 
 At task start or resume, read the controlling plan's compact resume record,
@@ -54,6 +84,10 @@ real blocker. Recommend Plan or Shape when the artifact lacks an executable
 boundary or a material product decision remains unresolved.
 
 ## Traverse the full plan
+
+This section applies to `continuous` mode. Relay traversal uses the same
+checkpoint loop and evidence rules for one current checkpoint, then applies the
+Relay boundary above.
 
 After bounded work, review, focused proof, and main-thread integration complete
 one checkpoint, update its resume record, select the next safe checkpoint, and

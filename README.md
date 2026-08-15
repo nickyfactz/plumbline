@@ -131,6 +131,7 @@ The plugin includes one small, optional lifecycle hook for long-running sessions
 - Ordinary prompts, Plumbline mentions, phase side doors, and unrelated repositories do not arm it.
 - The hook never runs setup, selects a phase, creates files, dispatches agents, or replaces the active plan.
 - State is host-local and session/repository keyed; no repository artifact or global configuration is created.
+- During an explicitly selected Codex Checkpoint Relay, the `Stop` event may write one matching host-local wake marker. The relay controller—not the hook—rereads the plan and decides whether a legal successor exists. Non-relay tasks remain inert.
 
 The hook has no npm dependencies but requires `node` on the host. If it is unavailable, disable the hook; the Plumbline skills remain usable through explicit invocation. Codex lets you review/trust or disable it from `/hooks`; Claude Code lets you enable or disable the plugin from `/plugin`.
 
@@ -226,6 +227,43 @@ Plumbline chooses the smallest suitable path:
 - **Closeout** when accepted work needs reconciliation, integration, or transient-artifact cleanup.
 
 Execute normally runs every remaining checkpoint in dependency order and may batch ready independent research, architecture, QA, or implementation work into a main-mediated parallel wave when contracts are stable, scopes are disjoint, results do not depend on one another, and the join condition is clear. Checkpoint boundaries are internal team handoffs; say “only execute CP-02” or “pause after CP-02” when you want slice-by-slice control. A worker's uncertainty does not automatically prompt the user or cancel the plan—the main thread resolves ordinary in-scope decisions and records them.
+
+### Optional fresh-task checkpoint relay
+
+Normal Execute is continuous and remains the recommended default. When a very
+long plan benefits from stronger context isolation, you can explicitly choose
+Checkpoint Relay in its controlling plan:
+
+```yaml
+execution_mode: checkpoint_relay
+```
+
+Then invoke Plumbline Execute normally. Plumbline first checks that the plan,
+its source, the current checkpoint, acceptance conditions, next action, and Git
+recovery baseline are unambiguous. It does not infer Relay from plan size and
+does not rewrite an insufficient external work order. A sufficient external
+plan may receive one small companion execution record after approval.
+
+On Codex, the automatic adapter creates a named fresh root task for each
+checkpoint, gives it only the durable repository contract, and waits for a
+legal checkpoint transition before starting the successor. Desktop or Remote
+follow-up turns stay in the same checkpoint task. A task that asks for user
+input ends normally; the controller waits for the later turn's durable result
+instead of holding a competing turn open. After all checkpoints complete, one
+fresh Acceptance task presents the result. User acceptance remains explicit,
+and accepted work runs Closeout in that same task.
+
+On Claude Code and hosts without the automatic adapter, the same plan contract
+uses a manual boundary: Plumbline completes one checkpoint, records the durable
+next action, and tells you to start a fresh root conversation. Claude does not
+load or require the Codex App Server adapter.
+
+Relay is useful when clean context per checkpoint is worth additional task
+startup and Git-boundary discipline. Keep `continuous` mode for ordinary work,
+small plans, or work whose checkpoints benefit from conversational continuity.
+Relay fails closed on ambiguous transitions, active or unknown duplicate tasks,
+fingerprint drift, approval gates, or transport failures; it never retries
+engineering work automatically.
 
 Failed work remains active work. `CHANGES_REQUIRED` reopens the affected checkpoint; `INCONCLUSIVE`, environment, and test-harness failures block it and return to Diagnose. `Blocked` and `Reopened` never satisfy plan completion or Closeout, and severity alone never authorizes rollback, abandonment, or successor selection. If a safety rollback is needed, the active candidate is preserved in durable Git history first.
 
