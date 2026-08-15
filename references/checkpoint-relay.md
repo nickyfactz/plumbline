@@ -28,6 +28,24 @@ paths use the same plan, transition rules, durable handoff, and acceptance
 state. An unsupported or unavailable automatic adapter therefore degrades to a
 manual boundary; it does not make the plan invalid or mutate the mode.
 
+## Entry sequence
+
+1. Resolve the controlling source and normalized plan. When a sufficient source
+   needs a companion execution record, select the internal
+   `plumbline-plan-adoption-engine`. Automatic Relay starts only after
+   `runtime/relay-readiness.js` reports `relay_ready: true`.
+2. Distinguish the controller from a dispatched checkpoint task. An assignment
+   containing `[PLUMBLINE_RELAY_CHECKPOINT ...]` executes only that checkpoint
+   and returns to the controller. Otherwise, an automatic Codex-capable host
+   runs `node <plugin-root>/runtime/run-relay.js --plan <plan>` once. A manual
+   host executes the current checkpoint and reports the fresh-conversation
+   boundary.
+3. Apply the ordinary Execute checkpoint loop and evidence rules to the current
+   checkpoint only. The completion criterion is the checkpoint boundary below.
+4. After a legal handoff, the automatic controller dispatches the successor;
+   the manual path waits for the user to start a fresh root conversation. Final
+   completion moves to explicit Acceptance and then normal Closeout.
+
 ## Checkpoint boundary
 
 A Relay checkpoint may hand off only when:
@@ -40,6 +58,14 @@ A Relay checkpoint may hand off only when:
    Acceptance`;
 5. `checkpoint_status` and `next_safe_action` agree with that state; and
 6. the repository has the recovery boundary required by the plan.
+
+Before handoff, perform one semantic durability check: a fresh root conversation
+must be able to execute the named successor from the repository alone. Promote
+downstream-relevant decisions, corrections, assumptions, constraints, and
+discovered invariants into their existing authoritative specification, plan,
+or canonical documentation. Keep proof and next action in the active plan.
+Repository state is the handoff; a generic handoff file or copied transcript
+does not satisfy this criterion.
 
 The current conversation then stops. It must not execute the successor
 checkpoint, reinterpret arbitrary source prose, create an extra handoff file,

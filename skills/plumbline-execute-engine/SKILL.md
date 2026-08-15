@@ -21,34 +21,10 @@ unresolved work; it never satisfies completion. Execute does not delete
 transient artifacts or publish; those belong to accepted-work Closeout.
 
 Resolve `execution_mode` before traversal. A missing value means `continuous`.
-Continuous mode retains the full-plan behavior in this engine. An explicit
-`checkpoint_relay` value selects the host-neutral stop/handoff contract in
-`references/checkpoint-relay.md`: execute only the current checkpoint in this
-root conversation, establish its durable handoff, and stop before downstream
-work begins. Before automatic Relay, use the internal
-`plumbline-plan-adoption-engine` when an otherwise sufficient source needs a
-normalized companion, then require `runtime/relay-readiness.js` to report
-`relay_ready: true`. Never infer Relay from plan size or silently change the
-mode. Continuous execution does not require this preflight.
-
-For automatic Relay, distinguish the controller from its fresh checkpoint
-task. A checkpoint assignment containing `[PLUMBLINE_RELAY_CHECKPOINT ...]`
-executes that checkpoint and never starts another controller. Otherwise, when
-the installed host exposes the Codex automatic adapter, the lifecycle-owning
-conversation runs `node <plugin-root>/runtime/run-relay.js --plan <plan>` once
-and does not duplicate checkpoint work itself. On a host without that adapter,
-execute the current checkpoint and report the manual fresh-conversation
-boundary. Do not invent a background service or repository hook.
-
-Before a Relay checkpoint stops, perform one semantic durability check: could a
-fresh root conversation execute the named successor from the repository alone?
-Promote only downstream-relevant decisions, corrections, assumptions,
-constraints, and discovered invariants into their existing authoritative
-specification, plan, or canonical documentation. Keep proof and next action in
-the active plan. Do not create a generic handoff file, copy the transcript, or
-record local implementation minutiae that the successor can recover from code.
-If required context exists only in conversation, the checkpoint is not
-complete.
+**Checkpoint Relay:** when the plan explicitly sets `checkpoint_relay`, load
+`references/checkpoint-relay.md` immediately and follow its complete branch for
+adoption/readiness, controller versus checkpoint-task behavior, durability,
+recovery, and acceptance. Continuous mode follows the execution loop below.
 
 ## Resume from the smallest sufficient evidence
 
@@ -110,47 +86,6 @@ explicit user gate, a destructive action outside approved authority, or a
 contradiction with no safe in-scope default. When no safe default exists, block
 only the affected checkpoint and continue independent work.
 
-## Main-thread delegation and parallel waves
-
-The main thread selects, briefs, dispatches, integrates, and advances every
-capability. Workers return evidence to the main thread; their recommendations
-are advisory. Use only project-local roles under `.codex/agents/` or
-`.claude/agents/`. Give report-only roles (researcher, architect, and QA) no
-write set. Give each write-capable role only its bounded write set. Keep Git,
-active-plan edits, integration, and lifecycle ownership in the main thread. Workers return
-to that hub, workers never spawn children, and they do not create another
-delegation hierarchy.
-
-Load `references/subagent-orchestration.md` immediately before the first
-material delegation wave. That reference owns the detailed rules for role
-selection, fresh versus reused workers, parallel readiness, report shape,
-runtime capsules, and read/write boundaries. Before dispatch, inspect the
-relevant project-local roles and host config; reuse the result while the
-checkout/worktree and those file hashes are unchanged. Recheck after a
-fingerprint change or explicit request. Use `Direct: <reason>` when no
-suitable local role exists or hard read-only isolation is required but
-unavailable. For Codex, inspect `.codex/config.toml` as the host capability
-source. Never select personal/global custom agents as fallback.
-
-At each delegation wave, report one compact line containing every selected role,
-its configured host-native model and reasoning/effort, including the configured
-model slug and reasoning effort when the host exposes them, and the existing
-boundary, for example:
-
-`Delegated wave: researcher [model=<host-native-model>, reasoning=<effort>] - Boundary: report-only; no write set; no child agents`
-
-Include effective model, reasoning/effort, or effective sandbox/permission only
-when the host exposes a meaningful difference or the user asks. Codex
-`agents.max_depth = 1` is a recommended starting value, not a Plumbline limit;
-Claude expresses the same recommended boundary by omitting the `Agent` tool.
-Inspect Git status and diff after every worker returns and classify unexpected
-edits before integrating them. A main-mediated parallel wave still requires the
-contract is stable, scopes are disjoint, no result dependency, and a clear
-main-thread join condition;
-shared interfaces, schemas, migrations, generated artifacts, and moving review
-deltas remain serial. Fresh workers are the default; reuse requires continuity
-to be valuable for the same outcome, contract, write set, and acceptance.
-
 ## Delegation-first ownership
 
 For every approved Execute checkpoint, classify each bounded work unit before
@@ -158,10 +93,8 @@ doing it on the main thread. Delegation is the default whenever an approved
 project-local role can own useful research, architecture, implementation,
 review, testing, or another capability with a clear read, report, or write
 boundary. Dispatch the matching role or roles before the main thread duplicates
-that work. Use the role definitions selected for this repository and preserve
-their configured model, reasoning/effort, and sandbox/permission intent; do not
-invent or substitute personal/global roles. The main thread should not absorb a
-bounded task merely because it can perform it.
+that work. The main thread should not absorb a bounded task merely because it
+can perform it.
 
 Keep the main thread for product decisions, lifecycle and plan state, worker
 joins and integration, Git, singleton build/deploy/restart/migration/publication
@@ -171,6 +104,14 @@ delegation boundary; record `Direct: <reason>` when using that fallback. If no
 matching local role or host dispatch exists, state the capability reason and
 continue directly rather than pausing the user.
 
+**Delegation:** before any material worker wave, fresh/reuse decision,
+parallel wave, corrective dispatch, or report-only assignment, load
+`references/subagent-orchestration.md` and follow it completely. That reference
+owns project-local role selection, model/reasoning telemetry, no-child and
+read/write boundaries, context capsules, parallel readiness, worker reports,
+and post-return Git inspection. Emit its compact delegated-wave line at every
+dispatch.
+
 For a Plumbline-managed plan, keep `delegation_roles` and
 `delegation_status` in the active checkpoint resume record. Use
 `not-applicable`, `not-dispatched`, `direct`, `dispatched`, `returned`, or
@@ -179,40 +120,6 @@ instead of rewriting the artifact only to add these fields. On every compaction
 or conversational resume, restore the delegation state before continuing. If a
 bounded task has no dispatched or returned role, dispatch it before the main
 thread repeats that work.
-
-## Dispatch the contract, not the whole history
-
-Before a material role dispatch, synthesize the transient contract capsule
-defined by `references/subagent-orchestration.md` from the exact checkpoint and
-specification sections. Put it in the prompt, not in a new file. The capsule
-names the observable outcome, owners/invariants, partial-failure boundary,
-applicable edge behavior, proof, boundary, non-goals, and assumptions. Add a
-bounded write set for a writing role and a report-only boundary for a reporting
-role. The worker chooses mechanics or analysis within that envelope and uses
-repository conventions plus a safe reversible default. Return a contract gap
-only when the missing choice changes observable behavior or contradicts the
-approved plan.
-
-For a corrective dispatch caused by a blocker, regression, repeated failure,
-or failed expensive gate, include the minimum sufficient root-cause capsule:
-symptom and reproduction, relevant failure path, contract or invariant,
-broken owner, fix boundary, proof, and exclusions. Do not dispatch a patch for
-the reported error line alone when the path is still unknown. A safety
-containment may be dispatched as provisional work, but it does not satisfy
-checkpoint acceptance until Diagnose establishes the cause.
-
-Give every worker the checkpoint outcome, acceptance criteria, anchored read
-set, disjoint write set, relevant paths, expected validation, report format,
-and the report-only/no-write-set/no-child boundaries from the orchestration
-reference.
-Pass only the anchored context needed for the current task. Reports name
-changed files, behavior, checks, failures, residual risk, and follow-up without
-large successful logs. For material state, persistence, concurrency, security,
-public contracts, or cross-boundary ownership, carry the applicable
-scenario-to-proof matrix into the plan and worker briefs; omit it for
-mechanical or low-risk work. A construction-policy skill may constrain
-implementation choices, but it does not become a lifecycle controller, add
-checkpoints, or weaken acceptance.
 
 ## Checkpoint execution loop
 

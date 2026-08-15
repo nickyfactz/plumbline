@@ -8,11 +8,8 @@ description: Internal Plumbline engine. Use only after Plan or Execute selects a
 ## Outcome
 
 Given an otherwise sufficient external specification, plan, handoff, work
-order, or equivalent controlling artifact, create the smallest companion live
-plan needed for deterministic Checkpoint Relay. Preserve the source as
-authority; this is structural adoption, not another product-planning phase.
-
-In short: create the **smallest companion live plan** and keep the **source as authority**.
+order, or equivalent controlling artifact, create one **smallest companion live plan** for deterministic Checkpoint Relay. Keep the **source as authority**;
+this is structural adoption, not another product-planning phase.
 
 Use this engine only when the user explicitly selected `checkpoint_relay` and
 the controlling source is semantically sufficient for execution but does not
@@ -48,9 +45,8 @@ path plus hash. Carry only the execution/recovery structure Relay needs:
   the source;
 - the compact resume and recovery fingerprint fields from the plan schema.
 
-Preserve checkpoint meaning and useful source structure. Do not invent product
-requirements, reopen settled architecture, replace the source with a lossy
-summary, manufacture unsupported acceptance, or create a second specification.
+Preserve checkpoint meaning and useful source structure. Carry only source-
+supported product behavior and acceptance into one companion execution plan.
 
 ## Readiness and Git boundary
 
@@ -58,8 +54,17 @@ Run `node runtime/relay-readiness.js <plan>` from the plugin root. The validator
 checks only normalized structure and repository durability; it never interprets
 arbitrary source prose. `relay_ready: false` blocks automatic Relay.
 
-The main lifecycle owner, never the adoption engine or relay runner, establishes
-the coherent Git recovery boundary after reviewing the companion. Do not commit
-unrelated work. The operational rule is: **do not commit unrelated work**.
-Re-run readiness after that boundary; do not start Relay until
-the plan and its selected repository-local sources are tracked and unchanged.
+The main lifecycle owner reviews the companion and establishes the coherent Git
+recovery boundary. Stage and commit only the companion and its selected
+repository-local sources. Re-run readiness after that boundary; start Relay
+only when the plan and those sources are tracked and unchanged.
+
+## Completion
+
+Adoption is complete when exactly one checkable result exists:
+
+- `relay_compatible`: readiness identifies the existing plan as Relay Ready;
+- `adoptable`: one source-referencing companion reaches `relay_ready: true`
+  after the main-owned Git boundary; or
+- `insufficient`: no companion is created and the missing material contract or
+  product decision is named.

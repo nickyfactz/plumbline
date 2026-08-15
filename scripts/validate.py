@@ -101,23 +101,10 @@ CONTRACT_MARKERS = {
         "replace-agents-guidance",
     ),
     "plumbline-execute-engine": (
-        ".codex/agents/",
-        "personal/global custom agents",
-        "delegated wave:",
-        "model slug",
-        "reasoning effort",
-        "workers never spawn children",
-        "report-only roles",
-        "effective sandbox",
-        "no write set",
         "last_verified_commit",
         "known unrelated baseline",
         "one lifecycle owner",
-        "main-mediated",
         "parallel wave",
-        "contract is stable",
-        "join condition",
-        "advisory",
         "compact resume record",
         "resume fingerprint",
         "does not invalidate evidence",
@@ -127,7 +114,6 @@ CONTRACT_MARKERS = {
         "coherent boundary",
         "evidence-only",
         "stable-delta",
-        "construction-policy",
         "ready for acceptance",
         "recovery, validation, authorization, or ownership",
         "artifact sufficiency preflight",
@@ -145,18 +131,11 @@ CONTRACT_MARKERS = {
         "candidate or objective",
         "successor objective",
         "failure-path trace",
-        "root-cause capsule",
-        "provisional",
         "surface patch",
         "execution_mode",
         "missing value means `continuous`",
         "checkpoint_relay",
         "checkpoint-relay.md",
-        "semantic durability check",
-        "generic handoff file",
-        "existing authoritative",
-        "PLUMBLINE_RELAY_CHECKPOINT",
-        "runtime/run-relay.js",
     ),
     "plumbline-diagnose-engine": (
         "same candidate",
@@ -203,7 +182,8 @@ CONTRACT_MARKERS = {
         "checkpoint_relay",
         "relay-readiness.js",
         "main lifecycle owner",
-        "do not commit unrelated work",
+        "Stage and commit only",
+        "exactly one checkable result",
     ),
     "plumbline-spec-engine": (
         "controlling product specification",
@@ -542,12 +522,32 @@ def validate_references_and_templates(errors: list[str]) -> None:
         "automatic",
         "manual",
         "Ordinary continuous Execute remains unchanged",
+        "PLUMBLINE_RELAY_CHECKPOINT",
+        "runtime/run-relay.js",
+        "semantic durability check",
+        "generic handoff file",
+        "existing authoritative",
     ):
         if marker not in relay_contract:
             error(errors, f"references/checkpoint-relay.md: missing {marker}")
     for forbidden in ("App Server", "thread/start", "turn/start"):
         if forbidden in relay_contract:
             error(errors, f"references/checkpoint-relay.md: host transport leaked into shared contract: {forbidden}")
+    orchestration = (ROOT / "references" / "subagent-orchestration.md").read_text(encoding="utf-8")
+    for marker in (
+        ".codex/agents/",
+        "personal/global agent files",
+        "Delegated wave:",
+        "reasoning=<effort>",
+        "report-only",
+        "no write set",
+        "never create children",
+        "fork_turns",
+        "root-cause capsule",
+        "parallel only after shared contracts are stable",
+    ):
+        if marker.lower() not in orchestration.lower():
+            error(errors, f"references/subagent-orchestration.md: missing {marker}")
     router = ROOT / "templates" / "router" / "SKILL.md"
     _name, _description, body = frontmatter(router, errors)
     if len(re.findall(r"\b[\w'-]+\b", body)) > 180:
