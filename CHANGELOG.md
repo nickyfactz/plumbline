@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Replace the legacy Codex v1 delegation workaround with current `agents.enabled` and `agents.max_concurrent_threads_per_session` settings; migrate old `features.multi_agent`, `agents.max_threads`, and `agents.max_depth` entries only after approval.
+- Treat Luna and other legacy-compatible models as v2 leaf workers selected by their project-local role files, while keeping Plumbline's no-child rule as orchestration guidance rather than a host depth requirement.
 - Add explicit `checkpoint_relay` execution mode with Git-backed plan readiness, fresh Codex tasks per checkpoint, host-local wake/recovery state, duplicate protection, and a final explicit Acceptance task.
 - Preserve continuous Execute as the default and provide a manual fresh-conversation boundary for Claude Code and unsupported hosts without loading the Codex App Server adapter.
 - Add deterministic relay, hook, adapter, restart, fingerprint, pause/stop, acceptance, and native two-checkpoint UAT coverage.

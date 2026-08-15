@@ -167,7 +167,7 @@ Initialization is read-only until you approve one complete proposal. The proposa
 
 - the repository-local Plumbline router;
 - optional project-local agent roles and their model, reasoning, sandbox, and write boundaries;
-- project multi-agent settings, including the recommended maximum depth of `1`;
+- optional current Codex collaboration and concurrency settings;
 - the Plumbline guidance added to `AGENTS.md`;
 - local ignore and managed-worktree propagation behavior;
 - any competing workflow controller that may need an explicit decision.
@@ -180,7 +180,7 @@ Initialization is project-local and explicit. The proposal shows a dry-run manif
 
 | Approved item | What is created or updated |
 | --- | --- |
-| Project `.codex/config.toml` (Codex) | Adds or verifies `features.multi_agent = true`. The template shows `agents.max_threads = 6` and `agents.max_depth = 1` as recommended starting values, but both are user-owned host settings: an existing or explicitly approved alternative such as 12 threads is shown and preserved, never silently overwritten. This keeps the project-local collaboration tools available to the main Codex parent when it dispatches an explicit role, including a role using `gpt-5.6-luna` when Luna is not shown on the standard v2 model choice card. The `features.multi_agent` setting keeps collaboration available; the selected role's explicit `model` field is what selects Luna. This is a delegation-capability setting, not a requirement to use Luna or any particular model. |
+| Project `.codex/config.toml` (Codex) | Current Codex releases enable subagents by default. When approved, Plumbline can record `agents.enabled = true` and a user-owned `agents.max_concurrent_threads_per_session` value; the starting template recommends 6 and preserves an approved alternative such as 12. Existing `features.multi_agent`, `agents.max_threads`, and `agents.max_depth` entries are reported as legacy and migrated only after approval. Explicit role files select their own models, including Luna as a leaf worker through current v2 delegation, without forcing the old v1 compatibility path. |
 | Selected `.codex/agents/*.toml` | Creates only the roles you select. Each role has explicit `name`, `description`, `developer_instructions`, `model`, `model_reasoning_effort`, and `sandbox_mode` fields. Researcher, architect, and QA templates are report-only with `read-only` intent; the implementer is the only write-capable role. |
 | Selected `.claude/agents/*.md` (Claude Code) | Creates the same role contracts as Claude-native Markdown subagents. Each role records `model`, `effort`, `tools`, and `permissionMode`; report-only roles use restricted read tools and `plan` intent, while the implementer receives write-capable tools. The default model is `inherit`, so no Codex slug or provider is hard-coded. |
 | `AGENTS.md` | When approved, adds a marked `## Local agent team` section listing only the selected roles. It explains that the main thread owns product decisions, plans, integration, Git, and all delegation; worker recommendations are advisory and return to the main thread; report-only roles get no write set; workers never spawn children; and global agents are never fallbacks. If the user explicitly invokes Plumbline initialization again, the installer can preview and refresh only this managed section without replacing roles or config. Older unmarked sections require a separate explicit replacement approval; content outside the managed section is preserved. |
@@ -323,7 +323,7 @@ When a project-local team is enabled, Plumbline recommends a role-aware starting
 - Write-capable roles receive only their approved bounded write sets.
 - The main thread owns specifications, plans, integration, and Git.
 - For an Execute checkpoint, the main thread dispatches approved local roles for useful bounded research, architecture, implementation, review, testing, or other capability work before duplicating it. The active checkpoint records delegation roles/status so compaction can restore the delegation obligation. Product decisions, lifecycle/plan state, joins, integration, Git, singleton operations, and tiny coupled actions remain direct.
-- Workers return to the main thread and never invoke, hand off to, or dispatch another worker; `agents.max_depth = 1` is a recommended starting boundary, not a host limit enforced by Plumbline.
+- Workers return to the main thread and never invoke, hand off to, or dispatch another worker; this is a Plumbline workflow boundary, not a required Codex depth setting.
 - If no suitable local role exists, Plumbline reports `Direct: <reason>` and continues on the main thread rather than using a global fallback.
 
 Each delegation wave reports the selected role names with the host-native model and reasoning/effort values in one compact line. Codex shows model slugs and reasoning efforts; Claude Code shows its model and effort values. Use the approved project-local role that matches the capability and preserve its configured values; Plumbline does not substitute arbitrary or global agents. This keeps the team visible without turning every worker response into a ceremony.

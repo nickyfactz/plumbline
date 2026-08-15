@@ -1,9 +1,6 @@
 # Plumbline project-local agent settings. Keep this file untracked.
-# The values below are recommended starting points (6 threads, depth 1) and remain user-owned.
-# Plumbline requires the capability switch, not these exact thread/depth values.
-[features]
-multi_agent = true
-
+# Codex enables subagents by default; this explicit switch keeps project intent visible.
+# The concurrency value is a recommended starting point and remains user-owned.
 [agents]
-max_threads = 6
-max_depth = 1
+enabled = true
+max_concurrent_threads_per_session = 6

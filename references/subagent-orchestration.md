@@ -10,7 +10,7 @@ Record one owner in the active plan and report it only when ownership changes, a
 
 Use only a matching project-local definition under `.codex/agents/` for Codex or `.claude/agents/` for Claude Code. Check `.codex/config.toml` for Codex capability settings; Claude project agents do not require a Plumbline project config. Global config may explain host capability or provide a model candidate, but personal/global agent files are never selected or used as fallback. If no local role is available, keep the work on the main thread and report `Direct: <reason>`. At a delegation wave, state the selected role names with the host-native model and reasoning/effort values in one compact line.
 
-For Codex, project `agents.max_depth = 1` is a recommended starting value, not a Plumbline-enforced ceiling; users may choose another host-supported value. Claude roles use the equivalent explicit instruction and omit the `Agent` tool. The main thread may create direct workers; workers must never create children, delegate further, or form a second agent hierarchy.
+Worker leaf behavior is a Plumbline orchestration boundary, not a Codex depth-setting requirement. Claude roles express the same boundary by omitting the `Agent` tool. The main thread may create direct workers; workers must never create children, delegate further, or form a second agent hierarchy.
 
 Delegation is hub-and-spoke: every worker returns evidence to the main thread. A worker recommendation is advisory; only the main thread selects the next capability, builds the next brief, and dispatches it. Workers never invoke, hand off to, or dispatch another worker. This rule does not require visible `main -> worker -> main` telemetry or a graph artifact.
 

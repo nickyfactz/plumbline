@@ -33,9 +33,9 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 9. Router deletion stops automatic routing.
 10. Plugin disable prevents the router's engine path.
 11. Init proposal shows every selected role's model, reasoning effort, sandbox, config, AGENTS, ignore, and worktree changes before approval.
-12. Approved setup creates only project-local `.codex/config.toml` and `.codex/agents/*.toml`, with `multi_agent=true`, structurally valid user-owned thread/depth values, and explicit model/reasoning fields; 6 threads and depth 1 are recommendations, not requirements.
+12. Approved setup creates only project-local `.codex/config.toml` and `.codex/agents/*.toml`, with current collaboration/concurrency fields and explicit model/reasoning fields; 6 concurrent threads is a recommendation, not a requirement, and legacy v1 compatibility keys are not introduced.
 13. A project-local role is selected when available; a missing role reports `Direct` and never uses a personal/global fallback.
-14. Workers cannot spawn children by Plumbline guidance, while the user's host-configured depth value remains preserved and user-owned.
+14. Workers cannot spawn children by Plumbline guidance; this leaf boundary does not depend on a Codex depth setting.
 15. A committed `.worktreeinclude` manifest makes the ignored team files eligible for new managed worktrees while leaving them untracked; existing worktrees are not retroactive.
 16. Audit is read-only and preserves deliberately different per-role model, reasoning, sandbox, and custom instruction values.
 17. Retune without flags changes nothing; explicit instruction retune changes only `developer_instructions` and reports that field exactly.

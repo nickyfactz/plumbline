@@ -605,14 +605,18 @@ def validate_references_and_templates(errors: list[str]) -> None:
     except (OSError, tomllib.TOMLDecodeError) as exc:
         error(errors, f"{config_path.relative_to(ROOT)}: invalid or missing TOML: {exc}")
     else:
-        if config.get("features", {}).get("multi_agent") is not True:
-            error(errors, "templates/agents/config.toml: multi_agent must be true")
-        max_threads = config.get("agents", {}).get("max_threads")
-        max_depth = config.get("agents", {}).get("max_depth")
+        agents = config.get("agents", {})
+        if agents.get("enabled") is not True:
+            error(errors, "templates/agents/config.toml: agents.enabled must be true")
+        max_threads = agents.get("max_concurrent_threads_per_session")
         if type(max_threads) is not int or max_threads < 1:
-            error(errors, "templates/agents/config.toml: max_threads must be a positive integer")
-        if type(max_depth) is not int or max_depth < 0:
-            error(errors, "templates/agents/config.toml: max_depth must be a non-negative integer")
+            error(
+                errors,
+                "templates/agents/config.toml: max_concurrent_threads_per_session must be a positive integer",
+            )
+        for table, key in (("features", "multi_agent"), ("agents", "max_threads"), ("agents", "max_depth")):
+            if key in config.get(table, {}):
+                error(errors, f"templates/agents/config.toml: legacy {table}.{key} must not be present")
 
     worktreeinclude = agents_root / "worktreeinclude"
     try:

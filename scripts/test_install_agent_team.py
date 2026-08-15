@@ -50,14 +50,15 @@ def main() -> None:
             model="gpt-5.6-luna",
             reasoning_effort="medium",
             max_threads=12,
-            max_depth=2,
             update_agents=True,
             propagate=True,
         )
         config = tomllib.loads((root / ".codex" / "config.toml").read_text(encoding="utf-8"))
-        assert config["features"]["multi_agent"] is True
-        assert config["agents"]["max_threads"] == 12
-        assert config["agents"]["max_depth"] == 2
+        assert config["agents"]["enabled"] is True
+        assert config["agents"]["max_concurrent_threads_per_session"] == 12
+        assert "features" not in config
+        assert "max_threads" not in config["agents"]
+        assert "max_depth" not in config["agents"]
         for role in ROLES:
             data = tomllib.loads((root / ".codex" / "agents" / f"{role}.toml").read_text(encoding="utf-8"))
             assert data["model"] == "gpt-5.6-luna"
@@ -73,7 +74,7 @@ def main() -> None:
         assert "model slugs" in guidance
         assert "reasoning efforts" in guidance
         assert "one compact line" in guidance
-        assert "user-owned host settings" in guidance
+        assert "user-owned host setting" in guidance
         assert "main-mediated" in guidance
         assert "recommendations are advisory" in guidance
         assert "parallel wave" in guidance
@@ -127,6 +128,10 @@ def main() -> None:
             dry_run=True,
         )
         assert preview.operations[root / ".codex" / "config.toml"] == "create"
+        assert preview.changes[root / ".codex" / "config.toml"] == (
+            "agents.enabled",
+            "agents.max_concurrent_threads_per_session",
+        )
         assert preview.operations[root / ".gitignore"] == "create"
         assert preview.operations[root / ".worktreeinclude"] == "create"
         assert not (root / ".codex" / "config.toml").exists()
@@ -149,8 +154,6 @@ def main() -> None:
                 "medium",
                 "--max-threads",
                 "12",
-                "--max-depth",
-                "2",
                 "--propagate",
                 "--dry-run",
                 "--format",
@@ -306,7 +309,9 @@ custom_setting = "preserve-me"
         config_before = config_path.read_text(encoding="utf-8")
         audit = install(plugin_root, root, mode="audit", roles=ROLES)
         assert not audit.changes
-        assert not any("max_depth" in finding or "max_threads" in finding for finding in audit.findings)
+        assert any("legacy features.multi_agent" in finding for finding in audit.findings)
+        assert any("legacy agents.max_threads" in finding for finding in audit.findings)
+        assert any("legacy agents.max_depth" in finding for finding in audit.findings)
         assert all(
             (root / ".codex" / "agents" / f"{role}.toml").read_text(encoding="utf-8") == before[role]
             for role in ROLES
@@ -315,12 +320,34 @@ custom_setting = "preserve-me"
 
         retune = install(plugin_root, root, mode="retune", roles=ROLES)
         assert not retune.changes
-        assert not any("max_depth" in finding or "max_threads" in finding for finding in retune.findings)
+        assert any("legacy agents.max_threads" in finding for finding in retune.findings)
         assert all(
             (root / ".codex" / "agents" / f"{role}.toml").read_text(encoding="utf-8") == before[role]
             for role in ROLES
         )
         assert config_path.read_text(encoding="utf-8") == config_before
+
+        migrated = install(
+            plugin_root,
+            root,
+            mode="retune",
+            roles=ROLES,
+            max_threads=12,
+            replace_config=True,
+        )
+        migrated_config = tomllib.loads(config_path.read_text(encoding="utf-8"))
+        assert migrated_config["agents"]["enabled"] is True
+        assert migrated_config["agents"]["max_concurrent_threads_per_session"] == 12
+        assert "multi_agent" not in migrated_config.get("features", {})
+        assert "max_threads" not in migrated_config["agents"]
+        assert "max_depth" not in migrated_config["agents"]
+        assert migrated.changes[config_path] == (
+            "agents.enabled",
+            "agents.max_concurrent_threads_per_session",
+            "features.multi_agent",
+            "agents.max_threads",
+            "agents.max_depth",
+        )
 
         updated = install(plugin_root, root, mode="retune", roles=ROLES, update_instructions=True)
         for role in ROLES:

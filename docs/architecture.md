@@ -96,10 +96,10 @@ instead of adding a cosmetic final task.
 
 Agent teams are optional and project-local:
 
-- Codex uses `.codex/config.toml` and selected `.codex/agents/*.toml` files.
-  The project config enables collaboration. Thread and depth values remain
-  user-owned host settings; Plumbline recommends `max_threads = 6` and
-  `max_depth = 1` as starting values but does not enforce them.
+- Codex uses selected `.codex/agents/*.toml` files and an optional
+  `.codex/config.toml`. Current Codex releases enable subagents by default;
+  Plumbline recommends a user-owned concurrency value of 6 only when the
+  project records an explicit cap.
 - Claude Code uses selected `.claude/agents/*.md` files with Claude-native
   model, effort, tool, and permission fields. Plumbline does not edit global
   Claude settings or enable the separate experimental Agent Teams feature.
