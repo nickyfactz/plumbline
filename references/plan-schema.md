@@ -53,6 +53,14 @@ decide terminality. A successor objective, `Superseded` status, or abandonment
 requires accepted work or explicit user-approved defer/abandonment. Plan text
 cannot override these transitions.
 
+Execution economy is also a lifecycle constraint. An imported or generated plan
+may require stricter product, safety, or acceptance evidence, but it cannot
+mandate reseal, rebuild, or replay for every diagnostic or evidence-only
+correction when the durable contract, sealed artifact, and proof boundary are
+unchanged. Treat that clause as a plan defect and narrow the cadence before
+execution. Repeat the full gate when a durable input, artifact, contract,
+ownership, or risk boundary changes, or when acceptance explicitly requires it.
+
 ## Checkpoint shape
 
 Prefer a **vertical slice**: one observable product behavior carried through the
@@ -84,6 +92,10 @@ In `continuous` mode, the current checkpoint is the resume location, not an impl
 Treat checkout/worktree identity, HEAD/last_verified_commit, the plan-record hash, the applicable host configuration hash, and selected project-local role-file hashes as the resume fingerprint. For Codex, the applicable files include `.codex/config.toml` and selected role TOMLs; for Claude Code, they include selected `.claude/agents/*.md` files. Treat last_verified_commit and checkpoint completion evidence as the baseline until that fingerprint or a material contract/evidence input changes. A task resume, compaction, or conversational reminder alone does not invalidate it. At the next checkpoint, inspect the current delta and referenced paths first. Reuse unchanged evidence instead of rereading whole documents or rerunning broad checks. Reassess when the fingerprint changes, a new or failed check matters, a contract boundary changes, a defect appears, or the prior evidence may be stale.
 
 A trusted host continuity hook may reintroduce a compact reminder after resume or compaction. It is not a new invocation and never replaces this resume record, changes the lifecycle owner, or advances the checkpoint; read the record and current delta first.
+
+The plan-record hash used for proof reuse must cover durable contract inputs, not
+mutable checkpoint status, evidence logs, telemetry, or correction notes. Those
+records update recovery state without automatically invalidating prior proof.
 
 Every plan artifact or status announcement must support recovery, validation, authorization, or ownership. Omit ceremony that serves none of those purposes.
 

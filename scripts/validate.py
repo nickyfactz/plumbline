@@ -138,6 +138,7 @@ CONTRACT_MARKERS = {
         "checkpoint-relay.md",
         "proof obligations",
         "test count and coverage are signals",
+        "ready for expensive verification",
     ),
     "plumbline-diagnose-engine": (
         "same candidate",
@@ -178,6 +179,7 @@ CONTRACT_MARKERS = {
         "checkpoint-relay.md",
         "proof obligation",
         "test-count target",
+        "execution-economy",
     ),
     "plumbline-plan-adoption-engine": (
         "smallest companion live plan",
@@ -219,6 +221,8 @@ CONTRACT_MARKERS = {
         "adjacent proof",
         "implementation-shape",
         "test count or coverage",
+        "same-boundary findings",
+        "high-risk or expensive stable delta",
     ),
     "plumbline-shape-engine": (
         "external research",
@@ -562,6 +566,7 @@ def validate_references_and_templates(errors: list[str]) -> None:
         "runtime-value-testing.md": ("behavioral proof obligations", "test count and coverage"),
         "plan-schema.md": ("behavioral proof obligations", "test-count or coverage"),
         "qa-audit.md": ("proof obligation", "main thread decides deletion"),
+        "artifact-lifecycle.md": ("immutable failure record", "does not by itself"),
     }
     for name, markers in reference_markers.items():
         source = (ROOT / "references" / name).read_text(encoding="utf-8").lower()

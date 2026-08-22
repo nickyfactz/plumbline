@@ -168,6 +168,13 @@ first when necessary, then resume the smallest complete verification path. Do
 not batch independent symptom patches before the shared cause and fix boundary
 are understood.
 
+Before an expensive package, build, deployment, restart, or live check, record
+a compact readiness result in the existing evidence or next-action surface:
+`Ready for expensive verification: yes/no`, the artifact or revision,
+applicable prerequisites, and the stop or escalation condition. A `no` result
+stays in Diagnose or correction and does not launch the gate. This is a check,
+not a new lifecycle state.
+
 Before an expensive live check, run the cheapest applicable prerequisite probes
 and state a bounded observation window plus an environment-appropriate
 escalation condition. Stop when a prerequisite fails, the artifact is wrong, a

@@ -40,6 +40,11 @@ The author of a patch is not its independent reviewer. Workers return findings
 to the main thread, workers never spawn children, and they do not invoke or
 dispatch another worker. Personal/global QA agents are not fallback reviewers.
 
+For a high-risk or expensive stable delta, inspect the assigned boundary as a
+whole and return material same-boundary findings together before correction.
+Keep the focused adjacent-proof rule for ordinary proportional reviews; this is
+not an exhaustive repository audit.
+
 ## Check completeness and risk
 
 For candidate-introduced or materially changed tests, probes, or snapshots, map

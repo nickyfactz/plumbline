@@ -30,6 +30,10 @@ Plans cannot override Plumbline lifecycle invariants. A failed attempt keeps
 the same candidate and objective active until it is accepted or the user
 explicitly defers or abandons it.
 
+Apply the plan schema's execution-economy rule: a plan may add stricter proof
+requirements, but it must not mandate reseal, rebuild, or replay for every
+diagnostic correction when durable inputs and the proof boundary are unchanged.
+
 ## Read the controlling inputs
 
 Read the active specification, supplied design or work order, repository

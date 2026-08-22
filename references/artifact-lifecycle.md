@@ -21,5 +21,8 @@ result. If a safety rollback is required, the main thread must preserve the
 candidate in durable Git history before removing it from the active source.
 An ignored patch, build directory, or transient target artifact is not enough
 to retain a candidate or recover the active objective.
+An immutable failure record preserves what happened; it does not by itself
+require a reseal, rebuild, or replay. Repeat an expensive gate when the durable
+contract, sealed artifact, proof boundary, or risk/ownership boundary changed.
 
 Every process artifact, announcement, or receipt must support recovery, validation, authorization, or ownership. Omit it when it serves none of those purposes.
