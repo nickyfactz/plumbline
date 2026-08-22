@@ -47,6 +47,11 @@ Keep required UAT and canonical-document checks in either mode. Read exact
 sections identified by the selected mode and current artifacts; reuse unchanged
 evidence instead of rereading unrelated large documents.
 
+For tests, probes, or snapshots introduced or materially changed by the
+candidate, carry a final disposition: retain durable protection, generalize or
+consolidate, remove diagnostic-only evidence, or retain with named residual
+risk. This is candidate-scoped; do not perform a repository-wide test cleanup.
+
 Prepare a concise product-level UAT surface and hand off to Local when
 validation is singleton, hardware-bound, exceptionally heavy, or cheaper
 there. Reconcile canonical current-state documentation; investigate code/doc

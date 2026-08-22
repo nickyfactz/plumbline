@@ -40,9 +40,12 @@ and request the smallest useful addition.
 
 Reproduce and minimize before theorizing. Rank only the plausible falsifiable
 hypotheses needed to explain the failure and use discriminating probes rather
-than a fixed probe count. Keep temporary diagnostics tagged, remove them, and
-rerun the original loop after the fix. Use repository history selectively
-rather than automating `git bisect`.
+than a fixed probe count. Diagnostic tests and probes are working artifacts:
+remove them before checkpoint completion when they only locate the cause. If
+they expose a durable regression, generalize the proof at a stable public seam;
+when no correct seam exists, record the seam gap instead of creating false
+confidence. Rerun the original loop after the fix. Use repository history
+selectively rather than automating `git bisect`.
 
 Add a regression test only at a stable public seam that exercises the real
 failure. When no correct seam exists, record the seam gap instead of creating

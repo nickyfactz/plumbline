@@ -1,6 +1,6 @@
 # Runtime-value testing
 
-Tests are a risk-control decision, not a ritual. Add a permanent test when it protects stable behavior at a public seam or catches a plausible regression that other checks would miss. Prefer one valuable test over many implementation-coupled tests.
+Tests are a risk-control decision, not a ritual. Start with behavioral proof obligations: the observable behavior, invariant, public/interface contract, meaningful regression risk, or durable edge case that must remain true. Add a permanent test when it protects stable behavior at a public seam or catches a plausible regression that other checks would miss. Prefer one valuable test over many implementation-coupled tests.
 
 Good seams include a CLI/API boundary, user-visible workflow, public service contract, persisted state transition, or integration behavior with a known failure mode. Expected values should come from the specification, a worked example, or an independent known-good source.
 
@@ -8,7 +8,15 @@ Allowed outcomes are: a focused automated test; a static/type/lint check; a dete
 
 For bugs, test the minimized failure at a correct public seam when one exists. If no seam can reproduce the real issue, record the seam gap instead of adding false confidence. Never require red-green-refactor for every configuration, documentation, refactor, or maintenance change.
 
-Throwaway prototypes may use a one-command smoke run or documented observation instead of a permanent production test suite. They still need enough runtime evidence to answer the stated question. If prototype logic is promoted into a production seam, re-evaluate it under this gate rather than treating the throwaway probe as permanent coverage.
+Throwaway prototypes and implementation-time diagnostics may use a one-command smoke run or documented observation instead of a permanent production test suite. They still need enough runtime evidence to answer the stated question. If prototype logic is promoted into a production seam, re-evaluate it under this gate rather than treating the throwaway probe as permanent coverage.
+
+Implementation may reveal a new durable proof obligation. Add it to the existing
+checkpoint evidence surface when it changes what completion means; do not create
+a parallel testing artifact. Before completion, review only tests, probes,
+snapshots, and checks introduced or materially changed by the candidate. Classify
+each as retain for durable protection, generalize or consolidate, remove as
+diagnostic-only, or retain with named residual risk. Test count and coverage are
+signals for that review, not objectives or acceptance gates.
 
 Before an expensive package, deployment, restart, or live-stack check, run the
 cheapest applicable prerequisite probes first: verify required inputs or

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Center planning, execution, diagnosis, QA, closeout, and worker briefs on behavioral proof obligations; keep test count and coverage as signals, and make candidate-introduced diagnostic evidence disposition explicit.
 - Replace the legacy Codex v1 delegation workaround with current `agents.enabled` and `agents.max_concurrent_threads_per_session` settings; migrate old `features.multi_agent`, `agents.max_threads`, and `agents.max_depth` entries only after approval.
 - Treat Luna and other legacy-compatible models as v2 leaf workers selected by their project-local role files, while keeping Plumbline's no-child rule as orchestration guidance rather than a host depth requirement.
 - Add explicit `checkpoint_relay` execution mode with Git-backed plan readiness, fresh Codex tasks per checkpoint, host-local wake/recovery state, duplicate protection, and a final explicit Acceptance task.

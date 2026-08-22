@@ -42,6 +42,11 @@ dispatch another worker. Personal/global QA agents are not fallback reviewers.
 
 ## Check completeness and risk
 
+For candidate-introduced or materially changed tests, probes, or snapshots, map
+each to a proof obligation, distinguish behavior from implementation-shape
+assertions, and flag diagnostic-only or redundant evidence for disposition. Do
+not use test count or coverage as acceptance gates.
+
 Treat minimality as a constraint inside completeness: a small diff passes only
 when it covers required behavior, companion surfaces, failure/recovery paths,
 compatibility, and meaningful proof. Check behavior, security,

@@ -137,6 +137,12 @@ For each checkpoint:
    `references/runtime-value-testing.md`. A focused test, static check,
    deterministic probe, manual UAT, targeted review, or justified no-test
    decision can be valid evidence.
+   Compare the result with the checkpoint's proof obligations before stopping.
+   Record material durable behavior discovered during implementation as an
+   additional obligation. For checks introduced or materially changed by this
+   candidate, state whether they protect durable behavior, were generalized or
+   consolidated, or were diagnostic-only; test count and coverage are signals,
+   not completion criteria.
 4. Integrate worker changes at the main thread, obtain report-only QA after a
    stable implementer delta when risk warrants it, and record material evidence
    and deviations in the controlling artifact.

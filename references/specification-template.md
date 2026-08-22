@@ -1,5 +1,8 @@
 # Specification template
 
+Describe behavioral proof obligations and acceptable evidence methods in the
+testing strategy. Do not set test-count or coverage targets.
+
 Use the repository's existing spec location and format when one exists. For a blank repository, use `docs/specs/<feature-slug>.md` and these headings:
 
 ```markdown

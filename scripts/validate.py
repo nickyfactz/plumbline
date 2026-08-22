@@ -136,6 +136,8 @@ CONTRACT_MARKERS = {
         "missing value means `continuous`",
         "checkpoint_relay",
         "checkpoint-relay.md",
+        "proof obligations",
+        "test count and coverage are signals",
     ),
     "plumbline-diagnose-engine": (
         "same candidate",
@@ -147,6 +149,8 @@ CONTRACT_MARKERS = {
         "Local cause confirmed",
         "green rerun",
         "fix boundary",
+        "diagnostic tests and probes",
+        "durable regression",
     ),
     "plumbline-diagnose": (
         "minimum sufficient root cause",
@@ -172,6 +176,8 @@ CONTRACT_MARKERS = {
         "execution_mode: continuous",
         "execution_mode: checkpoint_relay",
         "checkpoint-relay.md",
+        "proof obligation",
+        "test-count target",
     ),
     "plumbline-plan-adoption-engine": (
         "smallest companion live plan",
@@ -211,6 +217,8 @@ CONTRACT_MARKERS = {
         "candidate terminality",
         "failure path",
         "adjacent proof",
+        "implementation-shape",
+        "test count or coverage",
     ),
     "plumbline-shape-engine": (
         "external research",
@@ -245,6 +253,8 @@ CONTRACT_MARKERS = {
         "Reopened",
         "refuses to retire",
         "explicit user approval",
+        "candidate-scoped",
+        "diagnostic-only evidence",
     ),
     "plumbline": (
         "one lifecycle owner",
@@ -548,6 +558,16 @@ def validate_references_and_templates(errors: list[str]) -> None:
     ):
         if marker.lower() not in orchestration.lower():
             error(errors, f"references/subagent-orchestration.md: missing {marker}")
+    reference_markers = {
+        "runtime-value-testing.md": ("behavioral proof obligations", "test count and coverage"),
+        "plan-schema.md": ("behavioral proof obligations", "test-count or coverage"),
+        "qa-audit.md": ("proof obligation", "main thread decides deletion"),
+    }
+    for name, markers in reference_markers.items():
+        source = (ROOT / "references" / name).read_text(encoding="utf-8").lower()
+        for marker in markers:
+            if marker.lower() not in source:
+                error(errors, f"references/{name}: missing {marker}")
     router = ROOT / "templates" / "router" / "SKILL.md"
     _name, _description, body = frontmatter(router, errors)
     if len(re.findall(r"\b[\w'-]+\b", body)) > 180:

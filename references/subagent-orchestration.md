@@ -51,6 +51,11 @@ after compaction or conversational resume before continuing; a bounded task
 without a dispatched or returned role must be delegated before the main thread
 repeats it.
 
+When a brief permits adding or materially changing a test, probe, snapshot, or
+validation check, require the worker report to name the proof obligation it
+supports and identify diagnostic evidence that should not survive the
+checkpoint. The main thread owns the final disposition.
+
 ## Worker briefs
 
 Treat each independent assignment as a fresh worker context by default. Reuse a

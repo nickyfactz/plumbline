@@ -77,7 +77,7 @@ only when it shortens the path without weakening the contract.
 Use the compact checkpoint card from `references/plan-schema.md` by default.
 Expand it only for a material boundary. Every plan should answer:
 
-- What observable behavior or prerequisite is this checkpoint delivering?
+- What observable behavior or prerequisite is this checkpoint delivering, and what proof obligation makes it complete?
 - What proves completion, and what is the `Done when` condition?
 - What does it depend on, own, or share?
 - What must the main thread join before downstream work begins?
@@ -96,6 +96,11 @@ material checkpoint, make the checkpoint card or matrix sufficient to form a
 transient dispatch contract: outcome, invariants and owners, operation or
 partial-failure boundary, edge behavior, proof, write set, non-goals, and
 assumptions. Keep it in the prompt; it is not a new durable artifact.
+
+Identify known proof obligations before implementation from acceptance criteria,
+invariants, contracts, and meaningful regression risks. A new durable behavior
+discovered during implementation may extend the existing proof/evidence surface;
+do not create a second testing artifact or a test-count target.
 
 ## Resolve uncertainty at the right level
 
