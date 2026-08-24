@@ -25,4 +25,9 @@ An immutable failure record preserves what happened; it does not by itself
 require a reseal, rebuild, or replay. Repeat an expensive gate when the durable
 contract, sealed artifact, proof boundary, or risk/ownership boundary changed.
 
+Detailed experiments, diagnostic logs, and superseded attempts may remain in an
+existing evidence or scratch location or in Git history. The active plan keeps
+only the current-state conclusion and a pointer to that supporting evidence;
+this does not create a new artifact class or turn the plan into a transcript.
+
 Every process artifact, announcement, or receipt must support recovery, validation, authorization, or ownership. Omit it when it serves none of those purposes.

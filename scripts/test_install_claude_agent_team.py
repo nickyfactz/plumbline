@@ -44,6 +44,9 @@ def main() -> None:
         assert "delegation_status" in guidance
         assert "bounded research" in guidance
         assert "configured model" in guidance
+        assert "Reread the selected" in guidance
+        assert "running workers keep" in guidance
+        assert "source checkout" in guidance
         assert ".claude/agents/" in (root / ".gitignore").read_text(encoding="utf-8")
         assert ".claude/agents/*.md" in (root / ".worktreeinclude").read_text(encoding="utf-8")
         assert not (root / ".claude" / "settings.json").exists()

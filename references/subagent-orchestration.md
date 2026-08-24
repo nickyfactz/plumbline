@@ -14,6 +14,23 @@ Worker leaf behavior is a Plumbline orchestration boundary, not a Codex depth-se
 
 Delegation is hub-and-spoke: every worker returns evidence to the main thread. A worker recommendation is advisory; only the main thread selects the next capability, builds the next brief, and dispatches it. Workers never invoke, hand off to, or dispatch another worker. This rule does not require visible `main -> worker -> main` telemetry or a graph artifact.
 
+## Profile refresh and worktree drift
+
+Treat project-local role files and applicable host config as live dispatch
+inputs. Before each delegation wave, reread the selected files. If a profile
+hash changed, use its current model, reasoning/effort, sandbox/permission, and
+instruction values for new workers, update the compact resume fingerprint, and
+keep prior evidence unless a material input changed. Workers already running
+retain the profile used when they were created; a changed hash is a profile
+refresh, not role loss or evidence invalidation.
+
+If a selected role is missing in the active worktree, inspect the source
+checkout and its `.worktreeinclude` propagation before falling back to
+`Direct: <reason>`. Refresh only the ignored project-local config and role
+files from that source checkout, then reread them. This is an explicit
+on-demand refresh for an existing worktree, not a new worktree system;
+never copy secrets, dependencies, source trees, or personal/global roles.
+
 ## Capability versus assignment
 
 A role has two separate boundaries:
@@ -101,7 +118,7 @@ For an implementer dispatch involving material behavior, include a compact contr
 
 For a corrective dispatch caused by a blocker, regression, repeated failure, or failed expensive gate, add a minimum sufficient root-cause capsule to that brief: exact symptom and reproduction, relevant caller-to-callee or state-owner path, violated contract or invariant, root cause or explicit evidence gap, fix boundary, proof, and exclusions. The implementer may contain an immediate safety risk, but a patch that only suppresses the reported error is not a complete correction. The main thread widens the trace only when the evidence points to another shared caller, contract, or state transition.
 
-Do not pass full conversation history or ask workers to reread entire instruction, plan, or documentation trees when the brief and unchanged artifacts already answer the question. Use the active plan's resume record and prior evidence first. A worker may widen its read set only when it identifies a concrete missing fact and reports why. Keep normal reasoning at the configured medium level; reserve high effort for a named ABI, security, persistence, concurrency, ownership, or other material risk, and never rewrite a project's approved TOML values at dispatch time.
+Do not pass full conversation history or ask workers to reread entire instruction, plan, or documentation trees when the brief and unchanged artifacts already answer the question. Begin with the active plan's compact current-state capsule, exact checkpoint, anchored contract sections, and prior evidence pointers. Historical plan sections are non-authoritative unless the brief points to a specific unresolved decision. A worker may widen its read set only when it identifies a concrete missing fact and reports why. Keep normal reasoning at the configured medium level; reserve high effort for a named ABI, security, persistence, concurrency, ownership, or other material risk. Never let dispatch overwrite a user's project-local role values; rereading a manual profile edit is not an installer retune.
 
 For a checkpoint involving material state, persistence, concurrency, security, a public contract, or cross-language ownership transfer, give the applicable architect a compact risk-contract brief before implementation. Ask for only the relevant identities and ownership, state transitions and terminal precedence, failure/recovery/cancellation or shutdown behavior, compatibility constraints, proof seams, and unresolved assumptions. Require the report to end with `Contract status: complete`, `safe assumption recorded`, or `product decision required`, followed by applicable scenario/proof rows and assumptions. The architect owns technical design; do not ask the user to choose implementation mechanisms. This is a conditional completeness check, not a universal checklist; do not dispatch an architect merely to fill it for mechanical or low-risk work.
 

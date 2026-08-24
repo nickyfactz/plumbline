@@ -90,6 +90,9 @@ def main() -> None:
         assert "delegation_status" in guidance
         assert "bounded research" in guidance
         assert "configured model" in guidance
+        assert "reread the applicable project-local config" in guidance
+        assert "changed profile hash" in guidance
+        assert "live user-owned dispatch profiles" in guidance
         included = (root / ".worktreeinclude").read_text(encoding="utf-8")
         assert ".codex/agents/*.toml" in included
         ignored = (root / ".gitignore").read_text(encoding="utf-8")

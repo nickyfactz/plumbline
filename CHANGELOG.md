@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Clarify execution-economy precedence, diagnostic/focused/acceptance evidence classes, durable proof fingerprints, expensive-gate readiness, and batching of high-risk review findings.
+- Reload changed project-local role/config profiles for new dispatches, refresh missing ignored team files in existing worktrees on demand, and keep active plans as compact current-state projections instead of append-only histories.
 - Center planning, execution, diagnosis, QA, closeout, and worker briefs on behavioral proof obligations; keep test count and coverage as signals, and make candidate-introduced diagnostic evidence disposition explicit.
 - Replace the legacy Codex v1 delegation workaround with current `agents.enabled` and `agents.max_concurrent_threads_per_session` settings; migrate old `features.multi_agent`, `agents.max_threads`, and `agents.max_depth` entries only after approval.
 - Treat Luna and other legacy-compatible models as v2 leaf workers selected by their project-local role files, while keeping Plumbline's no-child rule as orchestration guidance rather than a host depth requirement.

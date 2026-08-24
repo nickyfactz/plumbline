@@ -86,6 +86,13 @@ Expand it only for a material boundary. Every plan should answer:
 - What does it depend on, own, or share?
 - What must the main thread join before downstream work begins?
 
+Keep the live plan as a current-state projection, not an append-only diary.
+Rewrite the compact card and resume fields in place with current decisions,
+status, evidence pointers, residuals, and next action. Put raw attempts,
+transcripts, logs, and superseded approaches in existing supporting evidence or
+Git history; link the conclusion and do not make historical sections required
+reading for workers.
+
 ## Add risk-shaped proof
 
 For a checkpoint involving material state, persistence, concurrency, security,

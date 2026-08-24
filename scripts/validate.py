@@ -99,6 +99,8 @@ CONTRACT_MARKERS = {
         "proposed refresh",
         "repeat initialization",
         "replace-agents-guidance",
+        "profile refresh",
+        "worktree",
     ),
     "plumbline-execute-engine": (
         "last_verified_commit",
@@ -139,6 +141,9 @@ CONTRACT_MARKERS = {
         "proof obligations",
         "test count and coverage are signals",
         "ready for expensive verification",
+        "profile refresh",
+        "current-state projection",
+        "workers already running",
     ),
     "plumbline-diagnose-engine": (
         "same candidate",
@@ -180,6 +185,8 @@ CONTRACT_MARKERS = {
         "proof obligation",
         "test-count target",
         "execution-economy",
+        "current-state projection",
+        "append-only diary",
     ),
     "plumbline-plan-adoption-engine": (
         "smallest companion live plan",
@@ -559,14 +566,18 @@ def validate_references_and_templates(errors: list[str]) -> None:
         "fork_turns",
         "root-cause capsule",
         "parallel only after shared contracts are stable",
+        "current-state capsule",
+        "historical plan sections",
+        "profile refresh",
     ):
         if marker.lower() not in orchestration.lower():
             error(errors, f"references/subagent-orchestration.md: missing {marker}")
     reference_markers = {
         "runtime-value-testing.md": ("behavioral proof obligations", "test count and coverage"),
-        "plan-schema.md": ("behavioral proof obligations", "test-count or coverage"),
+        "plan-schema.md": ("behavioral proof obligations", "test-count or coverage", "current-state projection", "append-only diary", "historical sections are non-authoritative"),
         "qa-audit.md": ("proof obligation", "main thread decides deletion"),
-        "artifact-lifecycle.md": ("immutable failure record", "does not by itself"),
+        "artifact-lifecycle.md": ("immutable failure record", "does not by itself", "supporting evidence", "active plan"),
+        "worktree-readiness.md": ("on-demand refresh", "existing worktrees need this explicit refresh"),
     }
     for name, markers in reference_markers.items():
         source = (ROOT / "references" / name).read_text(encoding="utf-8").lower()

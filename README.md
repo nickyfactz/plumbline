@@ -328,6 +328,18 @@ When a project-local team is enabled, Plumbline recommends a role-aware starting
 
 Each delegation wave reports the selected role names with the host-native model and reasoning/effort values in one compact line. Codex shows model slugs and reasoning efforts; Claude Code shows its model and effort values. Use the approved project-local role that matches the capability and preserve its configured values; Plumbline does not substitute arbitrary or global agents. This keeps the team visible without turning every worker response into a ceremony.
 
+Project-local role and host-config files are live dispatch inputs. If you tune a
+model, reasoning/effort, permission, sandbox, or instruction value, Plumbline
+rereads it before the next delegation wave and applies it to new workers;
+workers already running keep the profile they started with. If an existing
+worktree is missing a role file, the main thread can explicitly refresh the
+ignored team files from the source checkout before falling back to direct work.
+
+The active plan is a compact current-state projection, not a running transcript.
+It keeps current decisions, checkpoint status, evidence pointers, residuals,
+and the next action; raw attempts and superseded context belong in existing
+evidence locations or Git history so fresh workers do not absorb stale history.
+
 ### Keep orchestration explicit
 
 An installed workflow is only an available capability. It does not own the session unless explicitly selected or installed as the repository-local Plumbline router. If another orchestration loop already owns checkpoint selection, plan advancement, review sequencing, or closeout, do not stack a second lifecycle controller on top of it.

@@ -41,10 +41,20 @@ material trigger requires them. Resolve the Plumbline installation root once
 at phase entry and use that root for all reference paths.
 
 Reuse prior completion evidence when referenced inputs and the fingerprint are
-unchanged. Reassess after a relevant source, specification, plan, config, or
-agent change; a failed or newly relevant check; a contract-boundary change; a
-defect; or stale-evidence concern. A new session, compaction, or conversational
-resume alone does not invalidate evidence.
+unchanged. Reassess after a relevant source, specification, or plan change; a
+config or agent change that materially affects capability or permission; a
+failed or newly relevant check; a contract-boundary change; a defect; or stale-
+evidence concern. A new session, compaction, or conversational resume alone
+does not invalidate evidence.
+
+A changed project-local role or config hash is a profile refresh, not role loss
+or automatic evidence invalidation. Reread the current files, update the
+compact fingerprint, and use their current values for new dispatches; workers
+already running retain the profile used at creation. If a selected role is
+missing in the active worktree, perform the bounded on-demand refresh described
+in `references/worktree-readiness.md` before using `Direct: <reason>`.
+Workers already running retain their creation profile; only new dispatches use
+the refreshed values.
 
 ## Conditional artifact sufficiency preflight
 
@@ -203,6 +213,10 @@ or next action changes; unchanged resumes do not need repeated route,
 doctrine, lifecycle, or checkpoint narration. If a correction produces a new
 failure before the relevant contract and owner path are validated, return to
 the same Diagnose boundary instead of stacking another surface patch.
+
+Keep active plan updates as a current-state projection: rewrite the compact
+checkpoint and resume fields in place, and link detailed attempts or superseded
+context from existing evidence rather than appending a transcript.
 
 ## Ownership and phase boundary
 
