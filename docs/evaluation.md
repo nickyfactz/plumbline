@@ -47,7 +47,7 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 23. A resume after relevant source drift invalidates only affected evidence and reassesses it before advancement.
 24. A stale repository-local router or AGENTS guidance section is reported with a proposed refresh and no automatic overwrite.
 25. An explicitly selected competing orchestration loop is named as lifecycle owner; Plumbline does not stack or advance it.
-26. A delegation wave reports role names, host-native model and reasoning/effort values, and the report-only/no-write-set/no-child boundary in one compact line.
+26. A delegation wave reports role names, host-native model and reasoning/effort values, and short assignments in one compact line; routine boundary and status narration is omitted unless an exception matters.
 26a. Worker recommendations return to the main thread; only the main thread selects and dispatches the next capability, with no worker-created delegation wave or visible graph telemetry.
 26b. Independent research, architecture, QA, or implementation scopes may run in one parallel wave only with a stable contract, disjoint scopes, no result dependency, and a clear main-thread join; shared contracts and moving deltas remain serial.
 27. Phase entry resolves the current installed Plumbline root once; reference paths resolve from that root and no absolute versioned cache path is persisted.
@@ -64,11 +64,11 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 38. Router dry-run previews an existing stale copy without writing and reports when `--replace` is required.
 
 39. An unchanged resume fingerprint reuses the compact record and checkpoint evidence without rereading agent TOMLs, broad plan bodies, or delegation doctrine.
-40. The first actual delegation loads the detailed orchestration reference, reports role names with host-native model and reasoning/effort values, states the report-only/no-write-set/no-child boundary, and inspects Git once after the wave.
+40. The first actual delegation loads the detailed orchestration reference, reports roles with host-native model/reasoning and short assignments, omits routine status narration, and inspects Git once after the wave.
 41. Direct work with no delegation need does not emit routine lifecycle, Direct, or delegation doctrine ceremony.
 42. A compact checkpoint card is sufficient for ordinary work; material security, schema, rollback, public-contract, ownership, or irreversible boundaries receive expanded detail.
 43. A kickoff commit is required only for an explicit policy, recovery need, material contract, or auditable boundary; otherwise planning artifacts may remain uncommitted until a coherent recovery boundary.
-44. Execute reaches Ready for Acceptance without deleting transient artifacts; accepted Closeout handles integration, retirement, and cleanup.
+44. Execute reaches Ready for Acceptance without deleting transient specifications or plans; accepted Closeout handles their integration, retirement, and cleanup, while Execute may clean clearly task-owned superseded build/test scratch.
 45. A supporting construction-policy skill may constrain implementation choices but does not add lifecycle ownership, checkpoints, or competing acceptance gates.
 46. An accepted equivalent evidence path is reused before slice-specific packaging or receipt machinery is introduced.
 46a. An approved Execute checkpoint dispatches approved project-local roles for useful bounded research, architecture, implementation, review, testing, or other capability work before the main thread repeats it; role selection remains project-local and configured.
@@ -88,13 +88,18 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 57. An architect's in-scope product-question label is resolved by the main thread from the approved plan and a safe reversible default without automatically reopening Shape.
 58. A named destructive or user-approval gate still pauses only at that gate while preserving the active plan.
 59. A review `CHANGES_REQUIRED` result reopens the same checkpoint and sends it through Diagnose, correction, and review; it does not close the objective or select a successor.
-60. An inconclusive, environment, or harness failure becomes `Blocked`, cannot satisfy `Ready for Acceptance`, and returns to Diagnose without discarding the active candidate.
+60. An inconclusive, environment, or harness failure becomes `Blocked` only when it prevents safe progress beyond bounded repair; otherwise it remains `In Progress` through Diagnose without discarding the active candidate.
 61. Closeout refuses an unresolved `Blocked` or `Reopened` objective, and a safety rollback retains the candidate in durable Git history before active-source removal.
 62. Claude setup creates project-local `.claude/agents/*.md` roles with host-native model, effort, tools, and permission fields, without creating `.claude/settings.json` or enabling experimental Agent Teams.
 63. Claude report-only roles omit the `Agent` tool, carry a `plan` permission intent, and preserve custom model, effort, frontmatter, and instructions during audit/retune.
 64. A blocker, regression, repeated failure, or failed expensive gate establishes the relevant failure path, broken owner, and contract/invariant before another corrective cycle; moving the error is not sufficient proof.
 65. A trivial local fix may use the lightweight path only when the diagnosis records `Local cause confirmed` and why wider caller or contract tracing is unnecessary.
 66. Corrective review verifies the reported failure path and one focused adjacent proof, not only a green check for the original symptom.
+67. Long-running work keeps compact plan state and useful pointers, reuses unchanged candidates, and cleans generated outputs with no named future consumer instead of accumulating evidence bundles.
+68. A small direct change receives proportionate verification without a mandatory plan, evidence directory, receipt, or cleanup phase.
+69. A live plan update replaces and prunes stale state; completed checkpoints collapse to accepted outcome/proof and live residuals without retaining attempt chronology or agent lifecycle narration.
+70. Plan updates are idempotent and leave enough current truth for a fresh agent to resume without reading superseded events.
+71. An unfamiliar read-heavy task keeps the main orchestrator thin by delegating bounded repository exploration and continuing from a compact decision packet rather than repeating the search.
 
 ## User UAT
 

@@ -4,7 +4,7 @@ Plumbline uses four artifact classes:
 
 1. Imported source - a design, handoff, attachment, or kickoff prompt from outside the repository. Preserve provenance and hash; treat it as immutable evidence.
 2. Active specification - the approved product contract for the current feature. It is tracked, authoritative during execution, and amended only for explicit product decisions.
-3. Live implementation plan - the execution control plane. It records checkpoints, owners, dependencies, evidence, blockers, deviations, and recovery state. Keep it current as work advances.
+3. Live implementation plan - the thin current-state control plane. It records checkpoint status, current ownership/dependencies, accepted proof pointers, blockers, residuals or deferrals, and the next action. Keep it current by replacing stale state as work advances.
 4. Canonical documentation - long-lived project-owned docs describing the repository's actual current system. It is not a diary and is not automatically replaced by a transient plan.
 
 These artifact classes describe responsibilities, not required filenames or formats. A user-supplied external specification, plan, handoff, or work order may be adopted in place. Select one controlling artifact set for the current task; unrelated active artifacts elsewhere in the repository are not blockers.
@@ -15,19 +15,37 @@ A throwaway Shape prototype is transient scratch evidence, not a fifth artifact 
 
 Imported source, specs, and plans are lifecycle-owned and may be transient. They may be removed at accepted closeout only after the user explicitly accepts the result and canonical docs contain the resulting truth. Retained specifications and plans may instead become decision records when they remain useful; retention does not make them canonical current-state documentation. Git history must retain deleted artifacts. Never use closeout to hide a disagreement between code and docs; investigate it and record the resolution.
 
-Failed evidence attempts are immutable supporting records. A corrected attempt
-supersedes their conclusion; it does not erase or reinterpret the earlier
-result. If a safety rollback is required, the main thread must preserve the
-candidate in durable Git history before removing it from the active source.
-An ignored patch, build directory, or transient target artifact is not enough
-to retain a candidate or recover the active objective.
-An immutable failure record preserves what happened; it does not by itself
-require a reseal, rebuild, or replay. Repeat an expensive gate when the durable
-contract, sealed artifact, proof boundary, or risk/ownership boundary changed.
+Durable state is the compact current truth a fresh agent needs to regain its
+bearings and resume safely: plan status, accepted proof summary, blockers and
+residuals, next action, and useful pointers to canonical docs, source paths,
+functions, commits, reusable artifacts, or required audit evidence. If an
+artifact does not materially improve that rehydration, it has little reason to
+be durable. Keep this truth in the controlling plan or existing canonical
+surface; do not create a parallel evidence ledger.
 
-Detailed experiments, diagnostic logs, and superseded attempts may remain in an
-existing evidence or scratch location or in Git history. The active plan keeps
-only the current-state conclusion and a pointer to that supporting evidence;
-this does not create a new artifact class or turn the plan into a transcript.
+Generated execution outputs are working material by default. Builds, packages,
+binaries, command logs, diagnostic captures, repeated manifests, correction
+directories, and intermediate receipts live only while they help reach or
+reproduce the current conclusion. Preserve a detailed or large output only when
+an identifiable future consumer needs that exact object for deployment,
+recovery, audit, safety, or otherwise costly reproduction. Otherwise summarize
+the material result in the plan, retain a useful pointer when one exists, and
+clean clearly task-owned output after acceptance or supersession. Never remove
+shared or user-owned artifacts merely because Plumbline no longer needs them.
+
+A failed result is not automatically a durable evidence attempt. Preserve an
+immutable failure record only when the operation already served a real
+acceptance, audit, safety, or destructive-operation boundary. A corrected run
+supersedes its conclusion without erasing what happened. Ordinary diagnostics,
+harness repairs, and receipt formatting remain replaceable working material and
+must not mint lifecycle history merely because they failed. If a safety rollback
+is required, preserve the source candidate in durable Git history before
+removing it from the active source; an ignored build or transient binary is not
+candidate retention.
+
+Changing only a launcher, harness, receipt, or evidence presentation does not
+invalidate an unchanged implementation candidate or reusable build. Repeat an
+expensive gate only when a relevant input, candidate, contract, proof boundary,
+environment, or risk/ownership boundary changed.
 
 Every process artifact, announcement, or receipt must support recovery, validation, authorization, or ownership. Omit it when it serves none of those purposes.

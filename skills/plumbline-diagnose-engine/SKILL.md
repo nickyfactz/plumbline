@@ -47,6 +47,14 @@ when no correct seam exists, record the seam gap instead of creating false
 confidence. Rerun the original loop after the fix. Use repository history
 selectively rather than automating `git bisect`.
 
+Keep diagnosis notes proportional. Update the active plan only with the current
+root-cause conclusion, material blocker or residual, and next action. Command
+logs, compiled outputs, repeated manifests, diagnostic captures, and correction
+directories are disposable working material unless a named future consumer
+needs the exact object. A failed probe does not turn them into an immutable
+attempt; summarize what changed the decision, reuse still-valid artifacts, and
+clean clearly task-owned superseded output before it accumulates.
+
 Add a regression test only at a stable public seam that exercises the real
 failure. When no correct seam exists, record the seam gap instead of creating
 false confidence. Do not patch the reported error line solely to make the

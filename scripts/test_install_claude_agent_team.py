@@ -45,6 +45,8 @@ def main() -> None:
         assert "bounded research" in guidance
         assert "configured model" in guidance
         assert "Reread the selected" in guidance
+        assert "orchestrator thin" in guidance
+        assert "compact decision packet" in guidance
         assert "running workers keep" in guidance
         assert "source checkout" in guidance
         assert ".claude/agents/" in (root / ".gitignore").read_text(encoding="utf-8")

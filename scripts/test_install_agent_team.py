@@ -69,7 +69,7 @@ def main() -> None:
             assert "dispatch another worker" in data["developer_instructions"].lower()
         guidance = (root / "AGENTS.md").read_text(encoding="utf-8")
         assert "## Local agent team" in guidance
-        assert "Delegated wave:" in guidance
+        assert "Delegated:" in guidance
         assert "Direct: <reason>" in guidance
         assert "model slugs" in guidance
         assert "reasoning efforts" in guidance
@@ -93,6 +93,8 @@ def main() -> None:
         assert "reread the applicable project-local config" in guidance
         assert "changed profile hash" in guidance
         assert "live user-owned dispatch profiles" in guidance
+        assert "orchestrator thin" in guidance
+        assert "compact decision packet" in guidance
         included = (root / ".worktreeinclude").read_text(encoding="utf-8")
         assert ".codex/agents/*.toml" in included
         ignored = (root / ".gitignore").read_text(encoding="utf-8")

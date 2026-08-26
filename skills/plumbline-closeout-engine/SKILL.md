@@ -15,7 +15,9 @@ first-time implementation proof.
 
 Normal Closeout refuses to retire an objective with any required checkpoint in
 `Blocked`, `Reopened`, `CHANGES_REQUIRED`, `INCONCLUSIVE`, or another unresolved
-state. Preserve the failed attempt and return the work to Execute/Diagnose.
+state. Preserve the current candidate and any genuinely required audit record,
+then return the work to Execute/Diagnose; ordinary diagnostic output remains
+disposable.
 Only explicit user approval may defer or abandon the objective; do not infer
 that decision from severity, rollback, or a proposed successor.
 
@@ -62,5 +64,9 @@ Before deletion, produce the specification-to-diff coverage matrix, final
 verification evidence, remaining risks, and exact transient paths. Delete
 imported source, active specification, or live plan only after explicit user
 acceptance. Preserve useful canonical docs, agents, tests, and Git history.
+Remove clearly task-owned superseded build/test scratch unless a named
+deployment, recovery, audit, safety, or costly-reproduction consumer still
+needs it. Final evidence is a compact result and useful pointer, not a duplicate
+archive of generated output.
 Integrate through the user's requested local flow. GitHub issues/PRs, history
 rewrites, and custom worktree cleanup are outside Plumbline v1.

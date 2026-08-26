@@ -23,6 +23,11 @@ Record concise findings and evidence rather than transcripts. A useful research 
 
 Delegate noisy read-heavy exploration to the matching project-local `researcher` when the repository has one and the brief is bounded. The researcher is report-only: it does not edit the repository, active specification, or plan; it does not run Git operations; and it never spawns children. Use one researcher by default and parallelize only independent questions after their boundaries are clear.
 
+Ask for a compact decision packet: conclusion, exact paths/symbols or sources,
+material constraints, residual uncertainty, and recommended next action. The
+main thread verifies only facts needed for product judgment or integration; it
+does not repeat the worker's broad search.
+
 If no project-local researcher is available, the main thread performs the bounded research directly. Never select a personal or global agent as fallback.
 
 Bound the search. Stop when the evidence is sufficient to formulate the next safe product question or choose the next safe action; do not build an exhaustive catalog. Record URLs, commits, commands, and observed results for facts that affect the plan. Do not turn research into permanent architecture copied into an agent or prompt; point to the canonical source instead.

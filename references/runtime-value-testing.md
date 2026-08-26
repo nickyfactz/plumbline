@@ -8,9 +8,13 @@ Use three evidence classes. A diagnostic probe answers a hypothesis or
 reproduction question and is working evidence, not an acceptance attempt. A
 focused verification checks the smallest relevant correction path. Acceptance
 evidence is the selected proof that closes the checkpoint, whether focused or
-full. Record failed results, but do not reseal, rebuild, or replay an expensive
-gate solely because a diagnostic or focused check changed when the durable
-contract, artifact, and proof boundary are unchanged.
+full. Keep diagnostic and focused outputs only while they aid the current
+decision; record their compact conclusion rather than preserving every log,
+manifest, package, or binary. A failure does not promote working output into a
+durable attempt. Do not reseal, rebuild, or replay an expensive gate solely
+because a diagnostic, launcher, harness, or evidence presentation changed when
+the candidate, relevant inputs, contract, environment, and proof boundary are
+unchanged.
 
 Allowed outcomes are: a focused automated test; a static/type/lint check; a deterministic command or HTTP probe; manual UAT; a targeted review; or a documented no-test decision with the risk and compensating evidence. A literal configurable default, prose, private method, snapshot of incidental structure, or a trivial wiring change usually does not deserve a permanent test.
 
@@ -36,6 +40,14 @@ environment. Stop when a prerequisite fails, the artifact is wrong, a named
 stop condition occurs, or repeated observations add no new evidence; classify
 the result and diagnose instead of retrying indefinitely. Do not hardcode a
 universal retry count.
+
+Reuse a still-valid build, package, deployment, or verification result. Create a
+new output only when a relevant source/configuration input changed, the existing
+object cannot prove the required behavior in the target environment, or reuse
+would be less reliable than regeneration. At acceptance, keep the result and
+the smallest useful command, revision, counts or failure tail, and artifact
+pointer; the generated output itself remains scratch unless deployment,
+recovery, audit, safety, or costly reproduction requires it.
 
 ## Deterministic operations
 

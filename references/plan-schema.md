@@ -36,22 +36,25 @@ For a Plumbline-managed feature, keep one controlling feature and one plan. A su
 | Boundary | <write, ownership, and risk boundary> |
 | Acceptance | <proof that makes the outcome complete> |
 | Done when | <observable completion condition> |
-| Evidence | <commands, artifacts, or UAT result> |
+| Proof | <compact accepted result and useful pointer; pending while unresolved> |
 | Next action | <one safe next step> |
 ```
 
-Expand the card with Outcome, Specification coverage, Dependencies, Execution topology, Shared ownership, Likely files and seams, Runtime protection, Verification, Canonical documentation impact, Completion criterion, Completion evidence, and Deviations and corrections only when a security, schema, rollback, public-contract, process-owner, irreversible, or similarly material boundary needs the detail. Execution topology may identify ready independent work, dependency edges, disjoint scopes, and a main-thread join condition; it does not name a fixed role map or create a scheduler artifact.
+Expand the card with Outcome, Specification coverage, Dependencies, Execution topology, Shared ownership, Likely files and seams, Runtime protection, Verification, Canonical documentation impact, Completion criterion, Completion evidence, and Current material deviations only when a security, schema, rollback, public-contract, process-owner, irreversible, or similarly material boundary needs the detail. Execution topology may identify ready independent work, dependency edges, disjoint scopes, and a main-thread join condition; it does not name a fixed role map or create a scheduler artifact.
 
 ### Non-overridable failure transitions
 
-`CHANGES_REQUIRED` sets the affected checkpoint to `Reopened`. `INCONCLUSIVE`,
-environment failures, and test-harness failures set it to `Blocked` until the
-evidence path is repaired or replaced through Diagnose. A failed attempt does
-not abandon its candidate or objective, and `Blocked` or `Reopened` never
-counts as checkpoint or plan completion. Severity sets urgency; it does not
-decide terminality. A successor objective, `Superseded` status, or abandonment
-requires accepted work or explicit user-approved defer/abandonment. Plan text
-cannot override these transitions.
+`CHANGES_REQUIRED` from review sets the affected checkpoint to `Reopened`.
+`INCONCLUSIVE`, environment failures, and test-harness failures set it to
+`Blocked` only when they prevent safe progress and cannot be repaired inside
+the current execution flow. An ordinary diagnostic or bounded evidence-path
+repair leaves the checkpoint `In Progress`; it updates plan state only when the
+current conclusion, blocker, residual, or next action materially changes. A
+failed command does not abandon its candidate or objective, and `Blocked` or
+`Reopened` never counts as checkpoint or plan completion. Severity sets urgency;
+it does not decide terminality. A successor objective, `Superseded` status, or
+abandonment requires accepted work or explicit user-approved defer/abandonment.
+Plan text cannot override these transitions.
 
 Execution economy is also a lifecycle constraint. An imported or generated plan
 may require stricter product, safety, or acceptance evidence, but it cannot
@@ -90,12 +93,26 @@ The frontmatter fields current_checkpoint, checkpoint_status, lifecycle_owner, l
 The active plan is a current-state projection, not an append-only diary. Rewrite
 checkpoint cards and resume fields in place so they retain current status,
 accepted decisions, latest evidence pointers, residual risks or deviations,
-and the next safe action. Keep raw attempts, transcripts, command logs, and
-superseded approaches in an existing evidence or scratch location or in Git
-history; link a concise conclusion from the plan. Historical sections are non-authoritative;
-they are not required reading for a fresh worker. Compact the
-projection at checkpoint or phase boundaries rather than appending another
-status narrative.
+and the next safe action. Summarize the material conclusion from raw attempts,
+transcripts, command logs, and superseded approaches, then discard or clean
+clearly task-owned working material unless an identifiable future consumer
+needs it. Point
+to source paths, functions, commits, canonical docs, reusable artifacts, or
+required audit evidence instead of copying their contents into the plan.
+Each plan update is replace-and-prune: patch the new truth and remove the stale
+status, superseded approach, prior next action, and resolved blocker in the same
+edit. A completed or superseded checkpoint collapses to its status, accepted
+outcome/proof pointer, and any still-live residual; only the current checkpoint
+keeps execution detail. The active plan contains no attempt chronology, daily
+progress log, completed-command list, transcript, or agent lifecycle history.
+When chronology is genuinely required, link the exact relevant section of an
+existing audit or operational record without copying it. Compact legacy history
+out at the next meaningful plan update.
+
+Apply two checks after every plan mutation. **Idempotence:** writing the same
+current state again produces no additional text. **Rehydration:** a fresh agent
+can identify the current outcome, active checkpoint, blockers/residuals, trusted
+proof pointers, and next action without reading superseded events.
 
 In `continuous` mode, the current checkpoint is the resume location, not an implicit Execute stop. Unless the user explicitly selects checkpoint-by-checkpoint control or the plan names a user approval gate, Execute advances through the remaining dependency order automatically and may batch ready independent work into main-mediated parallel waves. In explicit `checkpoint_relay` mode, complete the current checkpoint, establish the durable handoff defined by `checkpoint-relay.md`, and stop before the successor starts in the same root conversation. For delegated checkpoints, `delegation_roles` and `delegation_status` preserve the dispatch obligation across compaction; use `not-applicable` for checkpoints with no useful delegated unit. `Ready for Acceptance` is a final-plan state after every required checkpoint is complete, not a per-checkpoint status.
 
@@ -108,6 +125,11 @@ mutable checkpoint status, evidence logs, telemetry, or correction notes. Those
 records update recovery state without automatically invalidating prior proof.
 
 Every plan artifact or status announcement must support recovery, validation, authorization, or ownership. Omit ceremony that serves none of those purposes.
+
+This projection and retention guidance applies only when a live plan is useful
+or already controls the work. Small direct changes and sufficient imported work
+orders do not need a Plumbline plan, checkpoint receipt, evidence directory, or
+cleanup phase merely to satisfy this schema.
 
 Whenever the plan is written, verify that exactly one current checkpoint is named, its frontmatter status matches the checkpoint, and next_safe_action points to that checkpoint. Do not leave a later checkpoint active while an earlier checkpoint is unresolved unless the plan explicitly records the dependency and current owner.
 

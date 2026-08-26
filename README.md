@@ -265,7 +265,7 @@ Relay fails closed on ambiguous transitions, active or unknown duplicate tasks,
 fingerprint drift, approval gates, or transport failures; it never retries
 engineering work automatically.
 
-Failed work remains active work. `CHANGES_REQUIRED` reopens the affected checkpoint; `INCONCLUSIVE`, environment, and test-harness failures block it and return to Diagnose. `Blocked` and `Reopened` never satisfy plan completion or Closeout, and severity alone never authorizes rollback, abandonment, or successor selection. If a safety rollback is needed, the active candidate is preserved in durable Git history first.
+Failed work remains active work. `CHANGES_REQUIRED` from review reopens the affected checkpoint. `INCONCLUSIVE`, environment, and test-harness failures return to Diagnose and become `Blocked` only when safe progress cannot continue beyond a bounded repair; otherwise the checkpoint remains `In Progress`. `Blocked` and `Reopened` never satisfy plan completion or Closeout, and severity alone never authorizes rollback, abandonment, or successor selection. If a safety rollback is needed, the active candidate is preserved in durable Git history first.
 
 For blockers, regressions, repeated failures, and expensive validation failures, Diagnose traces the relevant failure path, broken owner, and contract before another correction cycle. A green rerun that only moves the error is not enough; trivial local fixes may stay lightweight when the local cause is confirmed.
 
@@ -297,7 +297,7 @@ Plumbline adopts settled decisions instead of grilling you again. It may recomme
 
 ### Keep long work recoverable
 
-For broad work, let the main thread maintain one active specification and one live checkpoint plan. Ask to resume from the current checkpoint rather than restating the whole history. Plumbline uses the plan, handoff, specification, and verification evidence as durable working memory and avoids broad rereads when nothing material has changed.
+For broad work, let the main thread maintain one active specification and one thin live checkpoint plan. Ask to resume from the current checkpoint rather than restating the whole history. Plumbline uses current plan state, accepted proof pointers, the specification, and relevant handoff or audit links as durable working memory and avoids broad rereads when nothing material has changed.
 
 You remain the owner of product intent and irreversible choices. The agent owns ordinary implementation judgment within the agreed scope. If you do not know an answer yet, Plumbline can preserve it as fog and continue with independent decisions instead of forcing speculation.
 
@@ -322,11 +322,11 @@ When a project-local team is enabled, Plumbline recommends a role-aware starting
 - Researchers, architects, and QA auditors are report-only and receive no write set.
 - Write-capable roles receive only their approved bounded write sets.
 - The main thread owns specifications, plans, integration, and Git.
-- For an Execute checkpoint, the main thread dispatches approved local roles for useful bounded research, architecture, implementation, review, testing, or other capability work before duplicating it. The active checkpoint records delegation roles/status so compaction can restore the delegation obligation. Product decisions, lifecycle/plan state, joins, integration, Git, singleton operations, and tiny coupled actions remain direct.
+- For an Execute checkpoint, the main thread reads only enough to route the work, then dispatches approved local roles before broad repository search, external research, cross-seam review, or other useful bounded work. Workers return compact decision packets with conclusions and exact pointers; the main thread verifies only integration-critical facts. Product decisions, lifecycle/plan state, joins, integration, Git, singleton operations, and tiny coupled actions remain direct.
 - Workers return to the main thread and never invoke, hand off to, or dispatch another worker; this is a Plumbline workflow boundary, not a required Codex depth setting.
-- If no suitable local role exists, Plumbline reports `Direct: <reason>` and continues on the main thread rather than using a global fallback.
+- If useful bounded work has no suitable local role, Plumbline reports `Direct: <reason>` once and continues on the main thread rather than using a global fallback. Tiny and inherently main-owned actions need no transcript note.
 
-Each delegation wave reports the selected role names with the host-native model and reasoning/effort values in one compact line. Codex shows model slugs and reasoning efforts; Claude Code shows its model and effort values. Use the approved project-local role that matches the capability and preserve its configured values; Plumbline does not substitute arbitrary or global agents. This keeps the team visible without turning every worker response into a ceremony.
+Each delegation wave emits one compact line with role, host-native model and reasoning/effort, and the short assignment. Routine starting, waiting, return, unchanged-configuration, and standard-boundary narration is omitted; exceptions and unexpected edits remain visible. Use the approved project-local role that matches the capability and preserve its configured values; Plumbline does not substitute arbitrary or global agents.
 
 Project-local role and host-config files are live dispatch inputs. If you tune a
 model, reasoning/effort, permission, sandbox, or instruction value, Plumbline
@@ -337,8 +337,22 @@ ignored team files from the source checkout before falling back to direct work.
 
 The active plan is a compact current-state projection, not a running transcript.
 It keeps current decisions, checkpoint status, evidence pointers, residuals,
-and the next action; raw attempts and superseded context belong in existing
-evidence locations or Git history so fresh workers do not absorb stale history.
+blockers, and the next action. Plumbline summarizes material proof and points to
+useful source, commits, canonical docs, reusable artifacts, or required audit
+evidence. Generated binaries, packages, logs, manifests, diagnostic captures,
+and superseded attempts are working scratch by default, not a second project
+deliverable. They are reused while valid and clearly task-owned scratch is
+eligible for safe cleanup when superseded or accepted unless a named deployment,
+recovery, audit, safety, or expensive-reproduction need justifies retention.
+Small direct work does not need a plan
+or evidence directory merely to follow this policy.
+
+Plan updates replace and prune stale state in the same edit. Completed
+checkpoints collapse to status, accepted outcome/proof pointer, and any live
+residual. Attempt traces, prior next actions, resolved blockers, completed-
+command lists, and agent lifecycle narration do not remain in the active plan;
+required chronology stays in an existing audit or operational record and is
+linked only where it helps recovery.
 
 ### Keep orchestration explicit
 

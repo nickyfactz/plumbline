@@ -24,9 +24,10 @@ Keep small, low-risk, direct, documentation-only, and process reviews on the
 main thread. Dispatch a fresh report-only `qa-auditor` for migrations,
 security, concurrency, data, public contracts, high-risk runtime behavior, a
 plan-required review, or an explicit independent-review request. Use the
-existing one-line `Delegated wave:` report with role, host-native model,
-reasoning/effort, and a report-only boundary with no write set and no child
-agents. Independent QA lenses share one parallel wave only against one stable
+existing one-line `Delegated:` report with role, host-native model,
+reasoning/effort, and the short review assignment. Mention the standard
+report-only/no-write-set/no-child boundary only for an exception or mismatch.
+Independent QA lenses share one parallel wave only against one stable
 delta with disjoint scopes and a clear join condition.
 
 Use project-local roles only. If the role is absent, report

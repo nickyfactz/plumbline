@@ -26,9 +26,10 @@ non-goals, checkpoint dependency order, proof, current checkpoint, lifecycle
 owner, and one safe next action. Stop after planning; the user or router selects
 the explicit `plumbline-execute` phase when implementation is wanted.
 
-Plans cannot override Plumbline lifecycle invariants. A failed attempt keeps
-the same candidate and objective active until it is accepted or the user
-explicitly defers or abandons it.
+Plans cannot override Plumbline lifecycle invariants. A failed acceptance result
+keeps the same candidate and objective active until it is accepted or the user
+explicitly defers or abandons it; an ordinary diagnostic failure remains
+working state rather than becoming a new attempt record.
 
 Apply the plan schema's execution-economy rule: a plan may add stricter proof
 requirements, but it must not mandate reseal, rebuild, or replay for every
@@ -88,10 +89,21 @@ Expand it only for a material boundary. Every plan should answer:
 
 Keep the live plan as a current-state projection, not an append-only diary.
 Rewrite the compact card and resume fields in place with current decisions,
-status, evidence pointers, residuals, and next action. Put raw attempts,
-transcripts, logs, and superseded approaches in existing supporting evidence or
-Git history; link the conclusion and do not make historical sections required
-reading for workers.
+status, evidence pointers, residuals, and next action. Summarize the conclusion
+from raw attempts, transcripts, logs, and superseded approaches, then clean that
+clearly task-owned working material unless a named future consumer needs it.
+Prefer pointers to
+source paths, functions, commits, canonical docs, reusable artifacts, and
+required audit evidence over copied output. Every update replaces and prunes
+stale state in the same edit. Collapse completed checkpoints to status, accepted
+outcome/proof pointer, and live residuals; keep execution detail only for the
+current checkpoint. Remove legacy attempt chronology and agent lifecycle history
+instead of marking it non-authoritative.
+
+Before completing a plan mutation, verify idempotence and rehydration: writing
+the same current state again adds nothing, and a fresh agent can recover the
+active outcome, blockers/residuals, trusted proof pointers, and next action
+without superseded events.
 
 ## Add risk-shaped proof
 
@@ -136,18 +148,20 @@ unresolved `Blocked`/`Reopened` checkpoint prevents `Ready for Acceptance`; it
 does not authorize abandoning the objective. Use `Superseded` only after
 accepted work or an explicit user-approved defer or abandonment.
 
-## Preserve failed attempts
+## Preserve the objective, compact the evidence
 
-Normalize checkpoint outcomes as follows: `CHANGES_REQUIRED` reopens the
-affected checkpoint; `INCONCLUSIVE`, environment failures, and harness
-failures block it until Diagnose repairs or replaces the evidence path. Then
-the same candidate returns through correction and review. P0/P1 severity does
-not automatically mean rejection, rollback, abandonment, or fresh owner
-selection. Reject a plan clause that maps severity directly to those terminal
-actions. If safety requires a rollback, preserve the candidate in durable Git
-history before the main thread rolls it back; an ignored patch or build output
-is supporting evidence, not candidate retention. A successor objective is not
-eligible while the current objective is unresolved.
+Normalize checkpoint outcomes as follows: `CHANGES_REQUIRED` from review
+reopens the affected checkpoint. `INCONCLUSIVE`, environment failures, and
+harness failures block it only when they prevent safe progress beyond a bounded
+repair; otherwise keep the checkpoint in progress while Diagnose repairs or
+replaces the evidence path. The same candidate returns through correction and
+review. P0/P1 severity does not automatically mean rejection, rollback,
+abandonment, or fresh owner selection. Reject a plan clause that maps severity
+directly to those terminal actions. If safety requires a rollback, preserve the
+candidate in durable Git history before the main thread rolls it back; an
+ignored patch or build output is disposable working material, not candidate
+retention. A successor objective is not eligible while the current objective
+is unresolved.
 
 For a checkpoint with useful delegated work, reserve the compact
 `delegation_roles`/`delegation_status` fields for Execute to carry delegation

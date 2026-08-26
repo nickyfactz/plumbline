@@ -17,8 +17,9 @@ Execute is complete only when every required checkpoint is `Complete`, the
 stable delta has focused/full proof, the plan says `Ready for Acceptance`, and
 the main thread has reported the remaining risk. `Blocked`, `Reopened`,
 `CHANGES_REQUIRED`, `INCONCLUSIVE`, or any other failure classification is
-unresolved work; it never satisfies completion. Execute does not delete
-transient artifacts or publish; those belong to accepted-work Closeout.
+unresolved work; it never satisfies completion. Execute may clean clearly
+task-owned superseded diagnostic/build scratch as it works. Accepted-work
+Closeout owns specification/plan retirement, integration cleanup, and publishing.
 
 Resolve `execution_mode` before traversal. A missing value means `continuous`.
 **Checkpoint Relay:** when the plan explicitly sets `checkpoint_relay`, load
@@ -98,6 +99,14 @@ only the affected checkpoint and continue independent work.
 
 ## Delegation-first ownership
 
+Keep the orchestrator thin. Read the compact plan/work order, repository
+guidance, current Git state, and explicitly named paths needed to route the
+checkpoint. Before broad grep, repository archaeology, multi-file fact
+gathering, external research, or cross-seam review, dispatch a matching
+project-local role with a bounded question. Use its decision packet to select
+the next action; inspect only integration-critical facts rather than repeating
+its exploration.
+
 For every approved Execute checkpoint, classify each bounded work unit before
 doing it on the main thread. Delegation is the default whenever an approved
 project-local role can own useful research, architecture, implementation,
@@ -110,17 +119,18 @@ Keep the main thread for product decisions, lifecycle and plan state, worker
 joins and integration, Git, singleton build/deploy/restart/migration/publication
 operations, and work too small or coupled to justify a worker. A direct action
 must be already understood, trivial to verify, and have no independent
-delegation boundary; record `Direct: <reason>` when using that fallback. If no
-matching local role or host dispatch exists, state the capability reason and
-continue directly rather than pausing the user.
+delegation boundary. Tiny or inherently main-owned actions need no `Direct:`
+announcement. If a useful bounded unit looked delegable but no matching local
+role or host dispatch exists, state `Direct: <reason>` once and continue rather
+than pausing the user.
 
 **Delegation:** before any material worker wave, fresh/reuse decision,
 parallel wave, corrective dispatch, or report-only assignment, load
 `references/subagent-orchestration.md` and follow it completely. That reference
 owns project-local role selection, model/reasoning telemetry, no-child and
 read/write boundaries, context capsules, parallel readiness, worker reports,
-and post-return Git inspection. Emit its compact delegated-wave line at every
-dispatch.
+and post-return Git inspection. Emit its compact dispatch line once per wave;
+do not narrate routine waiting, return, or unchanged state.
 
 For a Plumbline-managed plan, keep `delegation_roles` and
 `delegation_status` in the active checkpoint resume record. Use
@@ -154,8 +164,9 @@ For each checkpoint:
    consolidated, or were diagnostic-only; test count and coverage are signals,
    not completion criteria.
 4. Integrate worker changes at the main thread, obtain report-only QA after a
-   stable implementer delta when risk warrants it, and record material evidence
-   and deviations in the controlling artifact.
+   stable implementer delta when risk warrants it, and record only the durable
+   conclusion, useful pointers, residuals, and deviations in the controlling
+   artifact.
 5. Update exactly one current checkpoint, matching status, and
    `next_safe_action`, then select the next dependency-safe checkpoint.
 
@@ -178,12 +189,23 @@ first when necessary, then resume the smallest complete verification path. Do
 not batch independent symptom patches before the shared cause and fix boundary
 are understood.
 
-Before an expensive package, build, deployment, restart, or live check, record
-a compact readiness result in the existing evidence or next-action surface:
+Reuse a build, package, deployment, or proof result while its relevant source,
+configuration, environment, contract, and candidate identity remain valid. A
+launcher, harness, receipt, path, or evidence-format correction does not by
+itself justify rebuilding the candidate. Keep generated outputs as working
+scratch unless a named deployment, recovery, audit, safety, or costly-
+reproduction consumer needs the exact object; summarize the accepted result in
+the plan and clean clearly task-owned superseded output during execution rather
+than accumulating it for Closeout.
+
+Before a genuinely expensive or risky package, build, deployment, restart, or
+live check, confirm a compact readiness result in the existing next-action
+surface only when recovery needs it or readiness is blocked:
 `Ready for expensive verification: yes/no`, the artifact or revision,
 applicable prerequisites, and the stop or escalation condition. A `no` result
 stays in Diagnose or correction and does not launch the gate. This is a check,
-not a new lifecycle state.
+not a new lifecycle state or artifact. Routine local checks need no readiness
+record.
 
 Before an expensive live check, run the cheapest applicable prerequisite probes
 and state a bounded observation window plus an environment-appropriate
@@ -193,12 +215,13 @@ instead of retrying indefinitely; never use a universal retry count.
 
 ## Classify evidence before stopping
 
-Classify each failed or incomplete result once as a product defect, contract
+Classify each material failed or incomplete result once as a product defect, contract
 gap, environment failure, test-harness failure, known unrelated baseline
 failure, or unavailable evidence. A new checkpoint-invalidating product or
 contract failure sets the affected checkpoint to `Reopened`. An inconclusive,
-environment, or harness failure sets it to `Blocked` until Diagnose repairs
-the evidence path or the main thread records why it cannot proceed. A known
+environment, or harness failure sets it to `Blocked` only when it prevents safe
+progress beyond a bounded repair; otherwise keep the checkpoint `In Progress`
+while Diagnose repairs the evidence path. A known
 unrelated baseline failure may be recorded and bypassed when it does not
 affect the plan. None of these states abandons the candidate or objective.
 Severity controls urgency, not terminality. A successor objective requires
@@ -215,8 +238,14 @@ failure before the relevant contract and owner path are validated, return to
 the same Diagnose boundary instead of stacking another surface patch.
 
 Keep active plan updates as a current-state projection: rewrite the compact
-checkpoint and resume fields in place, and link detailed attempts or superseded
-context from existing evidence rather than appending a transcript.
+checkpoint and resume fields in place with the current conclusion, accepted
+proof summary, useful pointers, residuals, blockers, and next action. Do not
+append command history or retain superseded output without a future consumer.
+At every meaningful plan update, remove the superseded status, resolved blocker,
+prior next action, and obsolete implementation detail in the same edit. Collapse
+completed checkpoints rather than narrating how they completed.
+The same current state written twice must add no text, and the resulting plan
+must rehydrate a fresh agent without superseded events.
 
 ## Ownership and phase boundary
 

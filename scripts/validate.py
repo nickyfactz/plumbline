@@ -101,6 +101,8 @@ CONTRACT_MARKERS = {
         "replace-agents-guidance",
         "profile refresh",
         "worktree",
+        "orchestrator thin",
+        "compact decision packet",
     ),
     "plumbline-execute-engine": (
         "last_verified_commit",
@@ -144,6 +146,8 @@ CONTRACT_MARKERS = {
         "profile refresh",
         "current-state projection",
         "workers already running",
+        "generated outputs",
+        "future consumer",
     ),
     "plumbline-diagnose-engine": (
         "same candidate",
@@ -157,6 +161,7 @@ CONTRACT_MARKERS = {
         "fix boundary",
         "diagnostic tests and probes",
         "durable regression",
+        "disposable working material",
     ),
     "plumbline-diagnose": (
         "minimum sufficient root cause",
@@ -187,6 +192,10 @@ CONTRACT_MARKERS = {
         "execution-economy",
         "current-state projection",
         "append-only diary",
+        "compact the evidence",
+        "replaces and prunes",
+        "idempotence",
+        "rehydration",
     ),
     "plumbline-plan-adoption-engine": (
         "smallest companion live plan",
@@ -214,10 +223,10 @@ CONTRACT_MARKERS = {
         "direct: qa-auditor unavailable",
         "workers never spawn children",
         "report-only",
-        "no write set",
+        "no-write-set",
         "effective sandbox",
         "direct: delegation prohibited or effective read-only isolation unavailable",
-        "delegated wave:",
+        "delegated:",
         "small, low-risk",
         "main thread",
         "parallel wave",
@@ -558,7 +567,7 @@ def validate_references_and_templates(errors: list[str]) -> None:
     for marker in (
         ".codex/agents/",
         "personal/global agent files",
-        "Delegated wave:",
+        "Delegated:",
         "reasoning=<effort>",
         "report-only",
         "no write set",
@@ -567,16 +576,18 @@ def validate_references_and_templates(errors: list[str]) -> None:
         "root-cause capsule",
         "parallel only after shared contracts are stable",
         "current-state capsule",
-        "historical plan sections",
+        "legacy attempt chronology",
         "profile refresh",
+        "Thin orchestrator",
+        "decision packet",
     ):
         if marker.lower() not in orchestration.lower():
             error(errors, f"references/subagent-orchestration.md: missing {marker}")
     reference_markers = {
         "runtime-value-testing.md": ("behavioral proof obligations", "test count and coverage"),
-        "plan-schema.md": ("behavioral proof obligations", "test-count or coverage", "current-state projection", "append-only diary", "historical sections are non-authoritative"),
+        "plan-schema.md": ("behavioral proof obligations", "test-count or coverage", "current-state projection", "append-only diary", "replace-and-prune", "no attempt chronology", "idempotence", "rehydration"),
         "qa-audit.md": ("proof obligation", "main thread decides deletion"),
-        "artifact-lifecycle.md": ("immutable failure record", "does not by itself", "supporting evidence", "active plan"),
+        "artifact-lifecycle.md": ("durable state", "working material by default", "future consumer", "failed result is not automatically"),
         "worktree-readiness.md": ("on-demand refresh", "existing worktrees need this explicit refresh"),
     }
     for name, markers in reference_markers.items():
@@ -681,7 +692,7 @@ def validate_scripts(errors: list[str]) -> None:
             source = path.read_text(encoding="utf-8")
             compile(source, str(path), "exec")
             if name == "install_agent_team.py":
-                for marker in ("MODES = (\"initialize\", \"audit\", \"retune\")", "class InstallReport", "ROLE_DESCRIPTIONS", "def _retune", "def _audit_router", "def _audit_agents_guidance", "update_instructions", "dry_run", "output_format", "Delegated wave:", "model slugs", "reasoning efforts"):
+                for marker in ("MODES = (\"initialize\", \"audit\", \"retune\")", "class InstallReport", "ROLE_DESCRIPTIONS", "def _retune", "def _audit_router", "def _audit_agents_guidance", "update_instructions", "dry_run", "output_format", "Delegated:", "model slugs", "reasoning efforts"):
                     if marker not in source:
                         error(errors, f"scripts/{name}: missing preservation marker {marker}")
             elif name == "install_claude_agent_team.py":
