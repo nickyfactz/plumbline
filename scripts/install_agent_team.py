@@ -17,6 +17,7 @@ ROLES = (
     "backend-architect",
     "frontend-architect",
     "implementer",
+    "code-reviewer",
     "qa-auditor",
 )
 MODES = ("initialize", "audit", "retune")
@@ -25,7 +26,16 @@ SANDBOXES = {
     "backend-architect": "read-only",
     "frontend-architect": "read-only",
     "implementer": "workspace-write",
+    "code-reviewer": "read-only",
     "qa-auditor": "read-only",
+}
+RECOMMENDED_PROFILES = {
+    "frontend-architect": ("sol", "medium"),
+    "backend-architect": ("sol", "medium"),
+    "researcher": ("luna", "medium"),
+    "implementer": ("luna", "high"),
+    "code-reviewer": ("luna", "high"),
+    "qa-auditor": ("luna", "max"),
 }
 REQUIRED_AGENT_FIELDS = (
     "name",
@@ -60,7 +70,8 @@ ROLE_DESCRIPTIONS = {
     "backend-architect": "backend contracts, persistence, and ownership",
     "frontend-architect": "UI state, accessibility, and integration seams",
     "implementer": "an approved bounded write set",
-    "qa-auditor": "independent read-only review",
+    "code-reviewer": "adversarial maintainability and design review",
+    "qa-auditor": "acceptance, proof, and documentation audit",
 }
 
 
@@ -73,11 +84,24 @@ Use `$plumbline-init` for the combined router/team setup and `$plumbline-agent-t
 
 {role_lines}
 
+When Git is established, material multi-step Execute work uses a required Git
+policy by default. Ask once before Execute to create main-thread commits at
+coherent checkpoint or batch boundaries, assuming yes unless the user opts
+out; record `HEAD`, keep unrelated dirty files out, and do not advance
+dependent checkpoints with uncommitted plan-owned changes. Use checkpoint
+commits, `git show`, and focused diffs for worker hydration. If Git is absent,
+recommend establishing it before Execute and report an explicit opt-out as
+Git-unanchored.
+
+Maintainable code: when writing, modifying, or reviewing production code,
+invoke the `maintainable-code` skill. Implementers apply its implementation and
+human-legibility guidance; `code-reviewer` applies its adversarial review gate.
+
 Keep the orchestrator thin. The main thread reads only the controlling artifact, repository guidance, Git state, and named paths needed to route and integrate work. Before broad grep, repository archaeology, multi-file fact gathering, external research, or cross-seam review, dispatch a matching project-local role with a bounded question. Ask read-heavy workers for a compact decision packet: conclusion, exact paths/symbols/URLs, constraints, residual uncertainty, and next action; omit search narration, large excerpts, exhaustive inventories, and successful logs. Keep direct work only when the answer and target are already known, the read is tightly coupled to a main-owned product/integration/Git/singleton action, or dispatch costs more context than the task.
-Give workers anchored read sections and disjoint write sets; do not pass full history or whole documentation trees. The report-only roles (researcher, architect, and QA) receive no write set. Their `sandbox_mode = "read-only"` is intent; a writable parent may affect the child's effective sandbox. Before each wave, reread the applicable project-local config and selected role files. Emit one compact line such as `Delegated: researcher [model=<slug>, reasoning=<effort>] — map the persistence owner`; include selected roles, current configured model slugs and reasoning efforts, and short assignments. Mention standard boundaries or effective values only when an exception, observable mismatch, or user question makes them material. Omit routine starting, waiting, returned, and unchanged-configuration narration. A changed profile hash refreshes new dispatches; running workers retain their creation profile. Inspect Git status/diff after return and report only unexpected edits or material results. Each write-capable role receives only its approved bounded write set. Workers never spawn child agents. Do not use personal or global agent files as fallbacks. If a role is missing in the active worktree, refresh only the ignored project-local config/role files from the source checkout through `.worktreeinclude`, reread them, and use `Direct: <reason>` only if it remains unavailable.
+Give workers anchored read sections and disjoint write sets; do not pass full history or whole documentation trees. The report-only roles (researcher, architect, code-reviewer, and QA) receive no write set. Their `sandbox_mode = "read-only"` is intent; a writable parent may affect the child's effective sandbox. Before each wave, reread the applicable project-local config and selected role files. Emit one compact line such as `Delegated: researcher [model=<slug>, reasoning=<effort>] — map the persistence owner`; include selected roles, current configured model slugs and reasoning efforts, and short assignments. Mention standard boundaries or effective values only when an exception, observable mismatch, or user question makes them material. Omit routine starting, waiting, returned, and unchanged-configuration narration. A changed profile hash refreshes new dispatches; running workers retain their creation profile. Inspect Git status/diff after return and report only unexpected edits or material results. Each write-capable role receives only its approved bounded write set. Workers never spawn child agents. Do not use personal or global agent files as fallbacks. If a role is missing in the active worktree, refresh only the ignored project-local config/role files from the source checkout through `.worktreeinclude`, reread them, and use `Direct: <reason>` only if it remains unavailable.
 Delegation is main-mediated: every worker returns to the main thread, worker recommendations are advisory, and only the main thread selects and dispatches the next capability. Workers never invoke, hand off to, or dispatch another worker. When independent work is ready, the main thread may use one parallel wave only with a stable contract, disjoint scopes, no result dependency, and a clear join condition; otherwise keep it serial.
 For Execute checkpoints, delegation is the default: when an approved project-local role can own useful bounded research, architecture, implementation, review, testing, or another capability with a clear boundary, dispatch that role before the main thread duplicates the work. Use its configured model, reasoning effort, and sandbox intent; do not invent or substitute a personal/global role. Record `delegation_roles` and `delegation_status` in the checkpoint resume record and restore them after compaction. Keep product decisions, lifecycle/plan state, joins, integration, Git, singleton operations, or tiny coupled actions on the main thread. Emit `Direct: <reason>` only when useful bounded work looked delegable but no matching local role or host dispatch remains available; tiny and inherently main-owned actions need no transcript note.
-Keep current Codex collaboration enabled through `agents.enabled = true`. Treat `agents.max_concurrent_threads_per_session` as a user-owned host setting; the setup template recommends 6 as a starting value, but approved alternatives are preserved. Legacy `features.multi_agent`, `agents.max_threads`, and `agents.max_depth` values are migration candidates, not Plumbline requirements. Every role TOML must carry explicit `model`, `model_reasoning_effort`, and `sandbox_mode` values approved during setup.
+Keep current Codex collaboration enabled through `agents.enabled = true`. Treat `agents.max_concurrent_threads_per_session` as a user-owned host setting; the setup template recommends 12 as a starting value, but approved alternatives are preserved. Legacy `features.multi_agent`, `agents.max_threads`, and `agents.max_depth` values are migration candidates, not Plumbline requirements. Every role TOML must carry explicit `model`, `model_reasoning_effort`, and `sandbox_mode` values approved during setup.
 Treat project-local role files as live user-owned dispatch profiles: manual edits to model, reasoning, sandbox, or instructions apply to new workers without an audit or retune, while workers already running keep their original values. Audit/retune approval remains required for installer-managed changes. Never let dispatch overwrite the current project-local values.
 
 Before dispatch, identify one lifecycle owner. Installed or enabled skills are available capabilities, not active ownership; an explicitly selected competing controller owns its own checkpoint and closeout flow.
@@ -113,6 +137,8 @@ AGENT_GUIDANCE_MARKERS = (
     "live user-owned dispatch profiles",
     "orchestrator thin",
     "compact decision packet",
+    "maintainable-code",
+    "code-reviewer",
 )
 
 
@@ -377,6 +403,12 @@ def _render_agent(template: Path, model: str, reasoning_effort: str) -> tuple[st
         raise ValueError(f"rendered template is invalid TOML: {template}: {exc}") from exc
 
 
+def _profile(role: str, model: str | None, reasoning_effort: str | None) -> tuple[str, str]:
+    if (model is None) != (reasoning_effort is None):
+        raise ValueError("--model and --reasoning-effort must be supplied together")
+    return (model, reasoning_effort) if model is not None else RECOMMENDED_PROFILES[role]
+
+
 def _template_data(template_root: Path, role: str) -> dict:
     path = template_root / f"{role}.toml"
     try:
@@ -558,8 +590,8 @@ def _retune(
     replace_config: bool,
     dry_run: bool,
 ) -> InstallReport:
-    if fill_missing and (model is None or reasoning_effort is None):
-        raise ValueError("--fill-missing requires --model and --reasoning-effort")
+    if fill_missing and ((model is None) != (reasoning_effort is None)):
+        raise ValueError("--model and --reasoning-effort must be supplied together")
     changes: dict[Path, tuple[str, ...]] = {}
     operations: dict[Path, str] = {}
     findings = _audit_config(repo)
@@ -589,6 +621,7 @@ def _retune(
             continue
 
         template = _template_data(template_root, role)
+        role_model, role_reasoning = _profile(role, model, reasoning_effort)
         after_text = before_text
         changed: list[str] = []
         missing: dict[str, str] = {}
@@ -597,9 +630,9 @@ def _retune(
                 value = before_data.get(field)
                 if field not in before_data:
                     if field == "model":
-                        missing[field] = model or ""
+                        missing[field] = role_model
                     elif field == "model_reasoning_effort":
-                        missing[field] = reasoning_effort or ""
+                        missing[field] = role_reasoning
                     elif field == "sandbox_mode":
                         missing[field] = SANDBOXES[role]
                     elif field == "developer_instructions":
@@ -655,8 +688,8 @@ def _initialize(
     propagate: bool,
     dry_run: bool,
 ) -> InstallReport:
-    if model is None or reasoning_effort is None:
-        raise ValueError("initialize requires --model and --reasoning-effort")
+    if (model is None) != (reasoning_effort is None):
+        raise ValueError("--model and --reasoning-effort must be supplied together")
     for role in roles:
         target = repo / ".codex" / "agents" / f"{role}.toml"
         if target.exists() and not replace:
@@ -692,7 +725,8 @@ def _initialize(
                 _before_text, before_data = _load_text(target)
             except ValueError:
                 before_data = None
-        text, after_data = _render_agent(template_root / f"{role}.toml", model, reasoning_effort)
+        role_model, role_reasoning = _profile(role, model, reasoning_effort)
+        text, after_data = _render_agent(template_root / f"{role}.toml", role_model, role_reasoning)
         operation = "modify" if target.exists() else "create"
         if not dry_run:
             _write(target, text)
@@ -738,7 +772,7 @@ def install(
     model: str | None = None,
     reasoning_effort: str | None = None,
     roles: tuple[str, ...] = ROLES,
-    max_threads: int = 6,
+    max_threads: int = 12,
     replace: bool = False,
     replace_config: bool = False,
     fill_missing: bool = False,
@@ -857,10 +891,10 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path.cwd(), help="Target repository root")
     parser.add_argument("--mode", choices=MODES, default="initialize")
-    parser.add_argument("--model", help="Approved model slug for new or missing project fields")
-    parser.add_argument("--reasoning-effort", help="Approved reasoning effort for new or missing project fields")
+    parser.add_argument("--model", help="Override the recommended model for every selected role")
+    parser.add_argument("--reasoning-effort", help="Override the recommended effort for every selected role")
     parser.add_argument("--roles", type=_parse_roles, default=ROLES, help="Comma-separated roles")
-    parser.add_argument("--max-threads", type=int, default=6)
+    parser.add_argument("--max-threads", type=int, default=12)
     parser.add_argument("--replace", action="store_true", help="Replace existing role files during initialize only")
     parser.add_argument("--replace-config", action="store_true", help="Apply the approved project config patch")
     parser.add_argument("--fill-missing", action="store_true", help="Retune by adding missing fields only")

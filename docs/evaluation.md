@@ -10,7 +10,7 @@ python scripts/test_install_agent_team.py
 python scripts/test_install_claude_agent_team.py
 ```
 
-It checks the manifests, both marketplaces, 18 skill manifests, public/engine invocation policies, reference set, router word budget, project-agent template fields, local multi-agent defaults, worktree patterns, and helper-script syntax. These are static configuration/workflow-intent checks; they do not prove effective permissions in a spawned session. The Codex and Claude installer smoke tests prove that approved setup creates host-local roles, guidance, ignore rules, and propagation manifests without touching global files; their dry-run paths prove the same manifests without writes. Router and AGENTS drift audits are report-only and never overwrite customized integration files.
+It checks the manifests, both marketplaces, 20 skill manifests, public/engine invocation policies, reference set, router word budget, project-agent template fields, local multi-agent defaults, worktree patterns, and helper-script syntax. These are static configuration/workflow-intent checks; they do not prove effective permissions in a spawned session. The Codex and Claude installer smoke tests prove that approved setup creates host-local roles, guidance, ignore rules, and propagation manifests without touching global files; their dry-run paths prove the same manifests without writes. Router and AGENTS drift audits are report-only and never overwrite customized integration files.
 
 ## Platform smoke checks
 
@@ -33,7 +33,7 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 9. Router deletion stops automatic routing.
 10. Plugin disable prevents the router's engine path.
 11. Init proposal shows every selected role's model, reasoning effort, sandbox, config, AGENTS, ignore, and worktree changes before approval.
-12. Approved setup creates only project-local `.codex/config.toml` and `.codex/agents/*.toml`, with current collaboration/concurrency fields and explicit model/reasoning fields; 6 concurrent threads is a recommendation, not a requirement, and legacy v1 compatibility keys are not introduced.
+12. Approved setup creates only project-local `.codex/config.toml` and `.codex/agents/*.toml`, with current collaboration/concurrency fields and explicit model/reasoning fields; 12 concurrent threads is a recommendation, not a requirement, and legacy v1 compatibility keys are not introduced.
 13. A project-local role is selected when available; a missing role reports `Direct` and never uses a personal/global fallback.
 14. Workers cannot spawn children by Plumbline guidance; this leaf boundary does not depend on a Codex depth setting.
 15. A committed `.worktreeinclude` manifest makes the ignored team files eligible for new managed worktrees while leaving them untracked; existing worktrees are not retroactive.
@@ -91,7 +91,7 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 60. An inconclusive, environment, or harness failure becomes `Blocked` only when it prevents safe progress beyond bounded repair; otherwise it remains `In Progress` through Diagnose without discarding the active candidate.
 61. Closeout refuses an unresolved `Blocked` or `Reopened` objective, and a safety rollback retains the candidate in durable Git history before active-source removal.
 62. Claude setup creates project-local `.claude/agents/*.md` roles with host-native model, effort, tools, and permission fields, without creating `.claude/settings.json` or enabling experimental Agent Teams.
-63. Claude report-only roles omit the `Agent` tool, carry a `plan` permission intent, and preserve custom model, effort, frontmatter, and instructions during audit/retune.
+63. Claude report-only roles, including `code-reviewer`, omit the `Agent` tool, carry a `plan` permission intent, and preserve custom model, effort, frontmatter, and instructions during audit/retune.
 64. A blocker, regression, repeated failure, or failed expensive gate establishes the relevant failure path, broken owner, and contract/invariant before another corrective cycle; moving the error is not sufficient proof.
 65. A trivial local fix may use the lightweight path only when the diagnosis records `Local cause confirmed` and why wider caller or contract tracing is unnecessary.
 66. Corrective review verifies the reported failure path and one focused adjacent proof, not only a green check for the original symptom.
@@ -100,6 +100,8 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 69. A live plan update replaces and prunes stale state; completed checkpoints collapse to accepted outcome/proof and live residuals without retaining attempt chronology or agent lifecycle narration.
 70. Plan updates are idempotent and leave enough current truth for a fresh agent to resume without reading superseded events.
 71. An unfamiliar read-heavy task keeps the main orchestrator thin by delegating bounded repository exploration and continuing from a compact decision packet rather than repeating the search.
+72. Material code review dispatches a fresh report-only `code-reviewer` before `qa-auditor`; the reviewer owns maintainability and design findings while QA owns acceptance, proof, and documentation alignment.
+73. The default initialized team exposes the role-aware starting recommendations: Sol/medium architects, Luna/medium researcher, Luna/high implementer and code-reviewer, Luna/max QA, and 12 concurrent threads; users may override these values without the installer treating them as policy.
 
 ## User UAT
 

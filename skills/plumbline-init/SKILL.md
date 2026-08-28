@@ -36,7 +36,23 @@ Present one reviewable proposal and wait for explicit approval before writing an
 
 Use the current project/main model when available; otherwise show a host model only as a candidate to approve. Do not invent a model slug or alias. Treat the table as a recommended, role-aware starting profile aimed at the cheapest effective model and reasoning/effort: lower-cost settings for bounded research or mechanical work, higher settings only for material architecture, persistence, concurrency, security, ownership, or acceptance risk. These values are adjustable and hotswappable after setup.
 
-For Codex, explain that current releases enable subagents by default. Recommend `agents.enabled = true` only as an explicit project intent and `agents.max_concurrent_threads_per_session = 6` as an adjustable, user-owned starting value; preserve an existing or approved alternative such as 12. Detect legacy `features.multi_agent`, `agents.max_threads`, and `agents.max_depth` entries and offer their exact migration for approval. A selected role's explicit `model` field is sufficient to select Luna or another visible leaf model through current v2 delegation; do not force a v1 path or claim that a depth setting is required. For Claude Code, recommend project `.claude/agents/*.md` definitions with `model: inherit` unless the user approves a host-native alias/full ID, a suitable `effort`, restricted tools and `permissionMode: plan` for report-only roles, and no `Agent` tool for any generated role. Do not enable Claude's experimental Agent Teams or edit global settings.
+When the project benefits from the full shared team, recommend these starting
+profiles and let the user select or adjust them:
+
+| Role | Codex model / reasoning | Claude model / effort |
+| --- | --- | --- |
+| `frontend-architect` | `sol` / `medium` | `inherit` / `medium` |
+| `backend-architect` | `sol` / `medium` | `inherit` / `medium` |
+| `researcher` | `luna` / `medium` | `inherit` / `medium` |
+| `implementer` | `luna` / `high` | `inherit` / `high` |
+| `code-reviewer` | `luna` / `high` | `inherit` / `high` |
+| `qa-auditor` | `luna` / `max` | `inherit` / `max` |
+
+These are recommendations, not a required role set or immutable policy. The
+`maintainable-code` skill is model-invoked for implementation and review;
+`code-reviewer` runs before `qa-auditor` on material code.
+
+For Codex, explain that current releases enable subagents by default. Recommend `agents.enabled = true` only as an explicit project intent and `agents.max_concurrent_threads_per_session = 12` as an adjustable, user-owned starting value; preserve an existing or approved alternative such as 6. Detect legacy `features.multi_agent`, `agents.max_threads`, and `agents.max_depth` entries and offer their exact migration for approval. A selected role's explicit `model` field is sufficient to select Luna or another visible leaf model through current v2 delegation; do not force a v1 path or claim that a depth setting is required. For Claude Code, recommend project `.claude/agents/*.md` definitions with `model: inherit` unless the user approves a host-native alias/full ID, a suitable `effort`, restricted tools and `permissionMode: plan` for report-only roles, and no `Agent` tool for any generated role. Do not enable Claude's experimental Agent Teams or edit global settings.
 
 The same proposal must name every selected change and state `Create`, `Keep`, `Patch`, or `Skip`:
 
@@ -57,7 +73,7 @@ Apply only the approved items. Rerun the dry-run manifest; if the target changed
 
 Validate Plumbline setup separately from repository product checks. Report Plumbline files/config/TOML-or-Markdown/ignore/worktree validation as passed or failed; preflight repository commands for missing dependencies or executables; and label repository checks as passed, skipped, or blocked. Missing dependencies are a repository bootstrap blocker, not a Plumbline setup failure, and do not justify starting `npm ci` or another install without approval. Validate required host fields, Codex collaboration state and any user-owned concurrency value, AGENTS guidance, local discovery paths, ignore rules, exact changed-field output, `git diff --check`, and the `.worktreeinclude` contents. Explain that propagation affects new managed worktrees only when the host/repository workflow supports it; the `.worktreeinclude` manifest must be committed for future worktrees to see it, and existing worktrees need explicit refresh or local copy. A delegation wave must report selected role names with host-native model and reasoning/effort values in one compact line; otherwise report `Direct: <reason>` and continue on the main thread. End initialization and recommend a fresh task for feature work.
 
-A writable parent is normal during a goal. For researcher, architect, and QA dispatches, require a report-only brief with no write set. Codex `sandbox_mode = "read-only"` and Claude `permissionMode: plan` are intent rather than proof of hard isolation when a parent is writable or permissive. If the host cannot provide hard read-only isolation when it is required, use `Direct: delegation prohibited or effective read-only isolation unavailable`.
+A writable parent is normal during a goal. For researcher, architect, code-reviewer, and QA dispatches, require a report-only brief with no write set. Implementers and code-reviewers use the bundled `maintainable-code` skill for their respective implementation and adversarial review work. Codex `sandbox_mode = "read-only"` and Claude `permissionMode: plan` are intent rather than proof of hard isolation when a parent is writable or permissive. If the host cannot provide hard read-only isolation when it is required, use `Direct: delegation prohibited or effective read-only isolation unavailable`.
 
 ## Completion
 

@@ -11,7 +11,7 @@ import tomllib
 from pathlib import Path
 
 from install_router import install as install_router
-from install_agent_team import ROLES, install
+from install_agent_team import RECOMMENDED_PROFILES, ROLES, install
 
 
 def run_git(*args: str, cwd: Path) -> None:
@@ -67,6 +67,11 @@ def main() -> None:
             assert "spawn child" in data["developer_instructions"].lower()
             assert "main thread" in data["developer_instructions"].lower()
             assert "dispatch another worker" in data["developer_instructions"].lower()
+        reviewer = tomllib.loads((root / ".codex" / "agents" / "code-reviewer.toml").read_text(encoding="utf-8"))
+        assert "maintainable-code" in reviewer["developer_instructions"]
+        qa = tomllib.loads((root / ".codex" / "agents" / "qa-auditor.toml").read_text(encoding="utf-8"))
+        assert "acceptance" in qa["developer_instructions"].lower()
+        assert "maintainable-code" not in qa["developer_instructions"]
         guidance = (root / "AGENTS.md").read_text(encoding="utf-8")
         assert "## Local agent team" in guidance
         assert "Delegated:" in guidance
@@ -100,6 +105,17 @@ def main() -> None:
         ignored = (root / ".gitignore").read_text(encoding="utf-8")
         assert ".codex/" in ignored
         assert ".agents/skills/plumbline-router/" in ignored
+
+    with tempfile.TemporaryDirectory() as raw_root:
+        root = Path(raw_root)
+        (root / ".git" / "info").mkdir(parents=True)
+        install(plugin_root, root, roles=ROLES)
+        config = tomllib.loads((root / ".codex" / "config.toml").read_text(encoding="utf-8"))
+        assert config["agents"]["max_concurrent_threads_per_session"] == 12
+        for role, (model, reasoning) in RECOMMENDED_PROFILES.items():
+            data = tomllib.loads((root / ".codex" / "agents" / f"{role}.toml").read_text(encoding="utf-8"))
+            assert data["model"] == model
+            assert data["model_reasoning_effort"] == reasoning
 
     with tempfile.TemporaryDirectory() as raw_root:
         root = Path(raw_root)

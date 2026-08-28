@@ -26,6 +26,13 @@ documentation, and stable-delta review until `Ready for Acceptance`. Closeout
 then owns integration, transient cleanup, plan retirement, worktree/branch
 handling, and publishing preparation.
 
+For material code, stable-delta review is ordered: a fresh report-only
+`code-reviewer` checks maintainability, design, and human legibility using the
+bundled `maintainable-code` skill, then a fresh `qa-auditor` checks acceptance,
+behavioral proof, and documentation alignment. A code-quality finding returns
+to the implementer before QA; small or documentation-only work stays
+proportional.
+
 ## Acceptance-led preflight and open items
 
 Identify the work from an external work order, specification, plan,
@@ -48,6 +55,14 @@ visible without starting a new planning cycle.
 Keep required UAT and canonical-document checks in either mode. Read exact
 sections identified by the selected mode and current artifacts; reuse unchanged
 evidence instead of rereading unrelated large documents.
+
+For a Git-controlled material plan, verify the plan's Git policy before
+closeout. Under `required`, every accepted checkpoint must be anchored to a
+main-thread commit and the current plan-owned worktree must be clean. Record
+`HEAD`, the final clean/dirty state, and any unrelated dirty-scope fingerprint.
+If the user explicitly opted out, report the Git-unanchored closeout boundary;
+do not manufacture commits or stage unrelated work. Git history and the thin
+plan are the recovery surfaces; generated evidence remains scratch by default.
 
 For tests, probes, or snapshots introduced or materially changed by the
 candidate, carry a final disposition: retain durable protection, generalize or

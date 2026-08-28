@@ -21,18 +21,25 @@ validation evidence. Review at public seams and use a specification-to-diff
 matrix for planned features.
 
 Keep small, low-risk, direct, documentation-only, and process reviews on the
-main thread. Dispatch a fresh report-only `qa-auditor` for migrations,
-security, concurrency, data, public contracts, high-risk runtime behavior, a
-plan-required review, or an explicit independent-review request. Use the
-existing one-line `Delegated:` report with role, host-native model,
-reasoning/effort, and the short review assignment. Mention the standard
-report-only/no-write-set/no-child boundary only for an exception or mismatch.
-Independent QA lenses share one parallel wave only against one stable
-delta with disjoint scopes and a clear join condition.
+main thread. For material implementation code, dispatch a fresh report-only
+`code-reviewer` first and wait for its stable-delta quality verdict before
+dispatching `qa-auditor`. The code reviewer invokes the bundled
+`maintainable-code` skill and owns maintainability, design,
+human-legibility, and safe-change scrutiny; `qa-auditor` owns acceptance,
+behavior/proof, and documentation alignment. Dispatch a fresh report-only
+`qa-auditor` for acceptance of migrations, security, concurrency, data, public
+contracts, high-risk runtime behavior, a plan-required review, or an explicit
+independent-review request. Use the existing one-line `Delegated:` report with
+role, host-native model, reasoning/effort, and the short review assignment.
+Mention the standard report-only/no-write-set/no-child boundary only for an
+exception or mismatch. These two reviews are serial when QA depends on the
+reviewed code delta; independent QA lenses may share one parallel wave only
+against one stable delta with disjoint scopes and a clear join condition.
 
-Use project-local roles only. If the role is absent, report
-`Direct: qa-auditor unavailable` and review on the main thread. If hard
-read-only isolation is required but unavailable, report
+Use project-local roles only. If `code-reviewer` is absent, report
+`Direct: code-reviewer unavailable` and keep its quality review on the main
+thread; if `qa-auditor` is absent, report `Direct: qa-auditor unavailable` and
+keep acceptance review on the main thread. If hard read-only isolation is required but unavailable, report
 `Direct: delegation prohibited or effective read-only isolation unavailable`.
 Codex `sandbox_mode = "read-only"` and Claude `permissionMode: plan` express
 intent; inspect the effective sandbox and result rather than claiming isolation

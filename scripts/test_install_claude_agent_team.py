@@ -6,7 +6,7 @@ from __future__ import annotations
 import tempfile
 from pathlib import Path
 
-from install_claude_agent_team import ROLES, install
+from install_claude_agent_team import RECOMMENDED_EFFORTS, ROLES, install
 
 
 def main() -> None:
@@ -82,6 +82,18 @@ def main() -> None:
         assert "<!-- plumbline:managed-agent-team:start -->" in refreshed
         assert "## Project notes\nKeep this text." in refreshed
         assert role_path.read_text(encoding="utf-8") == role_before
+
+    with tempfile.TemporaryDirectory() as raw_root:
+        root = Path(raw_root)
+        (root / ".git" / "info").mkdir(parents=True)
+        install(plugin_root, root, roles=ROLES)
+        for role, effort in RECOMMENDED_EFFORTS.items():
+            path = root / ".claude" / "agents" / f"{role}.md"
+            text = path.read_text(encoding="utf-8")
+            assert 'model: "inherit"' in text
+            assert f"effort: {effort}" in text
+        reviewer = (root / ".claude" / "agents" / "code-reviewer.md").read_text(encoding="utf-8")
+        assert "maintainable-code" in reviewer
 
     with tempfile.TemporaryDirectory() as raw_root:
         root = Path(raw_root)

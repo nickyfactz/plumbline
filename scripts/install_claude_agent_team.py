@@ -37,6 +37,7 @@ ROLE_TOOLS = {
     "backend-architect": ("Read", "Glob", "Grep"),
     "frontend-architect": ("Read", "Glob", "Grep"),
     "implementer": ("Read", "Glob", "Grep", "Edit", "Write", "Bash"),
+    "code-reviewer": ("Read", "Glob", "Grep"),
     "qa-auditor": ("Read", "Glob", "Grep"),
 }
 ROLE_PERMISSION_MODES = {
@@ -44,7 +45,16 @@ ROLE_PERMISSION_MODES = {
     "backend-architect": "plan",
     "frontend-architect": "plan",
     "implementer": "default",
+    "code-reviewer": "plan",
     "qa-auditor": "plan",
+}
+RECOMMENDED_EFFORTS = {
+    "frontend-architect": "medium",
+    "backend-architect": "medium",
+    "researcher": "medium",
+    "implementer": "high",
+    "code-reviewer": "high",
+    "qa-auditor": "max",
 }
 CLAUDE_GUIDANCE_MARKERS = (
     AGENT_GUIDANCE_START,
@@ -63,6 +73,8 @@ CLAUDE_GUIDANCE_MARKERS = (
     "source checkout",
     "orchestrator thin",
     "compact decision packet",
+    "maintainable-code",
+    "code-reviewer",
 )
 
 
@@ -109,6 +121,12 @@ def _render_agent(plugin: Path, role: str, model: str, effort: str) -> str:
         "",
     ]
     return "\n".join(lines)
+
+
+def _profile(role: str, model: str | None, effort: str | None) -> tuple[str, str]:
+    if (model is None) != (effort is None):
+        raise ValueError("--model and --effort must be supplied together")
+    return (model, effort) if model is not None else ("inherit", RECOMMENDED_EFFORTS[role])
 
 
 def _frontmatter(text: str, path: Path) -> tuple[list[str], int, dict[str, object], str]:
@@ -188,8 +206,21 @@ Use only the approved project-local Claude Code subagents under `.claude/agents/
 
 {role_lines}
 
+When Git is established, material multi-step Execute work uses a required Git
+policy by default. Ask once before Execute to create main-thread commits at
+coherent checkpoint or batch boundaries, assuming yes unless the user opts
+out; record `HEAD`, keep unrelated dirty files out, and do not advance
+dependent checkpoints with uncommitted plan-owned changes. Use checkpoint
+commits, `git show`, and focused diffs for worker hydration. If Git is absent,
+recommend establishing it before Execute and report an explicit opt-out as
+Git-unanchored.
+
+Maintainable code: when writing, modifying, or reviewing production code,
+invoke the `maintainable-code` skill. Implementers apply its implementation and
+human-legibility guidance; `code-reviewer` applies its adversarial review gate.
+
 Keep the orchestrator thin. The main thread reads only the controlling artifact, repository guidance, Git state, and named paths needed to route and integrate work. Before broad repository search, multi-file fact gathering, external research, or cross-seam review, dispatch a matching project-local role with a bounded question. Ask read-heavy workers for a compact decision packet: conclusion, exact paths/symbols/URLs, constraints, residual uncertainty, and next action; omit search narration, large excerpts, exhaustive inventories, and successful logs. Keep work direct only when its answer and target are already known, it is tightly coupled to a main-owned product/integration/Git/singleton action, or dispatch costs more context than the task.
-Give subagents anchored briefs and disjoint write sets. Researcher, architect, and QA roles are report-only and receive no write set; their `permissionMode = plan` and restricted tools are intent, while the parent permission context can take precedence. Each write-capable role receives only its approved bounded write set. Delegation is main-mediated: every worker returns to the main thread, worker recommendations are advisory, and only the main thread selects and dispatches the next capability. Subagents never invoke the Agent tool or spawn children. When independent work is ready, the main thread may dispatch one parallel wave only with a stable contract, disjoint scopes, no result dependency, and a clear join condition; otherwise keep it serial. For Execute checkpoints, delegation is the default: dispatch useful bounded research, architecture, implementation, review, testing, or another matching capability before the main thread duplicates it. Reread the selected `.claude/agents/*.md` before each wave; changed values apply to new subagents, while running workers keep their creation profile. Use current project-local values; never substitute a personal/global role. If a role is absent in the active worktree, refresh only the ignored project-local agent files from the source checkout through the repository's propagation convention, then use `Direct: <reason>` only if it remains unavailable. Record `delegation_roles` and `delegation_status` in the compact checkpoint resume record and restore them after compaction. Emit one compact dispatch line with role names, configured models/efforts, and short assignments; omit routine status and standard-boundary narration. Tiny and inherently main-owned actions need no `Direct:` note. Claude model and effort choices remain adjustable; do not copy Codex model slugs into these files. Plumbline does not edit global Claude settings or enable experimental Agent Teams.
+Give subagents anchored briefs and disjoint write sets. Researcher, architect, code-reviewer, and QA roles are report-only and receive no write set; their `permissionMode = plan` and restricted tools are intent, while the parent permission context can take precedence. Implementers use the bundled `maintainable-code` skill while writing; code-reviewer uses its review branch before QA. Each write-capable role receives only its approved bounded write set. Delegation is main-mediated: every worker returns to the main thread, worker recommendations are advisory, and only the main thread selects and dispatches the next capability. Subagents never invoke the Agent tool or spawn children. When independent work is ready, the main thread may dispatch one parallel wave only with a stable contract, disjoint scopes, no result dependency, and a clear join condition; otherwise keep it serial. For Execute checkpoints, delegation is the default: dispatch useful bounded research, architecture, implementation, review, testing, or another matching capability before the main thread duplicates it. Reread the selected `.claude/agents/*.md` before each wave; changed values apply to new subagents, while running workers keep their creation profile. Use current project-local values; never substitute a personal/global role. If a role is absent in the active worktree, refresh only the ignored project-local agent files from the source checkout through the repository's propagation convention, then use `Direct: <reason>` only if it remains unavailable. Record `delegation_roles` and `delegation_status` in the compact checkpoint resume record and restore them after compaction. Emit one compact dispatch line with role names, configured models/efforts, and short assignments; omit routine status and standard-boundary narration. Tiny and inherently main-owned actions need no `Direct:` note. Claude model and effort choices remain adjustable; do not copy Codex model slugs into these files. Plumbline does not edit global Claude settings or enable experimental Agent Teams.
 {AGENT_GUIDANCE_END}
 """
 
@@ -309,11 +340,12 @@ def _retune(
         changed: list[str] = []
         if fill_missing:
             template = _template_data(plugin, role)
+            role_model, role_effort = _profile(role, model, effort)
             defaults = {
                 "name": role,
                 "description": str(template["description"]),
-                "model": model,
-                "effort": effort,
+                "model": role_model,
+                "effort": role_effort,
                 "tools": ROLE_TOOLS[role],
                 "permissionMode": ROLE_PERMISSION_MODES[role],
             }
@@ -339,8 +371,8 @@ def _initialize(
     repo: Path,
     roles: tuple[str, ...],
     *,
-    model: str,
-    effort: str,
+    model: str | None,
+    effort: str | None,
     replace: bool,
     update_agents: bool,
     refresh_agents: bool,
@@ -358,8 +390,9 @@ def _initialize(
     for role in roles:
         target = repo / AGENT_ROOT / f"{role}.md"
         existed = target.exists()
+        role_model, role_effort = _profile(role, model, effort)
         if not dry_run:
-            _write(target, _render_agent(plugin, role, model, effort))
+            _write(target, _render_agent(plugin, role, role_model, role_effort))
         changes[target] = ("name", "description", "model", "effort", "tools", "permissionMode", "instructions")
         operations[target] = "modify" if existed else "create"
 
@@ -407,8 +440,8 @@ def install(
     target_root: Path,
     *,
     mode: str = "initialize",
-    model: str = "inherit",
-    effort: str = "medium",
+    model: str | None = None,
+    effort: str | None = None,
     roles: tuple[str, ...] = ROLES,
     replace: bool = False,
     fill_missing: bool = False,

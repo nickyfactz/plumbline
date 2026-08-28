@@ -1,0 +1,16 @@
+interface:
+  display_name: maintainable code
+  short_description: Shape and review production code for human legibility, maintainability,
+    safe change, and performance-aware design. Use when writing, implementing, modifying,
+    refactoring, or reviewing code; planning implementation structure; performing
+    code-quality or architecture audits; or investigating code that is difficult to
+    understand or change.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

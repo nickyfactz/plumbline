@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Bundle the model-invoked `maintainable-code` skill, add the report-only `code-reviewer` before QA, and recommend role-aware profiles with 12 concurrent Codex threads as the adjustable starting point.
 - Keep the main orchestrator thin through delegated read-heavy discovery and compact decision packets, reduce delegation transcript telemetry, keep durable state as compact plan/canonical truth, make plan updates replace and prune stale lifecycle history, treat generated execution outputs as disposable working material, reuse unchanged candidates across evidence-tooling corrections, and exempt small direct work from evidence ceremony.
 - Clarify execution-economy precedence, diagnostic/focused/acceptance evidence classes, durable proof fingerprints, expensive-gate readiness, and batching of high-risk review findings.
 - Reload changed project-local role/config profiles for new dispatches, refresh missing ignored team files in existing worktrees on demand, and keep active plans as compact current-state projections instead of append-only histories.

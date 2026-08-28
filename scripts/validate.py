@@ -17,6 +17,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC = {
     "plumbline",
+    "maintainable-code",
     "plumbline-init",
     "plumbline-shape",
     "plumbline-spec",
@@ -39,12 +40,14 @@ ENGINES = {f"{name}-engine" for name in {
 }}
 ENGINES.add("plumbline-plan-adoption-engine")
 EXPECTED_SKILLS = PUBLIC | ENGINES
-EXPLICIT = PUBLIC
+MODEL_INVOKED = {"maintainable-code"}
+EXPLICIT = PUBLIC - MODEL_INVOKED
 AGENT_ROLES = {
     "researcher",
     "backend-architect",
     "frontend-architect",
     "implementer",
+    "code-reviewer",
     "qa-auditor",
 }
 AGENT_SANDBOXES = {
@@ -52,6 +55,7 @@ AGENT_SANDBOXES = {
     "backend-architect": "read-only",
     "frontend-architect": "read-only",
     "implementer": "workspace-write",
+    "code-reviewer": "read-only",
     "qa-auditor": "read-only",
 }
 CONTRACT_MARKERS = {
@@ -103,6 +107,8 @@ CONTRACT_MARKERS = {
         "worktree",
         "orchestrator thin",
         "compact decision packet",
+        "code-reviewer",
+        "maintainable-code",
     ),
     "plumbline-execute-engine": (
         "last_verified_commit",
@@ -148,6 +154,11 @@ CONTRACT_MARKERS = {
         "workers already running",
         "generated outputs",
         "future consumer",
+        "required Git policy",
+        "Git-unanchored",
+        "Use Git as the recovery boundary",
+        "main-thread commits",
+        "worker hydration context",
     ),
     "plumbline-diagnose-engine": (
         "same candidate",
@@ -189,6 +200,8 @@ CONTRACT_MARKERS = {
         "checkpoint-relay.md",
         "proof obligation",
         "test-count target",
+        "git_policy: required",
+        "main-thread commit",
         "execution-economy",
         "current-state projection",
         "append-only diary",
@@ -218,6 +231,9 @@ CONTRACT_MARKERS = {
         "blocking product questions",
     ),
     "plumbline-review-engine": (
+        "code-reviewer",
+        "maintainable-code",
+        "acceptance",
         "qa-auditor",
         "personal/global qa agent",
         "direct: qa-auditor unavailable",
@@ -275,6 +291,7 @@ CONTRACT_MARKERS = {
         "explicit user approval",
         "candidate-scoped",
         "diagnostic-only evidence",
+        "Git-unanchored closeout boundary",
     ),
     "plumbline": (
         "one lifecycle owner",
@@ -521,7 +538,7 @@ def validate_skills(errors: list[str]) -> None:
         text = skill_path.read_text(encoding="utf-8")
         if "[TODO:" in text or "session-start" in text.lower() or "using-superpowers" in text.lower():
             error(errors, f"{name}: contains forbidden placeholder/bootstrap text")
-        if name in PUBLIC and "disable-model-invocation: true" not in text:
+        if name in EXPLICIT and "disable-model-invocation: true" not in text:
             error(errors, f"{name}: public entry skills must remain explicit-only for Claude Code")
         policy = policy_path.read_text(encoding="utf-8")
         expected = "false" if name in EXPLICIT else "true"
@@ -532,7 +549,9 @@ def validate_skills(errors: list[str]) -> None:
         if name in WRAPPERS and "user-facing wrapper" not in text:
             error(errors, f"{name}: wrapper marker missing")
         for reference in re.findall(r"references/([a-z0-9-]+\.md)", text):
-            if not (ROOT / "references" / reference).is_file():
+            local_reference = skill_root / "references" / reference
+            shared_reference = ROOT / "references" / reference
+            if not local_reference.is_file() and not shared_reference.is_file():
                 error(errors, f"{name}: missing referenced file {reference}")
         if "must use TDD" in text or "always use TDD" in text:
             error(errors, f"{name}: contains universal TDD language")

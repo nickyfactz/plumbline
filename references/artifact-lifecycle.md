@@ -33,6 +33,14 @@ the material result in the plan, retain a useful pointer when one exists, and
 clean clearly task-owned output after acceptance or supersession. Never remove
 shared or user-owned artifacts merely because Plumbline no longer needs them.
 
+Git is the default recovery interface for material work when the repository is
+Git-controlled. Anchor the starting state and each accepted checkpoint to a
+main-thread commit under the plan's `required` policy, so a worker can recover
+from `HEAD`, `git show`, and a focused diff instead of rereading the repository.
+Do not stage unrelated dirty work, ignored setup, secrets, or generated scratch.
+If Git is absent, recommend establishing it before Execute; continue without it
+only after the user explicitly opts out and mark the weaker recovery boundary.
+
 A failed result is not automatically a durable evidence attempt. Preserve an
 immutable failure record only when the operation already served a real
 acceptance, audit, safety, or destructive-operation boundary. A corrected run

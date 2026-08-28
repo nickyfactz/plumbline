@@ -17,6 +17,7 @@
       "category": "development",
       "skills": [
         "./skills/plumbline",
+        "./skills/maintainable-code",
         "./skills/plumbline-init",
         "./skills/plumbline-shape",
         "./skills/plumbline-spec",

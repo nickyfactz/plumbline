@@ -178,12 +178,28 @@ After approval, Plumbline applies only the selected items. You may choose the ro
 
 Initialization is project-local and explicit. The proposal shows a dry-run manifest of every file and field before anything is written. If you approve the agent team, the installer makes these changes:
 
+The default Codex recommendation is role-aware and adjustable:
+
+| Role | Model | Reasoning | Responsibility |
+| --- | --- | --- | --- |
+| `frontend-architect` | `sol` | `medium` | UI and integration design |
+| `backend-architect` | `sol` | `medium` | contracts and state ownership |
+| `researcher` | `luna` | `medium` | bounded evidence gathering |
+| `implementer` | `luna` | `high` | bounded implementation |
+| `code-reviewer` | `luna` | `high` | adversarial code-quality review |
+| `qa-auditor` | `luna` | `max` | acceptance and proof audit |
+
+Claude Code uses the same role responsibilities with provider-native values
+(`model: inherit` and the corresponding `effort`). These are recommended
+starting points, not permanent Plumbline policy; existing tuned values remain
+user-owned during audit and retune.
+
 | Approved item | What is created or updated |
 | --- | --- |
-| Project `.codex/config.toml` (Codex) | Current Codex releases enable subagents by default. When approved, Plumbline can record `agents.enabled = true` and a user-owned `agents.max_concurrent_threads_per_session` value; the starting template recommends 6 and preserves an approved alternative such as 12. Existing `features.multi_agent`, `agents.max_threads`, and `agents.max_depth` entries are reported as legacy and migrated only after approval. Explicit role files select their own models, including Luna as a leaf worker through current v2 delegation, without forcing the old v1 compatibility path. |
-| Selected `.codex/agents/*.toml` | Creates only the roles you select. Each role has explicit `name`, `description`, `developer_instructions`, `model`, `model_reasoning_effort`, and `sandbox_mode` fields. Researcher, architect, and QA templates are report-only with `read-only` intent; the implementer is the only write-capable role. |
+| Project `.codex/config.toml` (Codex) | Current Codex releases enable subagents by default. When approved, Plumbline can record `agents.enabled = true` and a user-owned `agents.max_concurrent_threads_per_session` value; the starting template recommends 12 and preserves an approved alternative such as 6. Existing `features.multi_agent`, `agents.max_threads`, and `agents.max_depth` entries are reported as legacy and migrated only after approval. Explicit role files select their own models, including Luna as a leaf worker through current v2 delegation, without forcing the old v1 compatibility path. |
+| Selected `.codex/agents/*.toml` | Creates only the roles you select. Each role has explicit `name`, `description`, `developer_instructions`, `model`, `model_reasoning_effort`, and `sandbox_mode` fields. Researcher, architects, code-reviewer, and QA are report-only with `read-only` intent; the implementer is the only write-capable role. Implementers and code-reviewers use the bundled `maintainable-code` skill. |
 | Selected `.claude/agents/*.md` (Claude Code) | Creates the same role contracts as Claude-native Markdown subagents. Each role records `model`, `effort`, `tools`, and `permissionMode`; report-only roles use restricted read tools and `plan` intent, while the implementer receives write-capable tools. The default model is `inherit`, so no Codex slug or provider is hard-coded. |
-| `AGENTS.md` | When approved, adds a marked `## Local agent team` section listing only the selected roles. It explains that the main thread owns product decisions, plans, integration, Git, and all delegation; worker recommendations are advisory and return to the main thread; report-only roles get no write set; workers never spawn children; and global agents are never fallbacks. If the user explicitly invokes Plumbline initialization again, the installer can preview and refresh only this managed section without replacing roles or config. Older unmarked sections require a separate explicit replacement approval; content outside the managed section is preserved. |
+| `AGENTS.md` | When approved, adds a marked `## Local agent team` section listing only the selected roles. It explains that the main thread owns product decisions, plans, integration, Git, and all delegation; worker recommendations are advisory and return to the main thread; report-only roles get no write set; workers never spawn children; implementers and code-reviewers use `maintainable-code`; and global agents are never fallbacks. If the user explicitly invokes Plumbline initialization again, the installer can preview and refresh only this managed section without replacing roles or config. Older unmarked sections require a separate explicit replacement approval; content outside the managed section is preserved. |
 | `.git/info/exclude` | Adds local-only ignore entries for `.codex/` and the project-local Plumbline router. This keeps generated setup out of the checkout without changing the repository’s tracked files. |
 | `.agents/skills/plumbline-router/SKILL.md` | Creates the small repository-local router only if you approve automatic routing. It is the only automatic Plumbline activation boundary; it does not initialize teams, invoke internal engines, or create workers. |
 | `.gitignore` and `.worktreeinclude` | Only when you approve propagation. The root ignore file receives the exact local setup entries, while `.worktreeinclude` lists the config, selected role files, and router for future managed worktrees. Commit the manifest for new worktrees to receive those ignored files; existing worktrees need an explicit refresh. |
@@ -267,6 +283,21 @@ engineering work automatically.
 
 Failed work remains active work. `CHANGES_REQUIRED` from review reopens the affected checkpoint. `INCONCLUSIVE`, environment, and test-harness failures return to Diagnose and become `Blocked` only when safe progress cannot continue beyond a bounded repair; otherwise the checkpoint remains `In Progress`. `Blocked` and `Reopened` never satisfy plan completion or Closeout, and severity alone never authorizes rollback, abandonment, or successor selection. If a safety rollback is needed, the active candidate is preserved in durable Git history first.
 
+### Let Git anchor material work
+
+When a project has Git, Plumbline assumes Git is the recovery interface for
+material multi-step work. At Execute entry it asks once to create main-thread
+commits at coherent checkpoint or batch boundaries; approval is assumed unless
+you explicitly opt out. Each accepted checkpoint then starts the next one from
+a clean plan-owned `HEAD`, and the commit is recorded in the thin plan so new
+workers can hydrate from `git show` or a focused diff. Unrelated dirty files,
+ignored setup, secrets, generated output, and diagnostic scratch are never
+staged just to satisfy this policy.
+
+If Git is not established, Plumbline recommends setting it up before Execute.
+You may explicitly opt out, but the plan will be reported as Git-unanchored.
+Trivial direct work remains lightweight and does not require checkpoint commits.
+
 For blockers, regressions, repeated failures, and expensive validation failures, Diagnose traces the relevant failure path, broken owner, and contract before another correction cycle. A green rerun that only moves the error is not enough; trivial local fixes may stay lightweight when the local cause is confirmed.
 
 It does not restart the lifecycle merely because an artifact came from ChatGPT, Claude, another repository, or a previous session. A sufficient external plan can go straight to execution; a sufficient specification can go to planning; unresolved material product choices return to Shape.
@@ -319,7 +350,7 @@ If you are confused by a decision, ask Plumbline to re-explain it. It should res
 
 When a project-local team is enabled, Plumbline recommends a role-aware starting profile aimed at the cheapest effective model and reasoning effort for each role. These are adjustable recommendations, not permanent policy; change or hot-swap them when evidence shows a better fit.
 
-- Researchers, architects, and QA auditors are report-only and receive no write set.
+- Researchers, architects, code-reviewers, and QA auditors are report-only and receive no write set. For material code, the fresh `code-reviewer` runs before `qa-auditor`: it reviews maintainability and design, while QA validates acceptance, behavioral proof, and documentation alignment.
 - Write-capable roles receive only their approved bounded write sets.
 - The main thread owns specifications, plans, integration, and Git.
 - For an Execute checkpoint, the main thread reads only enough to route the work, then dispatches approved local roles before broad repository search, external research, cross-seam review, or other useful bounded work. Workers return compact decision packets with conclusions and exact pointers; the main thread verifies only integration-critical facts. Product decisions, lifecycle/plan state, joins, integration, Git, singleton operations, and tiny coupled actions remain direct.
@@ -377,6 +408,12 @@ Use these public entry skills. Internal `*-engine` skills are implementation det
 | Stop project-local routing | `$plumbline-offboard` | `/plumbline:plumbline-offboard` |
 
 Most users only need the front door. Use a side door when you already know the phase you want or when an external artifact makes the phase obvious.
+
+`maintainable-code` is a bundled model-invoked core skill rather than a
+lifecycle phase. It gives implementers and reviewers one shared standard for
+human-legible, maintainable, behavior-preserving code; Plumbline's material
+review order is `code-reviewer` first, then `qa-auditor` for acceptance and
+proof.
 
 ## What Plumbline does not do
 

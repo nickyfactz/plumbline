@@ -9,7 +9,14 @@ path preserves confidence. Treat test growth without progress against the
 original obligations as a reassessment signal, not a failure. QA recommends the
 disposition; the main thread decides deletion.
 
-QA is an independent report-only check. Standard review asks whether the implementation satisfies the active spec, plan, public behavior, security expectations, verification evidence, and canonical-document impact. Deep review adds adversarial edge cases and targeted non-mutating probes.
+QA is the acceptance-side independent report-only check and follows the
+`code-reviewer` on material implementation deltas. It asks whether the
+implementation satisfies the active spec and plan, whether observable behavior
+and proof cover the success criteria, whether documentation matches the intended
+design, and whether material product, public-contract, security, or failure-path
+gaps remain. Code cleanliness, maintainability, and design-shape findings belong
+to `code-reviewer`; QA does not duplicate that review or invent style findings.
+Deep QA adds adversarial acceptance edge cases and targeted non-mutating probes.
 
 For high-risk or expensive reviews, inspect the stable assigned delta as a whole
 and batch material findings from the same boundary before another correction

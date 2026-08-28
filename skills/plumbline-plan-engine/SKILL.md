@@ -181,6 +181,14 @@ established, or an auditable approval boundary calls for it. Otherwise keep
 source, specification, and plan changes uncommitted until the first coherent
 boundary. Stage only intended files and preserve unrelated dirty work.
 
+For material multi-step work in a Git checkout, set `git_policy: required` by
+default and surface the one-time Execute commit prompt. The plan must identify
+the starting `base_commit`, and each accepted checkpoint must leave a
+main-thread commit before a dependent checkpoint begins. Keep `optional` for
+trivial direct work and use `forbidden` only after explicit user opt-out. This
+is a recovery and context-hydration boundary, not a reason to commit every
+diagnostic command or generated output.
+
 Unless the user explicitly requests checkpoint-by-checkpoint execution or a
 checkpoint contains a deliberate approval gate, the checkpoint sequence is the
 full execution itinerary. Checkpoints are internal team handoffs, not implicit

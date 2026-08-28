@@ -57,6 +57,24 @@ in `references/worktree-readiness.md` before using `Direct: <reason>`.
 Workers already running retain their creation profile; only new dispatches use
 the refreshed values.
 
+## Use Git as the recovery boundary
+
+When the checkout is Git-controlled, material multi-checkpoint execution uses a
+required Git policy by default. At Execute entry, ask once for permission to
+create main-thread commits at coherent checkpoint or batch boundaries; assume
+approval unless the user explicitly declines. Capture the starting `HEAD`,
+separate unrelated dirty work, and establish a clean plan-owned boundary before
+the first checkpoint. After each accepted checkpoint, commit its intended
+tracked changes, record the commit in the compact plan state, and begin the
+next checkpoint from that clean boundary. Do not advance dependent work while
+plan-owned changes remain uncommitted. Workers never commit.
+
+If no Git repository exists, recommend `git init` before material Execute work.
+An explicit user opt-out permits continuation but must be reported as
+Git-unanchored. Never stage unrelated changes, ignored agent setup, secrets,
+build output, or diagnostic scratch. Use the checkpoint commit with `git show`
+or a focused `git diff` as the first worker hydration context.
+
 ## Conditional artifact sufficiency preflight
 
 Accept a user-supplied or repository-local specification, plan, work order, or
@@ -163,10 +181,11 @@ For each checkpoint:
    candidate, state whether they protect durable behavior, were generalized or
    consolidated, or were diagnostic-only; test count and coverage are signals,
    not completion criteria.
-4. Integrate worker changes at the main thread, obtain report-only QA after a
-   stable implementer delta when risk warrants it, and record only the durable
-   conclusion, useful pointers, residuals, and deviations in the controlling
-   artifact.
+4. Integrate worker changes at the main thread. For material code, obtain a
+   fresh report-only `code-reviewer` verdict before `qa-auditor` acceptance;
+   return concrete quality findings to the implementer first. Record only the
+   durable conclusion, useful pointers, residuals, and deviations in the
+   controlling artifact.
 5. Update exactly one current checkpoint, matching status, and
    `next_safe_action`, then select the next dependency-safe checkpoint.
 
@@ -175,6 +194,8 @@ checkpoint when it has no independent acceptance, rollback, risk, contract, or
 ownership boundary. Create a commit only at a coherent boundary when the user
 or repository requires it, recovery needs it, or the checkpoint establishes a
 material contract or authorization boundary.
+Under the default `required` Git policy, that coherent boundary is also the
+point at which the main thread anchors the checkpoint before advancing.
 
 Keep known commands and singleton operations with the main thread or named
 project owner: builds, deployments, restarts, migrations, package publication,
@@ -263,3 +284,9 @@ after acceptance and owns final integration, transient cleanup, plan retirement,
 worktree/branch handling, and publishing preparation. Every process artifact or
 announcement must support recovery, validation, authorization, or ownership;
 omit ceremony that serves none of those purposes.
+
+For material code changes, the stable-delta review runs in two complementary
+steps: a fresh `code-reviewer` first for maintainability, design, and
+human-legibility defects, then a fresh `qa-auditor` for acceptance behavior,
+proof coverage, and documentation alignment. A code-reviewer finding returns to
+the implementer before QA; a missing role uses the main-thread direct fallback.

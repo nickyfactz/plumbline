@@ -50,7 +50,7 @@ never copy secrets, dependencies, source trees, or personal/global roles.
 
 A role has two separate boundaries:
 
-- Assignment: researcher, architect, and QA roles are report-only and receive no write set. A brief asking them to edit source, tests, scripts, documentation, or Git state is invalid and returns to the main thread.
+- Assignment: researcher, architect, code-reviewer, and QA roles are report-only and receive no write set. A brief asking them to edit source, tests, scripts, documentation, or Git state is invalid and returns to the main thread. Implementers use the bundled `maintainable-code` skill while writing; `code-reviewer` uses its review branch before QA.
 - Capability: Codex `sandbox_mode = read-only` and Claude `permissionMode: plan` are role intent. The parent goal may remain writable or permissive, and the host can apply that live state to the child. Do not claim hard read-only isolation from the role file alone.
 
 At each delegation wave, emit one compact line such as `Delegated: researcher
@@ -63,6 +63,15 @@ integrate the worker's result into the next substantive update. After a child
 returns, inspect Git status and the diff; report only an unexpected edit or
 material result. Use `Direct: delegation prohibited or effective read-only
 isolation unavailable` when a hard isolation requirement cannot be met.
+
+## Code quality and acceptance review
+
+For material implementation code, dispatch a fresh report-only `code-reviewer`
+before `qa-auditor`. The code-reviewer invokes `maintainable-code` and reports
+concrete maintainability, design, human-legibility, safe-change, and material
+performance findings. QA then checks acceptance behavior, proof coverage, and
+documentation alignment against the approved contract. A code-reviewer finding
+returns to the implementer before QA; a missing role is a main-thread fallback.
 
 ## Delegation-first ownership
 

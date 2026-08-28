@@ -9,6 +9,7 @@ feature: <name>
 specification: <relative path>
 source: <relative path or null>
 base_commit: <initial or recovery-boundary sha, or null>
+git_policy: required | optional | forbidden
 execution_mode: continuous | checkpoint_relay
 current_checkpoint: CP-01
 checkpoint_status: Pending
@@ -20,6 +21,12 @@ delegation_status: not-applicable | not-dispatched | direct | dispatched | retur
 ready_for_acceptance: false
 ---
 ```
+
+`git_policy` defaults to `required` for material multi-step work when the
+checkout is Git-controlled, and to `optional` for trivial direct work. Use
+`forbidden` only when the user explicitly opts out. A sufficient imported plan
+may express the same policy in its own terms; do not reject it for lacking this
+field.
 
 `execution_mode` is optional for imported or older plans. A missing value means
 `continuous`, which preserves full-plan traversal. Use `checkpoint_relay` only
@@ -119,6 +126,17 @@ In `continuous` mode, the current checkpoint is the resume location, not an impl
 Treat checkout/worktree identity, HEAD/last_verified_commit, the plan-record hash, the applicable host configuration hash, and selected project-local role-file hashes as the resume fingerprint. For Codex, the applicable files include `.codex/config.toml` and selected role TOMLs; for Claude Code, they include selected `.claude/agents/*.md` files. Treat last_verified_commit and checkpoint completion evidence as the baseline until that fingerprint or a material contract/evidence input changes. A task resume, compaction, or conversational reminder alone does not invalidate it. At the next checkpoint, inspect the current delta and referenced paths first. Reuse unchanged evidence instead of rereading whole documents or rerunning broad checks. A role/config hash change alone is a dispatch-profile refresh: update the fingerprint and use current values for new workers without automatically invalidating checkpoint evidence or reopening the plan. Reassess when a changed config affects capability or permission materially, a new or failed check matters, a contract boundary changes, a defect appears, or the prior evidence may be stale.
 
 A trusted host continuity hook may reintroduce a compact reminder after resume or compaction. It is not a new invocation and never replaces this resume record, changes the lifecycle owner, or advances the checkpoint; read the record and current delta first.
+
+When `git_policy` is `required`, Execute establishes a clean recovery boundary
+before the first material checkpoint and after every accepted checkpoint. The
+main thread asks once at Execute entry to create main-thread commits, assuming
+yes unless the user explicitly declines. Commit only plan-owned changes; keep
+unrelated dirty work out of the commit. Record the resulting commit in the
+plan's `last_verified_commit` or proof pointer before advancing. Do not advance
+to a dependent checkpoint with uncommitted plan-owned changes. If Git is absent,
+recommend establishing it before Execute; an explicit opt-out continues with a
+visible Git-unanchored warning. `optional` permits a dirty working tree, while
+`forbidden` suppresses Git actions by explicit user choice.
 
 The plan-record hash used for proof reuse must cover durable contract inputs, not
 mutable checkpoint status, evidence logs, telemetry, or correction notes. Those

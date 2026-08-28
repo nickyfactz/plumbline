@@ -98,16 +98,19 @@ Agent teams are optional and project-local:
 
 - Codex uses selected `.codex/agents/*.toml` files and an optional
   `.codex/config.toml`. Current Codex releases enable subagents by default;
-  Plumbline recommends a user-owned concurrency value of 6 only when the
+  Plumbline recommends a user-owned concurrency value of 12 only when the
   project records an explicit cap.
 - Claude Code uses selected `.claude/agents/*.md` files with Claude-native
   model, effort, tool, and permission fields. Plumbline does not edit global
   Claude settings or enable the separate experimental Agent Teams feature.
 
-The shared role contracts keep report-only roles without write sets; each
-approved write-capable role receives only a bounded write set. Every worker
-returns to the main thread, worker recommendations are advisory, and only the
-main thread selects and dispatches the next capability. Workers do not own
+The shared role contracts keep researcher, architect, code-reviewer, and QA
+roles report-only without write sets; each approved write-capable role receives
+only a bounded write set. Implementers use the bundled `maintainable-code` skill
+while writing. For material code, a fresh code-reviewer reviews maintainability,
+design, and human legibility before a fresh QA auditor checks acceptance,
+behavioral proof, and documentation alignment. Every worker returns to the main
+thread, worker recommendations are advisory, and only the main thread selects and dispatches the next capability. Workers do not own
 Git, edit the active specification or plan, or spawn children. Codex
 `sandbox_mode = "read-only"` and Claude `permissionMode: plan` express intent,
 not guaranteed isolation from a writable parent session.
