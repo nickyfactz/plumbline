@@ -599,6 +599,8 @@ def validate_references_and_templates(errors: list[str]) -> None:
         "profile refresh",
         "Thin orchestrator",
         "decision packet",
+        "worker lifetime",
+        "observer or polling timeout",
     ):
         if marker.lower() not in orchestration.lower():
             error(errors, f"references/subagent-orchestration.md: missing {marker}")

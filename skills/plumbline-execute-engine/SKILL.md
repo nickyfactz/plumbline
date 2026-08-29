@@ -147,7 +147,7 @@ parallel wave, corrective dispatch, or report-only assignment, load
 `references/subagent-orchestration.md` and follow it completely. That reference
 owns project-local role selection, model/reasoning telemetry, no-child and
 read/write boundaries, context capsules, parallel readiness, worker reports,
-and post-return Git inspection. Emit its compact dispatch line once per wave;
+worker lifetime and timeout recovery, and post-return Git inspection. Emit its compact dispatch line once per wave;
 do not narrate routine waiting, return, or unchanged state.
 
 For a Plumbline-managed plan, keep `delegation_roles` and

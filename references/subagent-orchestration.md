@@ -29,6 +29,20 @@ Worker leaf behavior is a Plumbline orchestration boundary, not a Codex depth-se
 
 Delegation is hub-and-spoke: every worker returns evidence to the main thread. A worker recommendation is advisory; only the main thread selects the next capability, builds the next brief, and dispatches it. Workers never invoke, hand off to, or dispatch another worker. This rule does not require visible `main -> worker -> main` telemetry or a graph artifact.
 
+## Worker lifetime
+
+Treat an in-flight worker as active until the host reports a terminal result.
+Do not kill, abandon, or duplicate it because of elapsed time, silence,
+compaction, or an intermediate status. An observer or polling timeout means
+`status unknown`: reconcile the host-native task state before deciding what to
+do. Continue independent work while a worker remains active. Replace a worker
+only after a confirmed API, transport, host-reported timeout, or other
+terminal failure, an explicit user stop, obsolete work, or a safety/scope
+violation. Preserve any recoverable result and do not restart the same work
+merely to make progress appear faster. This is host-neutral guidance; a host's
+own hard lifecycle limit remains a host boundary, not a reason to duplicate
+work before its state is reconciled.
+
 ## Profile refresh and worktree drift
 
 Treat project-local role files and applicable host config as live dispatch
