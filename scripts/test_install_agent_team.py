@@ -39,6 +39,9 @@ def main() -> None:
         "delegation_roles",
         "delegation_status",
         "bounded research",
+        "worker instance as disposable",
+        "fresh instance",
+        "exact same unfinished assignment",
     ):
         assert marker in orchestration
     with tempfile.TemporaryDirectory() as raw_root:
@@ -100,6 +103,9 @@ def main() -> None:
         assert "live user-owned dispatch profiles" in guidance
         assert "orchestrator thin" in guidance
         assert "compact decision packet" in guidance
+        assert "worker instances as disposable" in guidance
+        assert "fresh instance" in guidance
+        assert "exact same unfinished assignment" in guidance
         included = (root / ".worktreeinclude").read_text(encoding="utf-8")
         assert ".codex/agents/*.toml" in included
         ignored = (root / ".gitignore").read_text(encoding="utf-8")

@@ -120,31 +120,33 @@ validation check, require the worker report to name the proof obligation it
 supports and identify diagnostic evidence that should not survive the
 checkpoint. The main thread owns the final disposition.
 
-## Worker briefs
+## Worker instances and briefs
 
-Treat each independent assignment as a fresh worker context by default. Reuse a
-worker only when continuity materially benefits the same active slice with the
-same outcome, contract, write set, and acceptance condition. A changed
-objective, seam, contract, write set, acceptance condition, or materially new
-failure requires a fresh context; previous worker conclusions are context, not
-evidence. The main thread makes this reuse decision explicitly without adding
-user-facing ceremony. A completed worker is retired for default dispatch and
-must not be awakened for unrelated follow-up work.
+Treat the role profile as reusable, but the worker instance as disposable. Each
+independent assignment starts as a fresh worker context. After a worker returns
+a terminal result, retire that instance from normal dispatch. A new checkpoint,
+correction, failure, acceptance pass, or changed write/contract boundary gets a
+fresh instance even when the same role is selected; selecting the same role is
+not role churn. Do not send a new assignment as a follow-up to a completed
+worker. A follow-up is only for the exact same unfinished assignment when
+continuity materially helps; never use it to assign new work to a completed
+worker.
 
-When continuity is genuinely useful, begin the reused-worker brief with a
-reset capsule: current assignment, current commit or artifact, exact failure or
-question, write set, acceptance condition, and exclusions. Tell the worker to
-inspect the current repository and treat its prior conclusions as untrusted.
-Keep this policy host-neutral; do not encode a provider-specific follow-up,
-fork, or worker-retirement API.
+When that exception applies, make it an internal dispatch decision and
+begin the brief with a reset capsule: current assignment, current commit or
+artifact, exact failure or question, write set, acceptance condition, and
+exclusions. Tell the worker to inspect the current repository and treat prior
+conclusions as untrusted. A changed objective, seam, contract, write set,
+acceptance condition, or materially new failure always requires a fresh
+context.
 
-When a Codex dispatch surface exposes `fork_turns`, pass `fork_turns="none"`
-for a fresh independent worker. This is a per-dispatch context choice, not a
-project config or agent-file setting: the worker still receives its role,
-project guidance, bounded brief, and checkout. Use inherited turns only when
-continuity is intentionally valuable, and fall back to the fresh-worker brief
-when the host does not expose this parameter. Do not claim that the setting was
-applied unless the dispatch surface exposes or confirms it.
+Use the host's fresh-child path for new assignments. When a Codex dispatch
+surface exposes `fork_turns`, pass `fork_turns="none"` for a fresh independent
+worker. This is a per-dispatch context choice, not a project config or
+agent-file setting. If the host cannot create a fresh child, report the
+capability gap and keep the unit direct rather than silently reusing historical
+context. Do not claim that a fresh context or setting was applied unless the
+dispatch surface exposes or confirms it.
 
 For live or recovery work, add an optional transient runtime-state capsule to
 fresh or reused worker briefs: verified commit or deployed artifact, active

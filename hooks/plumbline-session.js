@@ -8,7 +8,7 @@ const path = require("path");
 
 const MAX_STATE_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 const REMINDER =
-  "Plumbline was explicitly activated earlier in this session. This is a continuity reminder, not a new invocation: read the active plan or resume record, preserve its lifecycle owner and phase, restore delegation_roles and delegation_status, and dispatch matching local roles before the main thread repeats bounded work. Main-owned decisions, joins, singleton operations, and tiny coupled actions may remain direct; otherwise record the capability fallback. Do not rerun setup or start a new phase unless the user asks.";
+  "Plumbline was explicitly activated earlier in this session. This is a continuity reminder, not a new invocation: read the active plan or resume record, preserve its lifecycle owner and phase, restore delegation_roles and delegation_status, and dispatch matching local roles before the main thread repeats bounded work. Completed worker instances are retired; reuse one only for the exact same unfinished assignment, otherwise dispatch a fresh instance (Codex fork_turns=\"none\" when exposed). Main-owned decisions, joins, singleton operations, and tiny coupled actions may remain direct; otherwise record the capability fallback. Do not rerun setup or start a new phase unless the user asks.";
 
 function stateRoot() {
   return (

@@ -48,6 +48,9 @@ def main() -> None:
         assert "orchestrator thin" in guidance
         assert "compact decision packet" in guidance
         assert "running workers keep" in guidance
+        assert "worker instances as disposable" in guidance
+        assert "fresh instance" in guidance
+        assert "exact same unfinished assignment" in guidance
         assert "source checkout" in guidance
         assert ".claude/agents/" in (root / ".gitignore").read_text(encoding="utf-8")
         assert ".claude/agents/*.md" in (root / ".worktreeinclude").read_text(encoding="utf-8")

@@ -150,6 +150,14 @@ read/write boundaries, context capsules, parallel readiness, worker reports,
 worker lifetime and timeout recovery, and post-return Git inspection. Emit its compact dispatch line once per wave;
 do not narrate routine waiting, return, or unchanged state.
 
+Role profiles are reusable, but worker instances are disposable. Retire each
+terminal worker; dispatch a fresh instance for every new checkpoint, correction,
+failure, or acceptance task, even when selecting the same role. A follow-up is
+only for the exact same unfinished assignment when continuity materially helps;
+all new work gets a fresh instance. Use the host's fresh-child path and Codex
+`fork_turns="none"` when exposed. Never kill an active worker because it is
+quiet or compacting.
+
 For a Plumbline-managed plan, keep `delegation_roles` and
 `delegation_status` in the active checkpoint resume record. Use
 `not-applicable`, `not-dispatched`, `direct`, `dispatched`, `returned`, or

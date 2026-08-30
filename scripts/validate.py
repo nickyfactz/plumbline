@@ -109,6 +109,9 @@ CONTRACT_MARKERS = {
         "compact decision packet",
         "code-reviewer",
         "maintainable-code",
+        "worker instances are disposable",
+        "fresh instance",
+        "exact same unfinished assignment",
     ),
     "plumbline-execute-engine": (
         "last_verified_commit",
@@ -159,6 +162,9 @@ CONTRACT_MARKERS = {
         "Use Git as the recovery boundary",
         "main-thread commits",
         "worker hydration context",
+        "worker instances are disposable",
+        "fresh instance",
+        "exact same unfinished assignment",
     ),
     "plumbline-diagnose-engine": (
         "same candidate",
@@ -455,6 +461,9 @@ def validate_hooks(errors: list[str]) -> None:
         "cwd",
         "delegation_roles",
         "delegation_status",
+        "Completed worker instances are retired",
+        "fresh instance",
+        r'fork_turns=\"none\"',
     ):
         if marker not in source:
             error(errors, f"hooks/plumbline-session.js: missing marker {marker}")
@@ -601,6 +610,10 @@ def validate_references_and_templates(errors: list[str]) -> None:
         "decision packet",
         "worker lifetime",
         "observer or polling timeout",
+        "worker instance as disposable",
+        "fresh instance",
+        "exact same unfinished assignment",
+        "follow-up is",
     ):
         if marker.lower() not in orchestration.lower():
             error(errors, f"references/subagent-orchestration.md: missing {marker}")

@@ -79,6 +79,9 @@ def main() -> None:
         assert "resume record" in context
         assert "delegation_roles" in context
         assert "delegation_status" in context
+        assert "Completed worker instances are retired" in context
+        assert "fresh instance" in context
+        assert 'fork_turns="none"' in context
 
         resume = run_hook({**base, "hook_event_name": "SessionStart", "source": "resume"}, state_root)
         assert json.loads(resume)["hookSpecificOutput"]["hookEventName"] == "SessionStart"
