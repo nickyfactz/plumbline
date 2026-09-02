@@ -38,29 +38,35 @@ the main thread preserves the candidate and owns that decision.
 ## Starting model recommendation
 
 For Codex, propose this role-aware starting profile when the host supports these
-slugs:
+model IDs:
 
 | Role | Model | Reasoning | Purpose |
 | --- | --- | --- | --- |
-| `frontend-architect` | `sol` | `medium` | UI and integration design |
-| `backend-architect` | `sol` | `medium` | contracts and state ownership |
-| `researcher` | `luna` | `medium` | bounded evidence gathering |
-| `implementer` | `luna` | `high` | bounded implementation |
-| `code-reviewer` | `luna` | `high` | adversarial maintainability review |
-| `qa-auditor` | `luna` | `max` | acceptance and proof audit |
+| `frontend-architect` | `gpt-5.6-sol` | `medium` | UI and integration design |
+| `backend-architect` | `gpt-5.6-sol` | `medium` | contracts and state ownership |
+| `researcher` | `gpt-5.6-luna` | `medium` | bounded evidence gathering |
+| `implementer` | `gpt-5.6-luna` | `high` | bounded implementation |
+| `code-reviewer` | `gpt-5.6-luna` | `high` | adversarial maintainability review |
+| `qa-auditor` | `gpt-5.6-luna` | `max` | acceptance and proof audit |
 
 For Claude Code, preserve the same capability split with provider-native
-values: `model: inherit` and the corresponding `effort` values. These are
-recommended starting points, not permanent policy; users may adjust or
-hotswap them, and audit/retune preserves existing values.
+values: `model: inherit` and the corresponding `effort` values. `inherit` is
+the safe non-pinned default; when pinning a model, resolve the current Claude
+alias or full model ID from the host model picker or Anthropic's official model
+documentation/API. These are recommended starting points, not permanent policy;
+users may adjust or hotswap them, and audit/retune preserves existing values.
 
 The bundled `maintainable-code` skill is model-invoked for implementation and
 review. Implementers use its implementation branch; `code-reviewer` uses its
 review branch before `qa-auditor` checks acceptance, proof, and documentation.
 
-Use the role-aware starting profile above as the Codex recommendation when the
-host supports those slugs. Use provider-native Claude values rather than copying
-Codex slugs. Model and reasoning/effort choices remain user-owned and adjustable.
+Use the role-aware starting profile above as the Codex recommendation only after
+verifying the exact current host-supported IDs. The current release examples
+are full Codex IDs, not `sol`/`luna` aliases. Use provider-native Claude values
+rather than copying Codex IDs. Model and reasoning/effort choices remain
+user-owned and adjustable. The installers do not call provider APIs or require
+credentials; the setup proposal performs the lookup and passes the approved
+values to the adapter.
 
 Label the proposal as a recommended starting point, not a permanent team policy. The installers use the role-aware recommendation when no common override is supplied; an explicit common pair remains available for a reproducible baseline. Audit and retune preserve tuned values unless the user explicitly approves a change. Evaluate cheaper settings by accepted first-pass work and remediation cost, not nominal price alone.
 
@@ -68,16 +74,24 @@ Label the proposal as a recommended starting point, not a permanent team policy.
 
 - **Initialize:** create only approved missing roles from the six shared archetypes in `templates/agents/`. On Codex, use `scripts/install_agent_team.py` for local TOML/config setup. On Claude Code, use `scripts/install_claude_agent_team.py` for local Markdown subagents; it makes no global settings change. Generate AGENTS role bullets from the selected roles. When propagation is approved, include the root `.gitignore` patch and `.worktreeinclude` in the same proposal. Existing roles require an explicit initialize replacement approval before `--replace`. If the user explicitly invokes initialization again, audit the managed `AGENTS.md` section and offer `--update-agents --refresh-agents` as a guidance-only update; it does not replace roles or config. An older unmarked section requires the exact dry-run plus explicit `--replace-agents-guidance`, and only that managed section may be replaced.
 - **Audit:** read-only compare project agents, the repository-local router, and current repository docs; report stale facts, router or AGENTS schema drift, overlap, missing boundaries, required-field gaps, model/reasoning/effort/sandbox/permission drift, and capability gaps. Audit never needs `--replace` and never writes. A detected mismatch produces a proposed refresh, not an automatic overwrite. A later explicit initialization is the consent boundary for applying an approved guidance refresh.
-- **Retune:** preserve every existing role field, including model, reasoning/effort, sandbox/permission, permissions, MCP, custom fields, and instructions. Use `--fill-missing` only to add absent required fields; it never overwrites a present value. Use `--update-instructions` only when the approved proposal explicitly changes the instruction field.
+- **Retune:** preserve every existing role field, including model, reasoning/effort, sandbox/permission, permissions, MCP, custom fields, and instructions. Use `--fill-missing` only to add absent required fields; it never overwrites a present value. Use `--update-instructions` only when the approved proposal explicitly changes the instruction field. Use `--update-profile` with explicit approved host-native model and reasoning/effort values to change only those profile fields; it does not replace role instructions or permissions.
 - **Add:** add one specialist only for a demonstrated need; do not create a role for every technical layer.
 
-Before approval, show one role-by-role table with `name`, purpose, host-native model value, reasoning/effort value, sandbox/permission intent, and write access. Mark these values as the recommended starting profile and explain that the user can adjust or hot-swap them later. The adapter writes explicit values for reproducible local setup, but those values are not immutable Plumbline policy. Do not invent slugs or silently downgrade a user's choice. Apply nothing before approval.
+Before approval, resolve current model values from the active host or the
+provider's official model documentation/API, then show one role-by-role table
+with `name`, purpose, exact host-native model value, reasoning/effort value,
+sandbox/permission intent, and write access. Mark these values as the
+recommended starting profile and explain that the user can adjust or hot-swap
+them later. The adapter writes explicit values for reproducible local setup,
+but those values are not immutable Plumbline policy. Do not invent slugs,
+substitute `sol`/`luna` shorthand for Codex, or silently downgrade a user's
+choice. Apply nothing before approval.
 
 Before asking for approval, run the host-specific candidate installer with `--dry-run --format json` and include its exact file/operation/field manifest in the proposal: `install_agent_team.py` for Codex or `install_claude_agent_team.py` for Claude Code. The dry run is read-only and does not approve or apply changes.
 
 After approval, audit and retune output must also report router freshness and AGENTS guidance drift without overwriting either file. A stale router produces a proposed refresh only; applying it requires the explicit router installer `--replace` path.
 
-After approval, rerun the dry-run manifest; if the target changed, refresh the proposal before writing. Then rerun the host-specific installer in `initialize|audit|retune` mode. Retune does not require `--replace`; its output reports the exact changed fields for every file and preserves existing model, effort/reasoning, permission/sandbox, custom fields, and instructions unless explicitly approved. Use `--update-agents` and `--propagate` during first initialization only, when approved; use `--update-agents --refresh-agents` on an explicit repeat initialization to update only the managed guidance section. Validate every host role's required model, reasoning/effort, permission/sandbox, and no-child boundary, structurally valid user-owned host settings, AGENTS guidance, actual project-local discovery, ignore rules, and the manifest. Report one compact delegation-wave line with selected role names and host-native model plus reasoning/effort values; include effective values only when the host exposes a meaningful difference or the user asks, and use `Direct: <reason>` when no local role is available. If a matching local role is absent, stay on the main thread or report the capability gap; never fall back to a personal/global agent. Report that `.worktreeinclude` must be committed for future worktrees and that existing worktrees need explicit refresh. Run only a bounded, read-only discovery smoke test after approval.
+After approval, rerun the dry-run manifest; if the target changed, refresh the proposal before writing. Then rerun the host-specific installer in `initialize|audit|retune` mode. On an explicit repeat initialization, perform model discovery again and compare current project values with the resolved host values; if a refresh is approved, use `--mode retune --update-profile` with the exact selected model and reasoning/effort pair. This updates only those fields and preserves role instructions, permissions, sandbox/permission intent, and custom fields. Retune does not require `--replace`; its output reports the exact changed fields for every file. Use `--update-agents` and `--propagate` during first initialization only, when approved; use `--update-agents --refresh-agents` on an explicit repeat initialization to update only the managed guidance section. Validate every host role's required model, reasoning/effort, permission/sandbox, and no-child boundary, structurally valid user-owned host settings, AGENTS guidance, actual project-local discovery, ignore rules, and the manifest. Report one compact delegation-wave line with selected role names and host-native model plus reasoning/effort values; include effective values only when the host exposes a meaningful difference or the user asks, and use `Direct: <reason>` when no local role is available. If a matching local role is absent, stay on the main thread or report the capability gap; never fall back to a personal/global agent. Report that `.worktreeinclude` must be committed for future worktrees and that existing worktrees need explicit refresh. Run only a bounded, read-only discovery smoke test after approval.
 
 ## Completion
 

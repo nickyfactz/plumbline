@@ -111,6 +111,8 @@ def main() -> None:
         assert "exact same unfinished assignment" in guidance
         assert "compact only when a live plan contains" in guidance
         assert "small direct work need no rewrite" in guidance
+        assert "host-versioned inputs" in guidance
+        assert "profile refresh" in guidance
         included = (root / ".worktreeinclude").read_text(encoding="utf-8")
         assert ".codex/agents/*.toml" in included
         ignored = (root / ".gitignore").read_text(encoding="utf-8")
@@ -127,6 +129,15 @@ def main() -> None:
             data = tomllib.loads((root / ".codex" / "agents" / f"{role}.toml").read_text(encoding="utf-8"))
             assert data["model"] == model
             assert data["model_reasoning_effort"] == reasoning
+            assert data["model"] not in {"sol", "luna"}
+        assert RECOMMENDED_PROFILES["code-reviewer"] == ("gpt-5.6-luna", "high")
+        reviewer_path = root / ".codex" / "agents" / "code-reviewer.toml"
+        reviewer_path.write_text(
+            reviewer_path.read_text(encoding="utf-8").replace('model = "gpt-5.6-luna"', 'model = "luna"'),
+            encoding="utf-8",
+        )
+        audit = install(plugin_root, root, mode="audit", roles=("code-reviewer",))
+        assert any("shorthand" in finding for finding in audit.findings)
 
     with tempfile.TemporaryDirectory() as raw_root:
         root = Path(raw_root)
@@ -392,6 +403,37 @@ custom_setting = "preserve-me"
             assert data["custom_setting"] == "preserve-me"
             assert "spawn child" in data["developer_instructions"].lower()
             assert updated.changes[path] == ("developer_instructions",)
+
+        profile_path = root / ".codex" / "agents" / "code-reviewer.toml"
+        profile_before = profile_path.read_text(encoding="utf-8")
+        profile_before_data = tomllib.loads(profile_before)
+        profile_preview = install(
+            plugin_root,
+            root,
+            mode="retune",
+            roles=("code-reviewer",),
+            model="gpt-5.6-luna",
+            reasoning_effort="high",
+            update_profile=True,
+            dry_run=True,
+        )
+        assert profile_preview.changes[profile_path] == ("model", "model_reasoning_effort")
+        assert profile_path.read_text(encoding="utf-8") == profile_before
+        profile_update = install(
+            plugin_root,
+            root,
+            mode="retune",
+            roles=("code-reviewer",),
+            model="gpt-5.6-luna",
+            reasoning_effort="high",
+            update_profile=True,
+        )
+        profile_data = tomllib.loads(profile_path.read_text(encoding="utf-8"))
+        assert profile_update.changes[profile_path] == ("model", "model_reasoning_effort")
+        assert profile_data["model"] == "gpt-5.6-luna"
+        assert profile_data["model_reasoning_effort"] == "high"
+        for field in ("name", "description", "developer_instructions", "sandbox_mode", "custom_setting"):
+            assert profile_data[field] == profile_before_data[field]
 
     with tempfile.TemporaryDirectory() as raw_root:
         root = Path(raw_root)

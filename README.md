@@ -182,29 +182,40 @@ The default Codex recommendation is role-aware and adjustable:
 
 | Role | Model | Reasoning | Responsibility |
 | --- | --- | --- | --- |
-| `frontend-architect` | `sol` | `medium` | UI and integration design |
-| `backend-architect` | `sol` | `medium` | contracts and state ownership |
-| `researcher` | `luna` | `medium` | bounded evidence gathering |
-| `implementer` | `luna` | `high` | bounded implementation |
-| `code-reviewer` | `luna` | `high` | adversarial code-quality review |
-| `qa-auditor` | `luna` | `max` | acceptance and proof audit |
+| `frontend-architect` | `gpt-5.6-sol` | `medium` | UI and integration design |
+| `backend-architect` | `gpt-5.6-sol` | `medium` | contracts and state ownership |
+| `researcher` | `gpt-5.6-luna` | `medium` | bounded evidence gathering |
+| `implementer` | `gpt-5.6-luna` | `high` | bounded implementation |
+| `code-reviewer` | `gpt-5.6-luna` | `high` | adversarial code-quality review |
+| `qa-auditor` | `gpt-5.6-luna` | `max` | acceptance and proof audit |
 
 Claude Code uses the same role responsibilities with provider-native values
 (`model: inherit` and the corresponding `effort`). These are recommended
 starting points, not permanent Plumbline policy; existing tuned values remain
 user-owned during audit and retune.
 
+Model names are release-sensitive. During initialization or an explicit repeat
+initialization, the setup flow resolves the exact host-supported value from the
+active model picker or the provider's official model documentation/API before
+asking for approval. For OpenAI, use the current [model list](https://platform.openai.com/docs/models)
+or [Models API](https://platform.openai.com/docs/api-reference/models/list); for
+Claude, use the current [models overview](https://platform.claude.com/docs/en/about-claude/models/overview)
+or [Models API](https://platform.claude.com/docs/en/api/models/list). The
+installer does not call either API or require credentials. Codex role files use
+full Codex IDs, not `sol`/`luna` shorthand; Claude role files use a current
+Claude alias/full ID or `inherit` when no pin is approved.
+
 | Approved item | What is created or updated |
 | --- | --- |
-| Project `.codex/config.toml` (Codex) | Current Codex releases enable subagents by default. When approved, Plumbline can record `agents.enabled = true` and a user-owned `agents.max_concurrent_threads_per_session` value; the starting template recommends 12 and preserves an approved alternative such as 6. Existing `features.multi_agent`, `agents.max_threads`, and `agents.max_depth` entries are reported as legacy and migrated only after approval. Explicit role files select their own models, including Luna as a leaf worker through current v2 delegation, without forcing the old v1 compatibility path. |
-| Selected `.codex/agents/*.toml` | Creates only the roles you select. Each role has explicit `name`, `description`, `developer_instructions`, `model`, `model_reasoning_effort`, and `sandbox_mode` fields. Researcher, architects, code-reviewer, and QA are report-only with `read-only` intent; the implementer is the only write-capable role. Implementers and code-reviewers use the bundled `maintainable-code` skill. |
-| Selected `.claude/agents/*.md` (Claude Code) | Creates the same role contracts as Claude-native Markdown subagents. Each role records `model`, `effort`, `tools`, and `permissionMode`; report-only roles use restricted read tools and `plan` intent, while the implementer receives write-capable tools. The default model is `inherit`, so no Codex slug or provider is hard-coded. |
+| Project `.codex/config.toml` (Codex) | Current Codex releases enable subagents by default. When approved, Plumbline can record `agents.enabled = true` and a user-owned `agents.max_concurrent_threads_per_session` value; the starting template recommends 12 and preserves an approved alternative such as 6. Existing `features.multi_agent`, `agents.max_threads`, and `agents.max_depth` entries are reported as legacy and migrated only after approval. Explicit role files select their own approved full model IDs, including a leaf worker through current v2 delegation, without forcing the old v1 compatibility path. |
+| Selected `.codex/agents/*.toml` | Creates only the roles you select. Each role has explicit `name`, `description`, `developer_instructions`, `model`, `model_reasoning_effort`, and `sandbox_mode` fields. Researcher, architects, code-reviewer, and QA are report-only with `read-only` intent; the implementer is the only write-capable role. Implementers and code-reviewers use the bundled `maintainable-code` skill. An approved profile refresh changes only model and reasoning fields. |
+| Selected `.claude/agents/*.md` (Claude Code) | Creates the same role contracts as Claude-native Markdown subagents. Each role records `model`, `effort`, `tools`, and `permissionMode`; report-only roles use restricted read tools and `plan` intent, while the implementer receives write-capable tools. The default model is `inherit`, so no Codex slug or provider is hard-coded; an approved profile refresh changes only model and effort. |
 | `AGENTS.md` | When approved, adds a marked `## Local agent team` section listing only the selected roles. It explains that the main thread owns product decisions, plans, integration, Git, and all delegation; worker recommendations are advisory and return to the main thread; report-only roles get no write set; workers never spawn children; implementers and code-reviewers use `maintainable-code`; and global agents are never fallbacks. If the user explicitly invokes Plumbline initialization again, the installer can preview and refresh only this managed section without replacing roles or config. Older unmarked sections require a separate explicit replacement approval; content outside the managed section is preserved. |
 | `.git/info/exclude` | Adds local-only ignore entries for `.codex/` and the project-local Plumbline router. This keeps generated setup out of the checkout without changing the repository’s tracked files. |
 | `.agents/skills/plumbline-router/SKILL.md` | Creates the small repository-local router only if you approve automatic routing. It is the only automatic Plumbline activation boundary; it does not initialize teams, invoke internal engines, or create workers. |
 | `.gitignore` and `.worktreeinclude` | Only when you approve propagation. The root ignore file receives the exact local setup entries, while `.worktreeinclude` lists the config, selected role files, and router for future managed worktrees. Commit the manifest for new worktrees to receive those ignored files; existing worktrees need an explicit refresh. |
 
-The global Codex `config.toml` may be inspected to identify a host model candidate for the proposal, but Plumbline does not edit global config, install global agents, or use personal/global agent files as fallbacks. Claude Code has no equivalent Plumbline project `config.toml`: its project subagents are discovered from `.claude/agents/`, and Plumbline does not edit `~/.claude/settings.json` or enable `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`. Model and reasoning/effort choices are recommended starting points that you can adjust or hot-swap later; the host adapter writes them explicitly only to the local role files so the setup is reproducible.
+The global Codex `config.toml` may be inspected to identify a host model candidate for the proposal, but Plumbline does not edit global config, install global agents, or use personal/global agent files as fallbacks. Claude Code has no equivalent Plumbline project `config.toml`: its project subagents are discovered from `.claude/agents/`, and Plumbline does not edit `~/.claude/settings.json` or enable `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`. Model and reasoning/effort choices are recommended starting points that you can adjust or hot-swap later; the host adapter writes them explicitly only to the local role files so the setup is reproducible. On an explicit repeat initialization, model availability is checked again and any approved change uses the field-only profile refresh path rather than wholesale role replacement.
 
 The role instructions are shared across hosts; only the small configuration adapter changes format. Codex uses TOML model/reasoning fields, while Claude Code uses Markdown `model`/`effort`/tool/permission fields. Claude's native Agent Teams feature is separate and experimental; Plumbline's one-level team uses bounded project subagents instead.
 
@@ -444,7 +455,7 @@ python scripts/install_claude_agent_team.py --root <target-repository> --dry-run
 
 The installer commands are explicit proposal/apply helpers. Run `--dry-run --format json` while preparing a proposal and again after approval to preview every file, operation, and changed field without writing.
 
-Use `--mode audit` for a read-only report. It detects stale router and `AGENTS.md` guidance without overwriting either. On an explicit repeat initialization, preview `--mode initialize --update-agents --refresh-agents --dry-run --format json`; apply the same guidance-only command after approval. If the preview reports an older unmarked section, review the exact diff and add `--replace-agents-guidance` only with explicit approval. Use `--mode retune` with `--fill-missing` and/or the explicitly approved `--update-instructions`; retune preserves existing model, reasoning, sandbox, custom fields, and instructions unless a change is explicitly approved. `--propagate` includes the root `.gitignore` patch and `.worktreeinclude` behavior, so it must be shown in the proposal.
+Use `--mode audit` for a read-only report. It detects stale router and `AGENTS.md` guidance without overwriting either. On an explicit repeat initialization, preview `--mode initialize --update-agents --refresh-agents --dry-run --format json`; apply the same guidance-only command after approval. If the preview reports an older unmarked section, review the exact diff and add `--replace-agents-guidance` only with explicit approval. Use `--mode retune` with `--fill-missing`, the explicitly approved `--update-profile --model <current-host-value> --reasoning-effort <approved-effort>` (or Claude `--effort`), and/or `--update-instructions`; retune preserves existing model, reasoning, sandbox, custom fields, and instructions unless the specific field change is explicitly approved. `--propagate` includes the root `.gitignore` patch and `.worktreeinclude` behavior, so it must be shown in the proposal.
 
 Run the repository checks for setup or packaging changes:
 

@@ -53,6 +53,8 @@ def main() -> None:
         assert "exact same unfinished assignment" in guidance
         assert "compact only when a live plan contains" in guidance
         assert "small direct work need no rewrite" in guidance
+        assert "provider-versioned inputs" in guidance
+        assert "profile refresh" in guidance
         assert "source checkout" in guidance
         assert ".claude/agents/" in (root / ".gitignore").read_text(encoding="utf-8")
         assert ".claude/agents/*.md" in (root / ".worktreeinclude").read_text(encoding="utf-8")
@@ -168,6 +170,33 @@ def main() -> None:
         assert not retune.changes
         assert 'model: "custom-claude"' in path.read_text(encoding="utf-8")
         assert "effort: high" in path.read_text(encoding="utf-8")
+        before_profile = path.read_text(encoding="utf-8")
+        profile_preview = install(
+            plugin_root,
+            root,
+            mode="retune",
+            roles=("researcher",),
+            model="approved-claude-model",
+            effort="max",
+            update_profile=True,
+            dry_run=True,
+        )
+        assert profile_preview.changes[path] == ("model", "effort")
+        assert path.read_text(encoding="utf-8") == before_profile
+        profile_update = install(
+            plugin_root,
+            root,
+            mode="retune",
+            roles=("researcher",),
+            model="approved-claude-model",
+            effort="max",
+            update_profile=True,
+        )
+        assert profile_update.changes[path] == ("model", "effort")
+        refreshed = path.read_text(encoding="utf-8")
+        assert 'model: "approved-claude-model"' in refreshed
+        assert 'effort: "max"' in refreshed
+        assert "Custom instructions." in refreshed
 
     print("claude-agent-team-installer-smoke=passed")
 

@@ -78,6 +78,8 @@ CLAUDE_GUIDANCE_MARKERS = (
     "compact decision packet",
     "maintainable-code",
     "code-reviewer",
+    "provider-versioned inputs",
+    "profile refresh",
 )
 
 
@@ -179,6 +181,20 @@ def _append_missing_fields(text: str, missing: dict[str, object], path: Path) ->
     return "\n".join(lines[:closing] + additions + lines[closing:]) + "\n"
 
 
+def _set_frontmatter_values(text: str, values: dict[str, object], path: Path) -> str:
+    lines, closing, _existing, _body_text = _frontmatter(text, path)
+    for key, value in values.items():
+        pattern = re.compile(rf"^\s*{re.escape(key)}\s*:")
+        match = next((index for index in range(1, closing) if pattern.match(lines[index])), None)
+        replacement = f"{key}: {_yaml_value(value)}"
+        if match is None:
+            lines.insert(closing, replacement)
+            closing += 1
+        else:
+            lines[match] = replacement
+    return "\n".join(lines).rstrip() + "\n"
+
+
 def _validate_agent(path: Path, role: str, text: str) -> list[str]:
     try:
         _lines, _closing, values, body = _frontmatter(text, path)
@@ -224,6 +240,13 @@ human-legibility guidance; `code-reviewer` applies its adversarial review gate.
 
 Keep the orchestrator thin. The main thread reads only the controlling artifact, repository guidance, Git state, and named paths needed to route and integrate work. Before broad repository search, multi-file fact gathering, external research, or cross-seam review, dispatch a matching project-local role with a bounded question. Ask read-heavy workers for a compact decision packet: conclusion, exact paths/symbols/URLs, constraints, residual uncertainty, and next action; omit search narration, large excerpts, exhaustive inventories, and successful logs. Keep work direct only when its answer and target are already known, it is tightly coupled to a main-owned product/integration/Git/singleton action, or dispatch costs more context than the task.
 Give subagents anchored briefs and disjoint write sets. Researcher, architect, code-reviewer, and QA roles are report-only and receive no write set; their `permissionMode = plan` and restricted tools are intent, while the parent permission context can take precedence. Implementers use the bundled `maintainable-code` skill while writing; code-reviewer uses its review branch before QA. Each write-capable role receives only its approved bounded write set. Delegation is main-mediated: every worker returns to the main thread, worker recommendations are advisory, and only the main thread selects and dispatches the next capability. Subagents never invoke the Agent tool or spawn children. When independent work is ready, the main thread may dispatch one parallel wave only with a stable contract, disjoint scopes, no result dependency, and a clear join condition; otherwise keep it serial. For Execute checkpoints, delegation is the default: dispatch useful bounded research, architecture, implementation, review, testing, or another matching capability before the main thread duplicates it. Reread the selected `.claude/agents/*.md` before each wave; changed values apply to new subagents, while running workers keep their creation profile. Use current project-local values; never substitute a personal/global role. If a role is absent in the active worktree, refresh only the ignored project-local agent files from the source checkout through the repository's propagation convention, then use `Direct: <reason>` only if it remains unavailable. Record `delegation_roles` and `delegation_status` in the compact checkpoint resume record and restore them after compaction. Emit one compact dispatch line with role names, configured models/efforts, and short assignments; omit routine status and standard-boundary narration. Tiny and inherently main-owned actions need no `Direct:` note. Claude model and effort choices remain adjustable; do not copy Codex model slugs into these files. Plumbline does not edit global Claude settings or enable experimental Agent Teams.
+Model values are provider-versioned inputs. Before initialization or an explicit
+profile refresh, resolve the current Claude alias or full model ID from the host
+model picker or Anthropic's official model documentation/API; use that
+provider-native value. `inherit` is the non-pinned fallback, not a claim about
+the current model suite, and Codex IDs never cross providers. A profile refresh
+changes only explicitly approved `model` and `effort` fields; preserve the other
+role fields and workers already running.
 Keep an in-flight worker active until the host reports a terminal result. Do not kill, abandon, or duplicate work because of elapsed time, silence, compaction, or an intermediate status; reconcile an observer timeout before recovery. Replace work only after a confirmed terminal/API/transport failure, explicit user stop, obsolete scope, or safety issue.
 Treat role profiles as reusable but worker instances as disposable: retire each terminal worker and dispatch a fresh instance for any new checkpoint, correction, failure, or acceptance task, even when selecting the same role. A follow-up is only for the exact same unfinished assignment when continuity materially helps; all new work gets a fresh instance. Use the host's fresh-child path. Never kill an active worker because it is quiet or compacting.
 Before delegation or a material plan write, compact only when a live plan contains duplicate cards, an attempt diary, raw evidence, or superseded status; retain the current outcome, proof pointers, blockers or residuals, and next action. Clean plans, sufficient imported plans, and small direct work need no rewrite. After a material mutation, verify one current card per checkpoint and one current checkpoint in the resume record.
@@ -321,12 +344,15 @@ def _retune(
     repo: Path,
     roles: tuple[str, ...],
     *,
-    model: str,
-    effort: str,
+    model: str | None,
+    effort: str | None,
     fill_missing: bool,
     update_instructions: bool,
+    update_profile: bool,
     dry_run: bool,
 ) -> InstallReport:
+    if update_profile and (model is None or effort is None):
+        raise ValueError("--update-profile requires --model and --effort")
     changes: dict[Path, tuple[str, ...]] = {}
     operations: dict[Path, str] = {}
     findings: list[str] = []
@@ -344,9 +370,9 @@ def _retune(
 
         after = before
         changed: list[str] = []
+        role_model, role_effort = _profile(role, model, effort)
         if fill_missing:
             template = _template_data(plugin, role)
-            role_model, role_effort = _profile(role, model, effort)
             defaults = {
                 "name": role,
                 "description": str(template["description"]),
@@ -358,6 +384,16 @@ def _retune(
             missing = {key: value for key, value in defaults.items() if key not in values}
             after = _append_missing_fields(after, missing, path)
             changed.extend(missing)
+        if update_profile:
+            profile_values = {"model": role_model, "effort": role_effort}
+            profile_changes = {
+                field: value
+                for field, value in profile_values.items()
+                if values.get(field) != value
+            }
+            if profile_changes:
+                after = _set_frontmatter_values(after, profile_changes, path)
+                changed.extend(profile_changes)
         if update_instructions:
             updated = _replace_body(after, _body(plugin, role), path)
             if updated != after:
@@ -452,6 +488,7 @@ def install(
     replace: bool = False,
     fill_missing: bool = False,
     update_instructions: bool = False,
+    update_profile: bool = False,
     update_agents: bool = False,
     refresh_agents: bool = False,
     replace_guidance: bool = False,
@@ -465,12 +502,12 @@ def install(
     repo = _repo_root(target_root)
     plugin = plugin_root.resolve()
     if mode == "audit":
-        if any((replace, fill_missing, update_instructions, update_agents, refresh_agents, replace_guidance, propagate)):
+        if any((replace, fill_missing, update_instructions, update_profile, update_agents, refresh_agents, replace_guidance, propagate)):
             raise ValueError("audit is read-only; remove mutation flags")
         return _audit(repo, roles)
     if mode == "retune":
         if replace or update_agents or refresh_agents or replace_guidance or propagate:
-            raise ValueError("retune preserves existing roles; use initialize for replacement, guidance, or propagation")
+            raise ValueError("retune preserves existing roles; use --update-profile, --update-instructions, or initialize for replacement, guidance, or propagation")
         return _retune(
             plugin,
             repo,
@@ -479,6 +516,7 @@ def install(
             effort=effort,
             fill_missing=fill_missing,
             update_instructions=update_instructions,
+            update_profile=update_profile,
             dry_run=dry_run,
         )
     if refresh_agents:
@@ -489,7 +527,7 @@ def install(
         return _refresh_guidance(repo, roles, replace_guidance=replace_guidance, dry_run=dry_run)
     if replace_guidance:
         raise ValueError("--replace-agents-guidance requires --refresh-agents")
-    if fill_missing or update_instructions:
+    if fill_missing or update_instructions or update_profile:
         raise ValueError("initialize creates templates; use retune for preserve-existing updates")
     return _initialize(
         plugin,
@@ -553,12 +591,17 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path.cwd(), help="Target repository root")
     parser.add_argument("--mode", choices=MODES, default="initialize")
-    parser.add_argument("--model", default="inherit", help="Claude model alias or full model ID")
-    parser.add_argument("--effort", "--reasoning-effort", dest="effort", default="medium")
+    parser.add_argument("--model", help="Current Claude model alias or full model ID")
+    parser.add_argument("--effort", "--reasoning-effort", dest="effort", help="Claude reasoning effort")
     parser.add_argument("--roles", type=_parse_roles, default=ROLES, help="Comma-separated roles")
     parser.add_argument("--replace", action="store_true", help="Replace existing role files during initialize only")
     parser.add_argument("--fill-missing", action="store_true", help="Retune by adding missing frontmatter only")
     parser.add_argument("--update-instructions", action="store_true", help="Retune by explicitly updating instructions")
+    parser.add_argument(
+        "--update-profile",
+        action="store_true",
+        help="Retune only the explicitly approved model and effort fields",
+    )
     parser.add_argument("--update-agents", action="store_true", help="Add the approved AGENTS.md section")
     parser.add_argument(
         "--refresh-agents",
@@ -586,6 +629,7 @@ def main() -> int:
             replace=args.replace,
             fill_missing=args.fill_missing,
             update_instructions=args.update_instructions,
+            update_profile=args.update_profile,
             update_agents=args.update_agents,
             refresh_agents=args.refresh_agents,
             replace_guidance=args.replace_agents_guidance,

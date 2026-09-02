@@ -41,18 +41,26 @@ profiles and let the user select or adjust them:
 
 | Role | Codex model / reasoning | Claude model / effort |
 | --- | --- | --- |
-| `frontend-architect` | `sol` / `medium` | `inherit` / `medium` |
-| `backend-architect` | `sol` / `medium` | `inherit` / `medium` |
-| `researcher` | `luna` / `medium` | `inherit` / `medium` |
-| `implementer` | `luna` / `high` | `inherit` / `high` |
-| `code-reviewer` | `luna` / `high` | `inherit` / `high` |
-| `qa-auditor` | `luna` / `max` | `inherit` / `max` |
+| `frontend-architect` | `gpt-5.6-sol` / `medium` | `inherit` / `medium` |
+| `backend-architect` | `gpt-5.6-sol` / `medium` | `inherit` / `medium` |
+| `researcher` | `gpt-5.6-luna` / `medium` | `inherit` / `medium` |
+| `implementer` | `gpt-5.6-luna` / `high` | `inherit` / `high` |
+| `code-reviewer` | `gpt-5.6-luna` / `high` | `inherit` / `high` |
+| `qa-auditor` | `gpt-5.6-luna` / `max` | `inherit` / `max` |
 
 These are recommendations, not a required role set or immutable policy. The
 `maintainable-code` skill is model-invoked for implementation and review;
 `code-reviewer` runs before `qa-auditor` on material code.
 
-For Codex, explain that current releases enable subagents by default. Recommend `agents.enabled = true` only as an explicit project intent and `agents.max_concurrent_threads_per_session = 12` as an adjustable, user-owned starting value; preserve an existing or approved alternative such as 6. Detect legacy `features.multi_agent`, `agents.max_threads`, and `agents.max_depth` entries and offer their exact migration for approval. A selected role's explicit `model` field is sufficient to select Luna or another visible leaf model through current v2 delegation; do not force a v1 path or claim that a depth setting is required. For Claude Code, recommend project `.claude/agents/*.md` definitions with `model: inherit` unless the user approves a host-native alias/full ID, a suitable `effort`, restricted tools and `permissionMode: plan` for report-only roles, and no `Agent` tool for any generated role. Do not enable Claude's experimental Agent Teams or edit global settings.
+Resolve the exact current model values before presenting the proposal. Use the
+active host's model picker or the provider's official model documentation/API
+(OpenAI model IDs and list API; Anthropic Models API/docs), not memory or a
+shorthand alias. The adapters do not call provider APIs or require credentials;
+they write only the values the user approves. On an explicit repeat
+initialization, repeat this lookup so released or retired models can be
+course-corrected without replacing the rest of a role.
+
+For Codex, explain that current releases enable subagents by default. Recommend `agents.enabled = true` only as an explicit project intent and `agents.max_concurrent_threads_per_session = 12` as an adjustable, user-owned starting value; preserve an existing or approved alternative such as 6. Detect legacy `features.multi_agent`, `agents.max_threads`, and `agents.max_depth` entries and offer their exact migration for approval. A selected role's explicit `model` field is sufficient to select the approved current model, including a full leaf-model ID, through current v2 delegation; do not force a v1 path or claim that a depth setting is required. For Claude Code, recommend project `.claude/agents/*.md` definitions with `model: inherit` unless the user approves a host-native alias/full ID, a suitable `effort`, restricted tools and `permissionMode: plan` for report-only roles, and no `Agent` tool for any generated role. Do not enable Claude's experimental Agent Teams or edit global settings.
 
 The same proposal must name every selected change and state `Create`, `Keep`, `Patch`, or `Skip`:
 
@@ -69,7 +77,7 @@ Before asking for approval, run the host-specific candidate installer with `--dr
 
 ## After approval
 
-Apply only the approved items. Rerun the dry-run manifest; if the target changed, refresh the proposal before writing. Then rerun the host-specific installer without `--dry-run` using the approved roles, host-native model, reasoning/effort, thread cap where applicable, and explicit `--update-agents`/`--propagate` choices. On a later explicit initialization, use `--update-agents --refresh-agents` for a guidance-only refresh; this does not replace roles or change config. Apply `--replace-agents-guidance` only after the user approves the exact preview of an older unmarked section, and replace only the managed section while preserving the rest of `AGENTS.md`. Use the same dry-run/apply sequence with `scripts/install_router.py` for the approved router. For existing teams, run `--mode audit` first; it is read-only and does not need `--replace`. A normal `--mode retune` preserves existing model, reasoning/effort, sandbox/permission, custom fields, and instructions; use `--fill-missing` or the explicitly approved `--update-instructions` flag for narrow changes. `--replace` is reserved for an explicitly approved initialize replacement. Never write global or personal agent files.
+Apply only the approved items. Rerun the dry-run manifest; if the target changed, refresh the proposal before writing. Then rerun the host-specific installer without `--dry-run` using the approved roles, exact host-native model, reasoning/effort, thread cap where applicable, and explicit `--update-agents`/`--propagate` choices. On a later explicit initialization, repeat model lookup and compare the project profiles with the current host values; use the adapter's `--mode retune --update-profile` path for an approved profile change so only `model` plus reasoning/effort changes. This does not replace role instructions, permissions, sandbox/permission intent, or custom fields. Use `--update-agents --refresh-agents` for a guidance-only refresh; this does not replace roles or change config. Apply `--replace-agents-guidance` only after the user approves the exact preview of an older unmarked section, and replace only the managed section while preserving the rest of `AGENTS.md`. Use the same dry-run/apply sequence with `scripts/install_router.py` for the approved router. For existing teams, run `--mode audit` first; it is read-only and does not need `--replace`. A normal `--mode retune` preserves existing model, reasoning/effort, sandbox/permission, custom fields, and instructions; use `--fill-missing`, `--update-profile`, or the explicitly approved `--update-instructions` flag for narrow changes. `--replace` is reserved for an explicitly approved initialize replacement. Never write global or personal agent files.
 
 Validate Plumbline setup separately from repository product checks. Report Plumbline files/config/TOML-or-Markdown/ignore/worktree validation as passed or failed; preflight repository commands for missing dependencies or executables; and label repository checks as passed, skipped, or blocked. Missing dependencies are a repository bootstrap blocker, not a Plumbline setup failure, and do not justify starting `npm ci` or another install without approval. Validate required host fields, Codex collaboration state and any user-owned concurrency value, AGENTS guidance, local discovery paths, ignore rules, exact changed-field output, `git diff --check`, and the `.worktreeinclude` contents. Explain that propagation affects new managed worktrees only when the host/repository workflow supports it; the `.worktreeinclude` manifest must be committed for future worktrees to see it, and existing worktrees need explicit refresh or local copy. A delegation wave must report selected role names with host-native model and reasoning/effort values in one compact line; otherwise report `Direct: <reason>` and continue on the main thread. End initialization and recommend a fresh task for feature work.
 

@@ -739,11 +739,11 @@ def validate_scripts(errors: list[str]) -> None:
             source = path.read_text(encoding="utf-8")
             compile(source, str(path), "exec")
             if name == "install_agent_team.py":
-                for marker in ("MODES = (\"initialize\", \"audit\", \"retune\")", "class InstallReport", "ROLE_DESCRIPTIONS", "def _retune", "def _audit_router", "def _audit_agents_guidance", "update_instructions", "dry_run", "output_format", "Delegated:", "model slugs", "reasoning efforts"):
+                for marker in ("MODES = (\"initialize\", \"audit\", \"retune\")", "class InstallReport", "ROLE_DESCRIPTIONS", "def _retune", "def _audit_router", "def _audit_agents_guidance", "update_instructions", "update_profile", "host-versioned inputs", "dry_run", "output_format", "Delegated:", "model slugs", "reasoning efforts"):
                     if marker not in source:
                         error(errors, f"scripts/{name}: missing preservation marker {marker}")
             elif name == "install_claude_agent_team.py":
-                for marker in ("AGENT_ROOT", "ROLE_TOOLS", "permissionMode", "def _retune", "dry_run", "claude_settings_modified", "experimental_agent_teams_enabled"):
+                for marker in ("AGENT_ROOT", "ROLE_TOOLS", "permissionMode", "def _retune", "update_profile", "provider-versioned inputs", "dry_run", "claude_settings_modified", "experimental_agent_teams_enabled"):
                     if marker not in source:
                         error(errors, f"scripts/{name}: missing Claude adapter marker {marker}")
             elif name == "install_router.py":

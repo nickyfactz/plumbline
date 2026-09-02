@@ -30,13 +30,14 @@ SANDBOXES = {
     "qa-auditor": "read-only",
 }
 RECOMMENDED_PROFILES = {
-    "frontend-architect": ("sol", "medium"),
-    "backend-architect": ("sol", "medium"),
-    "researcher": ("luna", "medium"),
-    "implementer": ("luna", "high"),
-    "code-reviewer": ("luna", "high"),
-    "qa-auditor": ("luna", "max"),
+    "frontend-architect": ("gpt-5.6-sol", "medium"),
+    "backend-architect": ("gpt-5.6-sol", "medium"),
+    "researcher": ("gpt-5.6-luna", "medium"),
+    "implementer": ("gpt-5.6-luna", "high"),
+    "code-reviewer": ("gpt-5.6-luna", "high"),
+    "qa-auditor": ("gpt-5.6-luna", "max"),
 }
+CODEX_SHORT_MODEL_ALIASES = {"sol": "gpt-5.6-sol", "luna": "gpt-5.6-luna"}
 REQUIRED_AGENT_FIELDS = (
     "name",
     "description",
@@ -106,6 +107,13 @@ For Execute checkpoints, delegation is the default: when an approved project-loc
 Keep current Codex collaboration enabled through `agents.enabled = true`. Treat `agents.max_concurrent_threads_per_session` as a user-owned host setting; the setup template recommends 12 as a starting value, but approved alternatives are preserved. Legacy `features.multi_agent`, `agents.max_threads`, and `agents.max_depth` values are migration candidates, not Plumbline requirements. Every role TOML must carry explicit `model`, `model_reasoning_effort`, and `sandbox_mode` values approved during setup.
 Treat project-local role files as live user-owned dispatch profiles: manual edits to model, reasoning, sandbox, or instructions apply to new workers without an audit or retune, while workers already running keep their original values. Audit/retune approval remains required for installer-managed changes. Never let dispatch overwrite the current project-local values.
 
+Model values are host-versioned inputs. Before initialization or an explicit
+profile refresh, resolve the exact current Codex model ID from the host model
+picker or the provider's official model list/API; use full IDs in TOML rather
+than short names such as `sol` or `luna`. A profile refresh changes only
+explicitly approved model and reasoning fields; preserve the other role fields
+and workers already running.
+
 Before delegation or a material plan write, compact only when a live plan contains duplicate cards, an attempt diary, raw evidence, or superseded status; retain the current outcome, proof pointers, blockers or residuals, and next action. Clean plans, sufficient imported plans, and small direct work need no rewrite. After a material mutation, verify one current card per checkpoint and one current checkpoint in the resume record.
 Before dispatch, identify one lifecycle owner. Installed or enabled skills are available capabilities, not active ownership; an explicitly selected competing controller owns its own checkpoint and closeout flow.
 {AGENT_GUIDANCE_END}
@@ -147,6 +155,8 @@ AGENT_GUIDANCE_MARKERS = (
     "compact decision packet",
     "maintainable-code",
     "code-reviewer",
+    "host-versioned inputs",
+    "profile refresh",
 )
 
 
@@ -414,7 +424,12 @@ def _render_agent(template: Path, model: str, reasoning_effort: str) -> tuple[st
 def _profile(role: str, model: str | None, reasoning_effort: str | None) -> tuple[str, str]:
     if (model is None) != (reasoning_effort is None):
         raise ValueError("--model and --reasoning-effort must be supplied together")
-    return (model, reasoning_effort) if model is not None else RECOMMENDED_PROFILES[role]
+    profile = (model, reasoning_effort) if model is not None else RECOMMENDED_PROFILES[role]
+    if profile[0] in CODEX_SHORT_MODEL_ALIASES:
+        raise ValueError(
+            f"Codex model must be a full host-native ID; use {CODEX_SHORT_MODEL_ALIASES[profile[0]]!r} instead of {profile[0]!r}"
+        )
+    return profile
 
 
 def _template_data(template_root: Path, role: str) -> dict:
@@ -432,6 +447,11 @@ def _validate_agent_data(data: dict, role: str, path: Path) -> list[str]:
             findings.append(f"{path}: missing required field {field}")
     if data.get("name") not in (None, role):
         findings.append(f"{path}: name is {data['name']!r}, expected {role!r}")
+    model = data.get("model")
+    if model in CODEX_SHORT_MODEL_ALIASES:
+        findings.append(
+            f"{path}: model {model!r} is a shorthand; use the current full Codex model ID"
+        )
     instructions = data.get("developer_instructions", "")
     if isinstance(instructions, str) and "spawn child" not in instructions.lower():
         findings.append(f"{path}: missing no-child boundary")
@@ -472,6 +492,23 @@ def _insert_root_block(text: str, block: str) -> str:
     after = "".join(lines[table:])
     prefix = f"{before}\n\n" if before else ""
     return f"{prefix}{block}\n\n{after.lstrip()}"
+
+
+def _set_root_values(text: str, values: dict[str, str]) -> str:
+    lines = text.splitlines()
+    root_end = next(
+        (index for index, line in enumerate(lines) if re.match(r"^\s*\[[^\]]+\]\s*$", line)),
+        len(lines),
+    )
+    for key, value in values.items():
+        pattern = re.compile(rf"^\s*{re.escape(key)}\s*=")
+        match = next((index for index in range(root_end) if pattern.match(lines[index])), None)
+        if match is None:
+            lines.insert(root_end, f"{key} = {value}")
+            root_end += 1
+        else:
+            lines[match] = f"{key} = {value}"
+    return "\n".join(lines).rstrip() + "\n"
 
 
 def _append_missing_fields(text: str, fields: dict[str, str]) -> str:
@@ -594,12 +631,15 @@ def _retune(
     reasoning_effort: str | None,
     fill_missing: bool,
     update_instructions: bool,
+    update_profile: bool,
     max_threads: int,
     replace_config: bool,
     dry_run: bool,
 ) -> InstallReport:
     if fill_missing and ((model is None) != (reasoning_effort is None)):
         raise ValueError("--model and --reasoning-effort must be supplied together")
+    if update_profile and (model is None or reasoning_effort is None):
+        raise ValueError("--update-profile requires --model and --reasoning-effort")
     changes: dict[Path, tuple[str, ...]] = {}
     operations: dict[Path, str] = {}
     findings = _audit_config(repo)
@@ -650,6 +690,19 @@ def _retune(
                         missing[field] = str(template.get(field, ""))
             after_text = _append_missing_fields(after_text, missing)
             changed.extend(missing)
+        if update_profile:
+            profile_values = {
+                "model": role_model,
+                "model_reasoning_effort": role_reasoning,
+            }
+            profile_changes = {
+                field: _toml_string(value)
+                for field, value in profile_values.items()
+                if before_data.get(field) != value
+            }
+            if profile_changes:
+                after_text = _set_root_values(after_text, profile_changes)
+                changed.extend(profile_changes)
         if update_instructions:
             instruction = str(template["developer_instructions"])
             if before_data.get("developer_instructions") != instruction:
@@ -785,6 +838,7 @@ def install(
     replace_config: bool = False,
     fill_missing: bool = False,
     update_instructions: bool = False,
+    update_profile: bool = False,
     update_agents: bool = False,
     refresh_agents: bool = False,
     replace_guidance: bool = False,
@@ -800,12 +854,12 @@ def install(
     if max_threads < 1:
         raise ValueError("max_threads must be at least 1")
     if mode == "audit":
-        if any((replace, replace_config, fill_missing, update_instructions, update_agents, refresh_agents, replace_guidance, propagate)):
+        if any((replace, replace_config, fill_missing, update_instructions, update_profile, update_agents, refresh_agents, replace_guidance, propagate)):
             raise ValueError("audit is read-only; remove mutation flags")
         return _audit(plugin, repo, roles)
     if mode == "retune":
         if replace:
-            raise ValueError("retune preserves existing roles; use --update-instructions or --fill-missing")
+            raise ValueError("retune preserves existing roles; use --update-profile, --update-instructions, or --fill-missing")
         if update_agents or refresh_agents or replace_guidance or propagate:
             raise ValueError("retune only changes roles; use initialize for AGENTS/worktree setup")
         return _retune(
@@ -816,6 +870,7 @@ def install(
             reasoning_effort=reasoning_effort,
             fill_missing=fill_missing,
             update_instructions=update_instructions,
+            update_profile=update_profile,
             max_threads=max_threads,
             replace_config=replace_config,
             dry_run=dry_run,
@@ -828,7 +883,7 @@ def install(
         return _refresh_agents_guidance(repo, roles, replace_guidance=replace_guidance, dry_run=dry_run)
     if replace_guidance:
         raise ValueError("--replace-agents-guidance requires --refresh-agents")
-    if fill_missing or update_instructions:
+    if fill_missing or update_instructions or update_profile:
         raise ValueError("initialize creates templates; use retune for preserve-existing updates")
     return _initialize(
         plugin,
@@ -907,6 +962,11 @@ def main() -> int:
     parser.add_argument("--replace-config", action="store_true", help="Apply the approved project config patch")
     parser.add_argument("--fill-missing", action="store_true", help="Retune by adding missing fields only")
     parser.add_argument("--update-instructions", action="store_true", help="Retune by explicitly updating instructions")
+    parser.add_argument(
+        "--update-profile",
+        action="store_true",
+        help="Retune only the explicitly approved model and reasoning fields",
+    )
     parser.add_argument("--update-agents", action="store_true", help="Add the approved AGENTS.md section")
     parser.add_argument(
         "--refresh-agents",
@@ -936,6 +996,7 @@ def main() -> int:
             replace_config=args.replace_config,
             fill_missing=args.fill_missing,
             update_instructions=args.update_instructions,
+            update_profile=args.update_profile,
             update_agents=args.update_agents,
             refresh_agents=args.refresh_agents,
             replace_guidance=args.replace_agents_guidance,
