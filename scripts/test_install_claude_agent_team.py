@@ -51,6 +51,8 @@ def main() -> None:
         assert "worker instances as disposable" in guidance
         assert "fresh instance" in guidance
         assert "exact same unfinished assignment" in guidance
+        assert "compact only when a live plan contains" in guidance
+        assert "small direct work need no rewrite" in guidance
         assert "source checkout" in guidance
         assert ".claude/agents/" in (root / ".gitignore").read_text(encoding="utf-8")
         assert ".claude/agents/*.md" in (root / ".worktreeinclude").read_text(encoding="utf-8")

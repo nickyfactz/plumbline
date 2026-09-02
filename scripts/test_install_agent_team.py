@@ -42,6 +42,9 @@ def main() -> None:
         "worker instance as disposable",
         "fresh instance",
         "exact same unfinished assignment",
+        "compact it in place first",
+        "sufficient imported plan",
+        "no appended chronology",
     ):
         assert marker in orchestration
     with tempfile.TemporaryDirectory() as raw_root:
@@ -106,6 +109,8 @@ def main() -> None:
         assert "worker instances as disposable" in guidance
         assert "fresh instance" in guidance
         assert "exact same unfinished assignment" in guidance
+        assert "compact only when a live plan contains" in guidance
+        assert "small direct work need no rewrite" in guidance
         included = (root / ".worktreeinclude").read_text(encoding="utf-8")
         assert ".codex/agents/*.toml" in included
         ignored = (root / ".gitignore").read_text(encoding="utf-8")

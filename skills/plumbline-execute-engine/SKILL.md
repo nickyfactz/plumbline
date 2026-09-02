@@ -150,6 +150,12 @@ read/write boundaries, context capsules, parallel readiness, worker reports,
 worker lifetime and timeout recovery, and post-return Git inspection. Emit its compact dispatch line once per wave;
 do not narrate routine waiting, return, or unchanged state.
 
+Before dispatch or a material plan write, apply the reference's conditional plan
+hygiene check. Compact duplicate checkpoint cards, an attempt diary, raw
+command/evidence payloads, or superseded status in place before passing the
+current card to a worker; clean plans, sufficient imported plans, and small direct work need no rewrite. After a material plan mutation, verify one current
+card per checkpoint, one current checkpoint in the resume record, and no appended chronology.
+
 Role profiles are reusable, but worker instances are disposable. Retire each
 terminal worker; dispatch a fresh instance for every new checkpoint, correction,
 failure, or acceptance task, even when selecting the same role. A follow-up is

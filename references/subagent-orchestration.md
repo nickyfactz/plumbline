@@ -21,6 +21,19 @@ small coupled part of a main-owned integration or Git action, or dispatch would
 cost more context than the work. Main-thread capability is not itself a reason
 to stay direct.
 
+## Plan hygiene before dispatch
+
+When a live Plumbline plan controls the work, read its compact resume record and
+current checkpoint before dispatch or a material plan mutation. If duplicate
+checkpoint cards, an appended attempt diary, raw command/evidence payloads, or
+superseded status appear, compact it in place first. Retain the current
+outcome, accepted proof pointers, blockers or residuals, and next safe action;
+pass workers only that card and its explicitly referenced contract or proof
+pointers.
+
+This is conditional: a clean plan, a sufficient imported plan, and a small direct task need no rewrite. After a material mutation, verify one current card
+per checkpoint, one current checkpoint in the resume record, and no appended chronology.
+
 ## Selection and depth
 
 Use only a matching project-local definition under `.codex/agents/` for Codex or `.claude/agents/` for Claude Code. Check `.codex/config.toml` for Codex capability settings; Claude project agents do not require a Plumbline project config. Global config may explain host capability or provide a model candidate, but personal/global agent files are never selected or used as fallback. If useful bounded work has no local role, keep it on the main thread and report `Direct: <reason>` once. At a delegation wave, state the selected role names, host-native model and reasoning/effort values, and short assignments in one compact line.

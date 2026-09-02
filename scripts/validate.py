@@ -157,6 +157,8 @@ CONTRACT_MARKERS = {
         "workers already running",
         "generated outputs",
         "future consumer",
+        "compact duplicate checkpoint cards",
+        "small direct work need no rewrite",
         "required Git policy",
         "Git-unanchored",
         "Use Git as the recovery boundary",
@@ -613,6 +615,10 @@ def validate_references_and_templates(errors: list[str]) -> None:
         "worker instance as disposable",
         "fresh instance",
         "exact same unfinished assignment",
+        "Plan hygiene before dispatch",
+        "compact it in place first",
+        "sufficient imported plan",
+        "no appended chronology",
         "follow-up is",
     ):
         if marker.lower() not in orchestration.lower():
