@@ -224,6 +224,14 @@ first when necessary, then resume the smallest complete verification path. Do
 not batch independent symptom patches before the shared cause and fix boundary
 are understood.
 
+When repeated correction cycles or an expensive acceptance/evidence gate produce
+no checkpoint advancement, perform the internal acceptance-churn check from
+`references/subagent-orchestration.md` before another corrective dispatch or
+expensive gate. Continue the approved objective automatically when safe; do not
+treat the check as a stop, user gate, or new lifecycle state. Material behavior,
+contract, safety, legibility, or changeability defects still require correction;
+non-material preferences may remain compact residuals.
+
 Reuse a build, package, deployment, or proof result while its relevant source,
 configuration, environment, contract, and candidate identity remain valid. A
 launcher, harness, receipt, path, or evidence-format correction does not by

@@ -96,9 +96,27 @@ isolation unavailable` when a hard isolation requirement cannot be met.
 For material implementation code, dispatch a fresh report-only `code-reviewer`
 before `qa-auditor`. The code-reviewer invokes `maintainable-code` and reports
 concrete maintainability, design, human-legibility, safe-change, and material
-performance findings. QA then checks acceptance behavior, proof coverage, and
+performance findings. These are part of acceptance, not optional polish. A
+finding blocks acceptance only when it materially harms comprehension, ownership,
+safe changeability, required behavior, or a documented risk boundary. Subjective
+preferences, fringe hypotheticals without evidence, minor stylistic polish, and
+non-material defensive additions are residuals, not reasons to reopen the
+checkpoint. QA then checks acceptance behavior, proof coverage, and
 documentation alignment against the approved contract. A code-reviewer finding
 returns to the implementer before QA; a missing role is a main-thread fallback.
+
+## Acceptance churn check
+
+When repeated correction cycles or an expensive acceptance/evidence gate produce
+no checkpoint advancement, perform one compact acceptance-churn check before
+another dispatch or gate. Confirm whether there is a new material defect, whether
+existing proof was invalidated, whether compatible findings can be batched,
+whether the contract or ownership changed, and what exact result closes the
+checkpoint. Continue automatically when the current path is safe: correct
+material quality or behavior defects, batch compatible findings, reuse valid
+evidence, and record non-blocking work as a compact residual. This is an internal
+decision check, not a lifecycle state, counter, artifact, user pause, or
+mandatory final-gate rule.
 
 ## Delegation-first ownership
 

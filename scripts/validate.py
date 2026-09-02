@@ -159,6 +159,8 @@ CONTRACT_MARKERS = {
         "future consumer",
         "compact duplicate checkpoint cards",
         "small direct work need no rewrite",
+        "acceptance-churn check",
+        "checkpoint advancement",
         "required Git policy",
         "Git-unanchored",
         "Use Git as the recovery boundary",
@@ -263,6 +265,8 @@ CONTRACT_MARKERS = {
         "test count or coverage",
         "same-boundary findings",
         "high-risk or expensive stable delta",
+        "acceptance surface",
+        "bounded residuals",
     ),
     "plumbline-shape-engine": (
         "external research",
@@ -619,6 +623,9 @@ def validate_references_and_templates(errors: list[str]) -> None:
         "compact it in place first",
         "sufficient imported plan",
         "no appended chronology",
+        "acceptance churn check",
+        "checkpoint advancement",
+        "decision check",
         "follow-up is",
     ):
         if marker.lower() not in orchestration.lower():
@@ -626,7 +633,7 @@ def validate_references_and_templates(errors: list[str]) -> None:
     reference_markers = {
         "runtime-value-testing.md": ("behavioral proof obligations", "test count and coverage"),
         "plan-schema.md": ("behavioral proof obligations", "test-count or coverage", "current-state projection", "append-only diary", "replace-and-prune", "no attempt chronology", "idempotence", "rehydration"),
-        "qa-audit.md": ("proof obligation", "main thread decides deletion"),
+        "qa-audit.md": ("proof obligation", "main thread decides deletion", "material quality findings", "revisit trigger"),
         "artifact-lifecycle.md": ("durable state", "working material by default", "future consumer", "failed result is not automatically"),
         "worktree-readiness.md": ("on-demand refresh", "existing worktrees need this explicit refresh"),
     }

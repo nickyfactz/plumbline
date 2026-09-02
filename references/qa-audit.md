@@ -16,6 +16,12 @@ and proof cover the success criteria, whether documentation matches the intended
 design, and whether material product, public-contract, security, or failure-path
 gaps remain. Code cleanliness, maintainability, and design-shape findings belong
 to `code-reviewer`; QA does not duplicate that review or invent style findings.
+However, material quality findings remain part of acceptance: unclear ownership,
+behavior-obscuring code, unsafe structure, excessive change amplification, or
+meaningful future risk can require changes. Subjective polish, fringe unproven
+edge cases, and non-material defensive additions are named residuals and must
+not reopen an otherwise complete MVP. For each residual, report a concise
+pointer, why it is non-blocking now, the relevant risk, and a revisit trigger.
 Deep QA adds adversarial acceptance edge cases and targeted non-mutating probes.
 
 For high-risk or expensive reviews, inspect the stable assigned delta as a whole

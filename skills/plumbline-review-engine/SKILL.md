@@ -75,7 +75,7 @@ Return one verdict:
 - `CHANGES_REQUIRED` — a concrete defect or missing requirement blocks acceptance;
 - `INCONCLUSIVE` — required evidence or environment is unavailable.
 
-Quote paths, commands, and observed results. Do not manufacture style findings. If QA or UAT finds a defect in planned work, identify the affected checkpoint and the evidence that prior validation missed; the execution flow must reopen it.
+Quote paths, commands, and observed results. Do not manufacture style findings. Treat maintainability and human legibility as part of the acceptance surface for changed code, but judge them proportionally. Block or reopen only for a material failure of comprehension, ownership, safe changeability, required behavior, or documented risk. Subjective refactor preferences, fringe hypotheticals without evidence, minor style, and non-material defensive code are bounded residuals; report a pointer, why they are non-blocking now, and a revisit trigger. If QA or UAT finds a defect in planned work, identify the affected checkpoint and the evidence that prior validation missed; the execution flow must reopen it.
 
 `CHANGES_REQUIRED` reopens the affected checkpoint and `INCONCLUSIVE` blocks
 it for Diagnose. For corrective work, a green symptom check is insufficient
