@@ -1,6 +1,6 @@
 # Plumbline repository guidance
 
-This repository contains the Plumbline plugin for Codex and Claude Code. Keep the plugin skills-first and repository-local: its optional continuity hook is bundled with the plugin, while installation must not create global skills, global agent files, project/global hook configuration, MCP servers, or a custom worktree system. The bundled hook must remain inert until the user explicitly invokes the Plumbline front door; it only restores a compact reminder after resume or compaction and never selects phases, runs setup, edits the repository, or dispatches agents.
+This repository contains the Plumbline plugin for Codex and Claude Code. Keep the plugin skills-first and repository-local: its optional continuity hook is bundled with the plugin, while installation must not create global skills, global agent files, project/global hook configuration, MCP servers, or a custom worktree system. The bundled hook must remain inert until the user explicitly invokes the Plumbline front door; it only restores a compact reminder after resume or compaction and never selects phases, runs setup, edits the repository, or dispatches agents. Claude Code loads this shared guidance through the repository's `CLAUDE.md` `@AGENTS.md` import.
 
 ## Project-local agent team
 

@@ -101,8 +101,16 @@ Agent teams are optional and project-local:
   Plumbline recommends a user-owned concurrency value of 12 only when the
   project records an explicit cap.
 - Claude Code uses selected `.claude/agents/*.md` files with Claude-native
-  model, effort, tool, and permission fields. Plumbline does not edit global
-  Claude settings or enable the separate experimental Agent Teams feature.
+  model, effort, tool, and permission fields. The recommended baseline is
+  `opus/low` for architects, `sonnet/low` for research, `sonnet/high` for
+  implementation and code review, and `opus/medium` for QA. Claude can match
+  these agents from their descriptions or the main thread can explicitly use
+  `@agent-<role>`; `--agent` selects the role as the main session agent.
+  Claude loads project guidance from `CLAUDE.md`, not `AGENTS.md`; the Claude
+  adapter adds the supported `@AGENTS.md` import so shared guidance remains in
+  one file instead of being duplicated.
+  Plumbline does not edit global Claude settings or enable the separate
+  experimental Agent Teams feature.
 
 The shared role contracts keep researcher, architect, code-reviewer, and QA
 roles report-only without write sets; each approved write-capable role receives
@@ -164,7 +172,8 @@ effective child permissions in every host session; that remains a bounded
 interactive UAT concern.
 
 Initialization is repeatable without being destructive. An explicit repeat
-initialization may refresh only the marked Plumbline section in `AGENTS.md`.
-The installer previews this as a guidance-only change and leaves roles and host
-config untouched. Older unmarked sections require a separate explicit
-replacement approval; text outside the managed section is preserved.
+initialization may refresh only the marked Plumbline section in `AGENTS.md`;
+for Claude it also repairs the `CLAUDE.md` import when needed. The installer
+previews this as a guidance-only change and leaves roles and host config
+untouched. Older unmarked sections require a separate explicit replacement
+approval; text outside the managed section and import is preserved.

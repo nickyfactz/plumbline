@@ -74,6 +74,11 @@ CONTRACT_MARKERS = {
         "refresh-agents",
         "replace-agents-guidance",
         "guidance-only refresh",
+        "opus",
+        "sonnet",
+        "@agent-<role>",
+        "CLAUDE.md",
+        "@AGENTS.md",
     ),
     "plumbline-agent-team": (
         ".codex/agents/",
@@ -99,7 +104,7 @@ CONTRACT_MARKERS = {
         "effective sandbox",
         "no write set",
         "router",
-        "AGENTS schema drift",
+        "host-guidance schema drift",
         "proposed refresh",
         "repeat initialization",
         "replace-agents-guidance",
@@ -112,6 +117,11 @@ CONTRACT_MARKERS = {
         "worker instances are disposable",
         "fresh instance",
         "exact same unfinished assignment",
+        "provider-native",
+        "@agent-<role>",
+        "fable",
+        "CLAUDE.md",
+        "@AGENTS.md",
     ),
     "plumbline-execute-engine": (
         "last_verified_commit",
@@ -421,6 +431,9 @@ def validate_claude_manifest(errors: list[str]) -> None:
     expected = [f"./skills/{name}" for name in sorted(PUBLIC)]
     if sorted(data.get("skills", [])) != expected:
         error(errors, "Claude plugin manifest must expose only the public Plumbline skills")
+    instructions = ROOT / "CLAUDE.md"
+    if not instructions.is_file() or "@AGENTS.md" not in instructions.read_text(encoding="utf-8"):
+        error(errors, "CLAUDE.md must import the shared AGENTS.md guidance")
 
 
 def validate_hooks(errors: list[str]) -> None:
@@ -627,6 +640,9 @@ def validate_references_and_templates(errors: list[str]) -> None:
         "checkpoint advancement",
         "decision check",
         "follow-up is",
+        "@agent-<role>",
+        "--agent <role>",
+        "do not copy either provider",
     ):
         if marker.lower() not in orchestration.lower():
             error(errors, f"references/subagent-orchestration.md: missing {marker}")
@@ -743,7 +759,7 @@ def validate_scripts(errors: list[str]) -> None:
                     if marker not in source:
                         error(errors, f"scripts/{name}: missing preservation marker {marker}")
             elif name == "install_claude_agent_team.py":
-                for marker in ("AGENT_ROOT", "ROLE_TOOLS", "permissionMode", "def _retune", "update_profile", "provider-versioned inputs", "dry_run", "claude_settings_modified", "experimental_agent_teams_enabled"):
+                for marker in ("AGENT_ROOT", "CLAUDE_GUIDANCE_FILE", "CLAUDE_AGENTS_IMPORT", "ROLE_TOOLS", "permissionMode", "RECOMMENDED_PROFILES", "CLAUDE_EFFORTS", "CLAUDE_PERMISSION_MODES", "def _retune", "def _prepare_claude_import", "update_profile", "provider-versioned inputs", "@agent-<role>", "hot-reloads", "dry_run", "claude_settings_modified", "experimental_agent_teams_enabled"):
                     if marker not in source:
                         error(errors, f"scripts/{name}: missing Claude adapter marker {marker}")
             elif name == "install_router.py":

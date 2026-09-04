@@ -16,7 +16,7 @@ Start read-only and keep discovery targeted. Begin with repository guidance, REA
 
 Inspect enough to understand:
 
-- `AGENTS.md`, README files, documentation routing, and canonical document ownership;
+- `AGENTS.md`, `CLAUDE.md`, README files, documentation routing, and canonical document ownership;
 - build, validation, UAT, Git, and managed-worktree conventions;
 - Codex `.codex/config.toml` and `.codex/agents/` when Codex is the host;
 - Claude `.claude/agents/` and relevant project `.claude/settings.json` entries when Claude Code is the host;
@@ -41,12 +41,12 @@ profiles and let the user select or adjust them:
 
 | Role | Codex model / reasoning | Claude model / effort |
 | --- | --- | --- |
-| `frontend-architect` | `gpt-5.6-sol` / `medium` | `inherit` / `medium` |
-| `backend-architect` | `gpt-5.6-sol` / `medium` | `inherit` / `medium` |
-| `researcher` | `gpt-5.6-luna` / `medium` | `inherit` / `medium` |
-| `implementer` | `gpt-5.6-luna` / `high` | `inherit` / `high` |
-| `code-reviewer` | `gpt-5.6-luna` / `high` | `inherit` / `high` |
-| `qa-auditor` | `gpt-5.6-luna` / `max` | `inherit` / `max` |
+| `frontend-architect` | `gpt-5.6-sol` / `medium` | `opus` / `low` |
+| `backend-architect` | `gpt-5.6-sol` / `medium` | `opus` / `low` |
+| `researcher` | `gpt-5.6-luna` / `medium` | `sonnet` / `low` |
+| `implementer` | `gpt-5.6-luna` / `high` | `sonnet` / `high` |
+| `code-reviewer` | `gpt-5.6-luna` / `high` | `sonnet` / `high` |
+| `qa-auditor` | `gpt-5.6-luna` / `max` | `opus` / `medium` |
 
 These are recommendations, not a required role set or immutable policy. The
 `maintainable-code` skill is model-invoked for implementation and review;
@@ -54,30 +54,32 @@ These are recommendations, not a required role set or immutable policy. The
 
 Resolve the exact current model values before presenting the proposal. Use the
 active host's model picker or the provider's official model documentation/API
-(OpenAI model IDs and list API; Anthropic Models API/docs), not memory or a
-shorthand alias. The adapters do not call provider APIs or require credentials;
+(OpenAI model IDs and list API; Anthropic Models API/docs), not memory or an
+unverified alias. Claude's provider-native family aliases are `opus`, `sonnet`,
+`haiku`, and `fable`; a full current Claude ID may be used when a pinned version
+is preferred. The adapters do not call provider APIs or require credentials;
 they write only the values the user approves. On an explicit repeat
 initialization, repeat this lookup so released or retired models can be
 course-corrected without replacing the rest of a role.
 
-For Codex, explain that current releases enable subagents by default. Recommend `agents.enabled = true` only as an explicit project intent and `agents.max_concurrent_threads_per_session = 12` as an adjustable, user-owned starting value; preserve an existing or approved alternative such as 6. Detect legacy `features.multi_agent`, `agents.max_threads`, and `agents.max_depth` entries and offer their exact migration for approval. A selected role's explicit `model` field is sufficient to select the approved current model, including a full leaf-model ID, through current v2 delegation; do not force a v1 path or claim that a depth setting is required. For Claude Code, recommend project `.claude/agents/*.md` definitions with `model: inherit` unless the user approves a host-native alias/full ID, a suitable `effort`, restricted tools and `permissionMode: plan` for report-only roles, and no `Agent` tool for any generated role. Do not enable Claude's experimental Agent Teams or edit global settings.
+For Codex, explain that current releases enable subagents by default. Recommend `agents.enabled = true` only as an explicit project intent and `agents.max_concurrent_threads_per_session = 12` as an adjustable, user-owned starting value; preserve an existing or approved alternative such as 6. Detect legacy `features.multi_agent`, `agents.max_threads`, and `agents.max_depth` entries and offer their exact migration for approval. A selected role's explicit `model` field is sufficient to select the approved current model, including a full leaf-model ID, through current v2 delegation; do not force a v1 path or claim that a depth setting is required. For Claude Code, recommend project `.claude/agents/*.md` definitions with the role-aware `model`/`effort` baseline above, restricted tools and `permissionMode: plan` for report-only roles, and no `Agent` tool for any generated role. Claude automatically matches descriptions; the main thread can explicitly name a role in its dispatch prompt or use `@agent-<role>` for one task. Do not use `--agent` to dispatch a worker, enable Claude's experimental Agent Teams, or edit global settings.
 
 The same proposal must name every selected change and state `Create`, `Keep`, `Patch`, or `Skip`:
 
 - install `.agents/skills/plumbline-router/SKILL.md` from `templates/router/SKILL.md`;
 - create or audit the selected project agents using the host adapter: `.codex/agents/*.toml` for Codex or `.claude/agents/*.md` for Claude Code;
 - for Codex, create or patch project `.codex/config.toml` with current `agents.enabled` and concurrency settings only when approved;
-- add or update the Plumbline section in `AGENTS.md` with delegation and no-child rules; on a later explicit `$plumbline-init`, audit that section and offer a guidance-only refresh when it is stale;
+- add or update the host guidance section in `AGENTS.md` with delegation and no-child rules; for Claude Code, add the supported `@AGENTS.md` import to `CLAUDE.md`; on a later explicit `$plumbline-init`, audit both and offer a guidance-only refresh when either is stale;
 - add local `.git/info/exclude` entries so the host agent files and router stay untracked;
 - when propagation is approved, patch the root `.gitignore` with the exact host-local ignore entries and add `.worktreeinclude` for the selected host paths; the proposal must show both changes together rather than promising to keep `.gitignore` unchanged;
 - repair documentation routing only if the repository already needs it;
 - identify competing controllers and offer reversible conflict actions without applying them.
 
-Before asking for approval, run the host-specific candidate installer with `--dry-run --format json` and include its file/operation/field manifest in the proposal: `scripts/install_agent_team.py` for Codex or `scripts/install_claude_agent_team.py` for Claude Code. For an existing setup, use the same preview for `--mode initialize --update-agents --refresh-agents`; it changes only the managed `AGENTS.md` section. If the section is an older unmarked block, the preview must report that `--replace-agents-guidance` is required. If a repository-local router already exists, the preview must state whether it matches the current template and whether `--replace` would be required; never overwrite it merely because it is stale. This is read-only and does not approve or apply anything.
+Before asking for approval, run the host-specific candidate installer with `--dry-run --format json` and include the file/operation/field manifest in the proposal: `scripts/install_agent_team.py` for Codex or `scripts/install_claude_agent_team.py` for Claude Code. For an existing setup, use the same preview for `--mode initialize --update-agents --refresh-agents`; it changes only the managed `AGENTS.md` section for Codex or the managed Claude guidance plus its `CLAUDE.md` import for Claude Code. If the section is an older unmarked block, the preview must report that `--replace-agents-guidance` is required. If a repository-local router already exists, the preview must state whether it matches the current template and whether `--replace` would be required; never overwrite it merely because it is stale. This is read-only and does not approve or apply anything.
 
 ## After approval
 
-Apply only the approved items. Rerun the dry-run manifest; if the target changed, refresh the proposal before writing. Then rerun the host-specific installer without `--dry-run` using the approved roles, exact host-native model, reasoning/effort, thread cap where applicable, and explicit `--update-agents`/`--propagate` choices. On a later explicit initialization, repeat model lookup and compare the project profiles with the current host values; use the adapter's `--mode retune --update-profile` path for an approved profile change so only `model` plus reasoning/effort changes. This does not replace role instructions, permissions, sandbox/permission intent, or custom fields. Use `--update-agents --refresh-agents` for a guidance-only refresh; this does not replace roles or change config. Apply `--replace-agents-guidance` only after the user approves the exact preview of an older unmarked section, and replace only the managed section while preserving the rest of `AGENTS.md`. Use the same dry-run/apply sequence with `scripts/install_router.py` for the approved router. For existing teams, run `--mode audit` first; it is read-only and does not need `--replace`. A normal `--mode retune` preserves existing model, reasoning/effort, sandbox/permission, custom fields, and instructions; use `--fill-missing`, `--update-profile`, or the explicitly approved `--update-instructions` flag for narrow changes. `--replace` is reserved for an explicitly approved initialize replacement. Never write global or personal agent files.
+Apply only the approved items. Rerun the dry-run manifest; if the target changed, refresh the proposal before writing. Then rerun the host-specific installer without `--dry-run` using the approved roles, exact host-native model, reasoning/effort, thread cap where applicable, and explicit `--update-agents`/`--propagate` choices. On a later explicit initialization, repeat model lookup and compare the project profiles with the current host values; use the adapter's `--mode retune --update-profile` path for an approved profile change so only `model` plus reasoning/effort changes. This does not replace role instructions, permissions, sandbox/permission intent, or custom fields. Use `--update-agents --refresh-agents` for a guidance-only refresh; this does not replace roles or change config, and for Claude Code it also repairs the `CLAUDE.md` import without duplicating the guidance block. Apply `--replace-agents-guidance` only after the user approves the exact preview of an older unmarked section, and replace only the managed section while preserving the rest of `AGENTS.md` and `CLAUDE.md`. Use the same dry-run/apply sequence with `scripts/install_router.py` for the approved router. For existing teams, run `--mode audit` first; it is read-only and does not need `--replace`. A normal `--mode retune` preserves existing model, reasoning/effort, sandbox/permission, custom fields, and instructions; use `--fill-missing`, `--update-profile`, or the explicitly approved `--update-instructions` flag for narrow changes. `--replace` is reserved for an explicitly approved initialize replacement. Never write global or personal agent files.
 
 Validate Plumbline setup separately from repository product checks. Report Plumbline files/config/TOML-or-Markdown/ignore/worktree validation as passed or failed; preflight repository commands for missing dependencies or executables; and label repository checks as passed, skipped, or blocked. Missing dependencies are a repository bootstrap blocker, not a Plumbline setup failure, and do not justify starting `npm ci` or another install without approval. Validate required host fields, Codex collaboration state and any user-owned concurrency value, AGENTS guidance, local discovery paths, ignore rules, exact changed-field output, `git diff --check`, and the `.worktreeinclude` contents. Explain that propagation affects new managed worktrees only when the host/repository workflow supports it; the `.worktreeinclude` manifest must be committed for future worktrees to see it, and existing worktrees need explicit refresh or local copy. A delegation wave must report selected role names with host-native model and reasoning/effort values in one compact line; otherwise report `Direct: <reason>` and continue on the main thread. End initialization and recommend a fresh task for feature work.
 

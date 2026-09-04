@@ -2,7 +2,7 @@
 
 ## Route the question first
 
-Research repository facts before asking factual questions. Inspect the nearest `AGENTS.md`, canonical docs, relevant code and tests, configuration, current Git state, and only the history that can distinguish the current behavior. Use the repository's terminology.
+Research repository facts before asking factual questions. Inspect the nearest `AGENTS.md` and, when Claude Code is the host, the applicable `CLAUDE.md`, canonical docs, relevant code and tests, configuration, current Git state, and only the history that can distinguish the current behavior. Use the repository's terminology.
 
 During Shape, classify each unresolved item before deciding whether to ask the user:
 

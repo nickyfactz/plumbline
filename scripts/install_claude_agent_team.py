@@ -28,6 +28,8 @@ from install_agent_team import (
 
 MODES = ("initialize", "audit", "retune")
 AGENT_ROOT = Path(".claude") / "agents"
+CLAUDE_GUIDANCE_FILE = Path("CLAUDE.md")
+CLAUDE_AGENTS_IMPORT = "@AGENTS.md"
 LOCAL_IGNORE_FILES = (".claude/agents/",)
 WORKTREE_FILES = (".claude/agents/*.md",)
 REQUIRED_FIELDS = ("name", "description", "model", "effort", "tools", "permissionMode")
@@ -48,13 +50,26 @@ ROLE_PERMISSION_MODES = {
     "code-reviewer": "plan",
     "qa-auditor": "plan",
 }
+RECOMMENDED_PROFILES = {
+    "frontend-architect": ("opus", "low"),
+    "backend-architect": ("opus", "low"),
+    "researcher": ("sonnet", "low"),
+    "implementer": ("sonnet", "high"),
+    "code-reviewer": ("sonnet", "high"),
+    "qa-auditor": ("opus", "medium"),
+}
 RECOMMENDED_EFFORTS = {
-    "frontend-architect": "medium",
-    "backend-architect": "medium",
-    "researcher": "medium",
-    "implementer": "high",
-    "code-reviewer": "high",
-    "qa-auditor": "max",
+    role: effort for role, (_model, effort) in RECOMMENDED_PROFILES.items()
+}
+CLAUDE_EFFORTS = {"low", "medium", "high", "xhigh", "max"}
+CLAUDE_PERMISSION_MODES = {
+    "default",
+    "acceptEdits",
+    "auto",
+    "dontAsk",
+    "bypassPermissions",
+    "plan",
+    "manual",
 }
 CLAUDE_GUIDANCE_MARKERS = (
     AGENT_GUIDANCE_START,
@@ -80,6 +95,10 @@ CLAUDE_GUIDANCE_MARKERS = (
     "code-reviewer",
     "provider-versioned inputs",
     "profile refresh",
+    "model aliases",
+    "@agent-<role>",
+    "hot-reloads",
+    "Codex-only",
 )
 
 
@@ -131,7 +150,7 @@ def _render_agent(plugin: Path, role: str, model: str, effort: str) -> str:
 def _profile(role: str, model: str | None, effort: str | None) -> tuple[str, str]:
     if (model is None) != (effort is None):
         raise ValueError("--model and --effort must be supplied together")
-    return (model, effort) if model is not None else ("inherit", RECOMMENDED_EFFORTS[role])
+    return (model, effort) if model is not None else RECOMMENDED_PROFILES[role]
 
 
 def _frontmatter(text: str, path: Path) -> tuple[list[str], int, dict[str, object], str]:
@@ -206,9 +225,29 @@ def _validate_agent(path: Path, role: str, text: str) -> list[str]:
             findings.append(f"{path}: missing required field {field}")
     if values.get("name") not in (None, role):
         findings.append(f"{path}: name is {values['name']!r}, expected {role!r}")
+    model = values.get("model")
+    if isinstance(model, str) and (model in {"sol", "luna"} or model.startswith("gpt-")):
+        findings.append(
+            f"{path}: model {model!r} appears to be a Codex/OpenAI value; use a Claude alias, full ID, or inherit"
+        )
+    effort = values.get("effort")
+    if effort not in CLAUDE_EFFORTS:
+        findings.append(f"{path}: effort must be one of: {', '.join(sorted(CLAUDE_EFFORTS))}")
+    permission_mode = values.get("permissionMode")
+    if permission_mode not in CLAUDE_PERMISSION_MODES:
+        findings.append(
+            f"{path}: permissionMode must be one of: {', '.join(sorted(CLAUDE_PERMISSION_MODES))}"
+        )
     tools = values.get("tools", [])
+    if not isinstance(tools, list) or any(not isinstance(tool, str) for tool in tools):
+        findings.append(f"{path}: tools must be a YAML list of tool names")
+        tools = []
     if "Agent" in tools:
         findings.append(f"{path}: Agent tool would permit child delegation")
+    if role != "implementer" and any(tool in {"Edit", "Write", "Bash"} for tool in tools):
+        findings.append(f"{path}: report-only role must not expose Edit, Write, or Bash tools")
+    if role == "implementer" and not {"Edit", "Write"}.issubset(tools):
+        findings.append(f"{path}: implementer must expose Edit and Write tools")
     if "spawn child" not in body.lower():
         findings.append(f"{path}: missing no-child boundary")
     if "main thread" not in body.lower() or "dispatch another worker" not in body.lower():
@@ -239,7 +278,8 @@ invoke the `maintainable-code` skill. Implementers apply its implementation and
 human-legibility guidance; `code-reviewer` applies its adversarial review gate.
 
 Keep the orchestrator thin. The main thread reads only the controlling artifact, repository guidance, Git state, and named paths needed to route and integrate work. Before broad repository search, multi-file fact gathering, external research, or cross-seam review, dispatch a matching project-local role with a bounded question. Ask read-heavy workers for a compact decision packet: conclusion, exact paths/symbols/URLs, constraints, residual uncertainty, and next action; omit search narration, large excerpts, exhaustive inventories, and successful logs. Keep work direct only when its answer and target are already known, it is tightly coupled to a main-owned product/integration/Git/singleton action, or dispatch costs more context than the task.
-Give subagents anchored briefs and disjoint write sets. Researcher, architect, code-reviewer, and QA roles are report-only and receive no write set; their `permissionMode = plan` and restricted tools are intent, while the parent permission context can take precedence. Implementers use the bundled `maintainable-code` skill while writing; code-reviewer uses its review branch before QA. Each write-capable role receives only its approved bounded write set. Delegation is main-mediated: every worker returns to the main thread, worker recommendations are advisory, and only the main thread selects and dispatches the next capability. Subagents never invoke the Agent tool or spawn children. When independent work is ready, the main thread may dispatch one parallel wave only with a stable contract, disjoint scopes, no result dependency, and a clear join condition; otherwise keep it serial. For Execute checkpoints, delegation is the default: dispatch useful bounded research, architecture, implementation, review, testing, or another matching capability before the main thread duplicates it. Reread the selected `.claude/agents/*.md` before each wave; changed values apply to new subagents, while running workers keep their creation profile. Use current project-local values; never substitute a personal/global role. If a role is absent in the active worktree, refresh only the ignored project-local agent files from the source checkout through the repository's propagation convention, then use `Direct: <reason>` only if it remains unavailable. Record `delegation_roles` and `delegation_status` in the compact checkpoint resume record and restore them after compaction. Emit one compact dispatch line with role names, configured models/efforts, and short assignments; omit routine status and standard-boundary narration. Tiny and inherently main-owned actions need no `Direct:` note. Claude model and effort choices remain adjustable; do not copy Codex model slugs into these files. Plumbline does not edit global Claude settings or enable experimental Agent Teams.
+Give subagents anchored briefs and disjoint write sets. Researcher, architect, code-reviewer, and QA roles are report-only and receive no write set; their `permissionMode = plan` and restricted tools are intent, while the parent permission context can take precedence. Implementers use the bundled `maintainable-code` skill while writing; code-reviewer uses its review branch before QA. Each write-capable role receives only its approved bounded write set. Delegation is main-mediated: every worker returns to the main thread, worker recommendations are advisory, and only the main thread selects and dispatches the next capability. Subagents never invoke the Agent tool or spawn children. When independent work is ready, the main thread may dispatch one parallel wave only with a stable contract, disjoint scopes, no result dependency, and a clear join condition; otherwise keep it serial. For Execute checkpoints, delegation is the default: dispatch useful bounded research, architecture, implementation, review, testing, or another matching capability before the main thread duplicates it. Reread the selected `.claude/agents/*.md` before each wave; changed values apply to new subagents, while running workers keep their creation profile. Use current project-local values; never substitute a personal/global role. If a role is absent in the active worktree, refresh only the ignored project-local agent files from the source checkout through the repository's propagation convention, then use `Direct: <reason>` only if it remains unavailable. Record `delegation_roles` and `delegation_status` in the compact checkpoint resume record and restore them after compaction. Emit one compact dispatch line with role names, configured models/efforts, and short assignments; omit routine status and standard-boundary narration. Tiny and inherently main-owned actions need no `Direct:` note. Claude model and effort choices remain adjustable; do not copy Codex model slugs into these files. Claude's automatic delegation matches descriptions; name a role in the dispatch prompt or use `@agent-<role>` for an explicit one-task invocation. `--agent` makes that role the main session agent, not a worker dispatch. Claude Code hot-reloads edits to an existing `.claude/agents/` directory; restart or start a fresh session after creating the directory for the first time. Plumbline does not edit global Claude settings or enable experimental Agent Teams.
+When `AGENTS.md` contains provider-specific instructions, follow only provider-neutral or Claude-labeled guidance; do not apply Codex-only TOML, model, or configuration syntax.
 Model values are provider-versioned inputs. Before initialization or an explicit
 profile refresh, resolve the current Claude alias or full model ID from the host
 model picker or Anthropic's official model documentation/API; use that
@@ -281,6 +321,18 @@ def _prepare_guidance(
     return target, _replace_guidance_section(text, "## Local Claude agent team", replacement), False, None
 
 
+def _prepare_claude_import(repo: Path, *, agents_created: bool = False) -> tuple[Path, str] | None:
+    """Return a CLAUDE.md proposal that imports the shared AGENTS.md guidance."""
+    agents = repo / "AGENTS.md"
+    if not agents.is_file() and not agents_created:
+        return None
+    target = repo / CLAUDE_GUIDANCE_FILE
+    text = target.read_text(encoding="utf-8") if target.is_file() else "# CLAUDE.md\n"
+    if any(line.strip() == CLAUDE_AGENTS_IMPORT for line in text.splitlines()):
+        return target, text
+    return target, text.rstrip() + f"\n\n{CLAUDE_AGENTS_IMPORT}\n"
+
+
 def _audit(repo: Path, roles: tuple[str, ...]) -> InstallReport:
     findings: list[str] = []
     for role in roles:
@@ -309,6 +361,13 @@ def _audit(repo: Path, roles: tuple[str, ...]) -> InstallReport:
                 for marker in CLAUDE_GUIDANCE_MARKERS
                 if marker not in section_text
             )
+            claude = repo / CLAUDE_GUIDANCE_FILE
+            if not claude.is_file():
+                findings.append(f"{claude}: missing {CLAUDE_AGENTS_IMPORT} import for Claude project guidance")
+            else:
+                claude_text = claude.read_text(encoding="utf-8")
+                if not any(line.strip() == CLAUDE_AGENTS_IMPORT for line in claude_text.splitlines()):
+                    findings.append(f"{claude}: missing {CLAUDE_AGENTS_IMPORT} import for Claude project guidance")
     return InstallReport({}, tuple(findings))
 
 
@@ -336,6 +395,15 @@ def _refresh_guidance(
         operations[target] = "modify" if target.exists() else "create"
         if not dry_run:
             _write(target, proposed)
+    pointer = _prepare_claude_import(repo, agents_created=True)
+    if pointer:
+        pointer_target, pointer_proposed = pointer
+        pointer_current = pointer_target.read_text(encoding="utf-8") if pointer_target.is_file() else ""
+        if pointer_current != pointer_proposed:
+            changes[pointer_target] = (CLAUDE_AGENTS_IMPORT + " import",)
+            operations[pointer_target] = "modify" if pointer_target.exists() else "create"
+            if not dry_run:
+                _write(pointer_target, pointer_proposed)
     return InstallReport(changes, tuple(findings), operations, requires_replace=requires_replace)
 
 
@@ -458,6 +526,15 @@ def _initialize(
                 _write(target, text)
             changes[target] = ("local Claude agent-team guidance",)
             operations[target] = "modify" if target.exists() else "create"
+        pointer = _prepare_claude_import(repo, agents_created=True)
+        if pointer:
+            pointer_target, pointer_proposed = pointer
+            pointer_current = pointer_target.read_text(encoding="utf-8") if pointer_target.is_file() else ""
+            if pointer_current != pointer_proposed:
+                if not dry_run:
+                    _write(pointer_target, pointer_proposed)
+                changes[pointer_target] = (CLAUDE_AGENTS_IMPORT + " import",)
+                operations[pointer_target] = "modify" if pointer_target.exists() else "create"
         if finding:
             findings = [finding]
         else:
@@ -581,7 +658,7 @@ def _print_report(mode: str, report: InstallReport, *, dry_run: bool, output_for
     for finding in report.findings:
         print(f"Finding: {finding}")
     if report.requires_replace:
-        print("Approval required: rerun with --replace-agents-guidance after reviewing the proposed AGENTS.md refresh.")
+        print("Approval required: rerun with --replace-agents-guidance after reviewing the proposed Claude guidance refresh.")
     if mode == "audit":
         print("Audit was read-only; no files were written.")
     print("Global Claude settings and experimental Agent Teams were not changed.")
@@ -602,16 +679,20 @@ def main() -> int:
         action="store_true",
         help="Retune only the explicitly approved model and effort fields",
     )
-    parser.add_argument("--update-agents", action="store_true", help="Add the approved AGENTS.md section")
+    parser.add_argument(
+        "--update-agents",
+        action="store_true",
+        help="Add approved Claude guidance in AGENTS.md and import it from CLAUDE.md",
+    )
     parser.add_argument(
         "--refresh-agents",
         action="store_true",
-        help="During an explicit initialization rerun, refresh only the managed AGENTS.md section",
+        help="During an explicit initialization rerun, refresh only managed Claude guidance and its CLAUDE.md import",
     )
     parser.add_argument(
         "--replace-agents-guidance",
         action="store_true",
-        help="Allow explicit replacement of a stale unmarked AGENTS.md team section",
+        help="Allow explicit replacement of a stale unmarked Claude guidance section",
     )
     parser.add_argument("--propagate", action="store_true", help="Add ignored-file worktree propagation")
     parser.add_argument("--dry-run", action="store_true", help="Preview exact changes without writing files")

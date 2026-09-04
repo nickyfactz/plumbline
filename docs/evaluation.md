@@ -10,7 +10,7 @@ python scripts/test_install_agent_team.py
 python scripts/test_install_claude_agent_team.py
 ```
 
-It checks the manifests, both marketplaces, 20 skill manifests, public/engine invocation policies, reference set, router word budget, project-agent template fields, local multi-agent defaults, worktree patterns, and helper-script syntax. These are static configuration/workflow-intent checks; they do not prove effective permissions in a spawned session. The Codex and Claude installer smoke tests prove that approved setup creates host-local roles, guidance, ignore rules, and propagation manifests without touching global files; their dry-run paths prove the same manifests without writes. Router and AGENTS drift audits are report-only and never overwrite customized integration files.
+It checks the manifests, both marketplaces, 20 skill manifests, public/engine invocation policies, reference set, router word budget, project-agent template fields, local multi-agent defaults, worktree patterns, and helper-script syntax. These are static configuration/workflow-intent checks; they do not prove effective permissions in a spawned session. The Codex and Claude installer smoke tests prove that approved setup creates host-local roles, guidance, the Claude `@AGENTS.md` instruction pointer when applicable, ignore rules, and propagation manifests without touching global files; their dry-run paths prove the same manifests without writes. Router and host-guidance drift audits are report-only and never overwrite customized integration files.
 
 ## Platform smoke checks
 
@@ -45,7 +45,7 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 21. When a task requires hard read-only isolation but the host cannot provide it, the workflow reports `Direct: delegation prohibited or effective read-only isolation unavailable`.
 22. A resume with unchanged checkout and referenced contracts reuses checkpoint evidence instead of rereading whole documents or rerunning broad checks.
 23. A resume after relevant source drift invalidates only affected evidence and reassesses it before advancement.
-24. A stale repository-local router or AGENTS guidance section is reported with a proposed refresh and no automatic overwrite.
+24. A stale repository-local router or host guidance section is reported with a proposed refresh and no automatic overwrite; Claude guidance also reports a missing `@AGENTS.md` import from `CLAUDE.md`.
 25. An explicitly selected competing orchestration loop is named as lifecycle owner; Plumbline does not stack or advance it.
 26. A delegation wave reports role names, host-native model and reasoning/effort values, and short assignments in one compact line; routine boundary and status narration is omitted unless an exception matters.
 26a. Worker recommendations return to the main thread; only the main thread selects and dispatches the next capability, with no worker-created delegation wave or visible graph telemetry.
@@ -90,7 +90,7 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 59. A review `CHANGES_REQUIRED` result reopens the same checkpoint and sends it through Diagnose, correction, and review; it does not close the objective or select a successor.
 60. An inconclusive, environment, or harness failure becomes `Blocked` only when it prevents safe progress beyond bounded repair; otherwise it remains `In Progress` through Diagnose without discarding the active candidate.
 61. Closeout refuses an unresolved `Blocked` or `Reopened` objective, and a safety rollback retains the candidate in durable Git history before active-source removal.
-62. Claude setup creates project-local `.claude/agents/*.md` roles with host-native model, effort, tools, and permission fields, without creating `.claude/settings.json` or enabling experimental Agent Teams.
+62. Claude setup creates project-local `.claude/agents/*.md` roles with host-native model, effort, tools, and permission fields, without creating `.claude/settings.json` or enabling experimental Agent Teams; it adds the supported `@AGENTS.md` import to `CLAUDE.md` when shared guidance is stored in `AGENTS.md`; explicit worker dispatch uses `@agent-<role>`, while `--agent` is reserved for making a role the main session agent.
 63. Claude report-only roles, including `code-reviewer`, omit the `Agent` tool, carry a `plan` permission intent, and preserve custom model, effort, frontmatter, and instructions during audit/retune.
 64. A blocker, regression, repeated failure, or failed expensive gate establishes the relevant failure path, broken owner, and contract/invariant before another corrective cycle; moving the error is not sufficient proof.
 65. A trivial local fix may use the lightweight path only when the diagnosis records `Local cause confirmed` and why wider caller or contract tracing is unnecessary.
@@ -101,7 +101,7 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 70. Plan updates are idempotent and leave enough current truth for a fresh agent to resume without reading superseded events.
 71. An unfamiliar read-heavy task keeps the main orchestrator thin by delegating bounded repository exploration and continuing from a compact decision packet rather than repeating the search.
 72. Material code review dispatches a fresh report-only `code-reviewer` before `qa-auditor`; the reviewer owns maintainability and design findings while QA owns acceptance, proof, and documentation alignment.
-73. The default initialized team exposes the role-aware starting recommendations: Sol/medium architects, Luna/medium researcher, Luna/high implementer and code-reviewer, Luna/max QA, and 12 concurrent threads; users may override these values without the installer treating them as policy.
+73. The default initialized team exposes the role-aware starting recommendations: Codex Sol/medium architects, Luna/medium researcher, Luna/high implementer and code-reviewer, Luna/max QA; Claude Opus/low architects, Sonnet/low researcher, Sonnet/high implementer and code-reviewer, Opus/medium QA; and 12 concurrent Codex threads. Users may override these values without the installer treating them as policy.
 
 ## User UAT
 
@@ -123,5 +123,5 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 16. Run `scripts/install_router.py --dry-run --format json` against an older local router and confirm it reports `modify`, preserves the file, and marks `requires_replace`.
 17. In a Claude Code fixture, run `/plumbline:plumbline-init`, review the host-native role table and dry-run manifest, approve the project-local team, and confirm only `.claude/agents/*.md`, approved guidance, ignore rules, and optional propagation are created.
 18. In the Claude fixture, confirm report-only roles cannot invoke `Agent`, Claude global settings remain unchanged, and `/reload-plugins` or a new session loads the updated plugin.
-19. In an initialized Codex and Claude fixture, invoke initialization again with the approved guidance-refresh path and confirm the dry run lists only `AGENTS.md`; roles, config, and custom text outside the managed block remain unchanged.
+19. In an initialized Codex and Claude fixture, invoke initialization again with the approved guidance-refresh path and confirm the dry run lists only the relevant managed guidance plus, for Claude, a missing `@AGENTS.md` import in `CLAUDE.md`; roles, config, and custom text outside the managed areas remain unchanged.
 20. In a legacy fixture with an unmarked agent-team section, confirm the refresh preview reports `requires_replace`, the normal apply refuses to overwrite it, and only the explicit `--replace-agents-guidance` path updates the managed section after approval.

@@ -6,7 +6,7 @@ from __future__ import annotations
 import tempfile
 from pathlib import Path
 
-from install_claude_agent_team import RECOMMENDED_EFFORTS, ROLES, install
+from install_claude_agent_team import RECOMMENDED_EFFORTS, RECOMMENDED_PROFILES, ROLES, install
 
 
 def main() -> None:
@@ -35,6 +35,8 @@ def main() -> None:
         assert "permissionMode: default" in implementer
         assert '"Edit"' in implementer and '"Write"' in implementer
         guidance = (root / "AGENTS.md").read_text(encoding="utf-8")
+        claude_instructions = (root / "CLAUDE.md").read_text(encoding="utf-8")
+        assert "@AGENTS.md" in claude_instructions
         assert "- `researcher`" in guidance
         assert "main-mediated" in guidance
         assert "recommendations are advisory" in guidance
@@ -55,6 +57,9 @@ def main() -> None:
         assert "small direct work need no rewrite" in guidance
         assert "provider-versioned inputs" in guidance
         assert "profile refresh" in guidance
+        assert "@agent-<role>" in guidance
+        assert "hot-reloads" in guidance
+        assert "Codex-only" in guidance
         assert "source checkout" in guidance
         assert ".claude/agents/" in (root / ".gitignore").read_text(encoding="utf-8")
         assert ".claude/agents/*.md" in (root / ".worktreeinclude").read_text(encoding="utf-8")
@@ -94,10 +99,10 @@ def main() -> None:
         root = Path(raw_root)
         (root / ".git" / "info").mkdir(parents=True)
         install(plugin_root, root, roles=ROLES)
-        for role, effort in RECOMMENDED_EFFORTS.items():
+        for role, (model, effort) in RECOMMENDED_PROFILES.items():
             path = root / ".claude" / "agents" / f"{role}.md"
             text = path.read_text(encoding="utf-8")
-            assert 'model: "inherit"' in text
+            assert f'model: "{model}"' in text
             assert f"effort: {effort}" in text
         reviewer = (root / ".claude" / "agents" / "code-reviewer.md").read_text(encoding="utf-8")
         assert "maintainable-code" in reviewer
@@ -120,7 +125,11 @@ def main() -> None:
             dry_run=True,
         )
         assert preview.requires_replace is True
-        assert preview.changes == {agents: ("local Claude agent-team guidance",)}
+        claude = root / "CLAUDE.md"
+        assert preview.changes == {
+            agents: ("local Claude agent-team guidance",),
+            claude: ("@AGENTS.md import",),
+        }
         try:
             install(
                 plugin_root,
@@ -147,6 +156,7 @@ def main() -> None:
         assert "<!-- plumbline:managed-agent-team:start -->" in refreshed
         assert "# Project" in refreshed
         assert "## Notes\nKeep this text." in refreshed
+        assert "@AGENTS.md" in (root / "CLAUDE.md").read_text(encoding="utf-8")
 
     with tempfile.TemporaryDirectory() as raw_root:
         root = Path(raw_root)
@@ -197,6 +207,18 @@ def main() -> None:
         assert 'model: "approved-claude-model"' in refreshed
         assert 'effort: "max"' in refreshed
         assert "Custom instructions." in refreshed
+
+    with tempfile.TemporaryDirectory() as raw_root:
+        root = Path(raw_root)
+        (root / ".git" / "info").mkdir(parents=True)
+        install(plugin_root, root, roles=ROLES)
+        researcher_path = root / ".claude" / "agents" / "researcher.md"
+        researcher_path.write_text(
+            researcher_path.read_text(encoding="utf-8").replace('model: "sonnet"', 'model: "gpt-5.6-luna"'),
+            encoding="utf-8",
+        )
+        audit = install(plugin_root, root, mode="audit", roles=("researcher",))
+        assert any("Codex/OpenAI value" in finding for finding in audit.findings)
 
     print("claude-agent-team-installer-smoke=passed")
 

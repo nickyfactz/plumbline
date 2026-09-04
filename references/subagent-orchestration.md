@@ -42,6 +42,13 @@ Worker leaf behavior is a Plumbline orchestration boundary, not a Codex depth-se
 
 Delegation is hub-and-spoke: every worker returns evidence to the main thread. A worker recommendation is advisory; only the main thread selects the next capability, builds the next brief, and dispatches it. Workers never invoke, hand off to, or dispatch another worker. This rule does not require visible `main -> worker -> main` telemetry or a graph artifact.
 
+On Claude Code, the project-local Markdown role is selected automatically from
+its description or explicitly for one task with `@agent-<role>`. Do not use
+`--agent <role>` as a worker dispatch: that starts the whole session as the
+selected role. Claude's `/tasks` shows running subagents. On Codex, use the
+host's native child-dispatch surface and its current project-local TOML profile;
+do not copy either provider's model or invocation syntax across hosts.
+
 ## Worker lifetime
 
 Treat an in-flight worker as active until the host reports a terminal result.
