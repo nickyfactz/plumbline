@@ -127,14 +127,16 @@ mandatory final-gate rule.
 
 ## Delegation-first ownership
 
-For an approved Execute checkpoint, delegation is the default whenever an
-approved project-local role can own useful research, architecture,
-implementation, review, testing, or another capability with a clear read,
-report, or write boundary. Dispatch the matching role or roles before the main
-thread duplicates that work. Preserve each selected role's configured model,
-reasoning/effort, and sandbox/permission intent; do not invent or substitute a
-personal/global role. This supports one bounded worker or a dependency-safe
-parallel wave without a fixed role map.
+For an approved Execute checkpoint or other material Execute work, delegation
+is the default whenever an approved project-local role can own useful research,
+architecture, implementation, review, testing, or another capability with a
+clear read, report, or write boundary. This applies to implementation,
+review, testing, and integration-support work as well as discovery; it is not
+limited to audits or broad searches. Prefer read-heavy or independent work and
+dependency-safe parallel waves when their contracts are stable. Dispatch the
+matching role or roles before the main thread duplicates that work. Preserve
+each selected role's configured model, reasoning/effort, and sandbox/permission
+intent; do not invent or substitute a personal/global role.
 
 Keep the main thread for product decisions, lifecycle and plan state, worker
 joins and integration, Git, singleton operations, and work too small or coupled

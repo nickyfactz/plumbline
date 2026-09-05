@@ -41,7 +41,9 @@ def main() -> None:
         assert "main-mediated" in guidance
         assert "recommendations are advisory" in guidance
         assert "parallel wave" in guidance
-        assert "delegation is the default" in guidance
+        assert "explicit user instructions as authoritative" in guidance
+        assert "material Execute work" in guidance
+        assert "materially reduces main-thread context" in guidance
         assert "delegation_roles" in guidance
         assert "delegation_status" in guidance
         assert "bounded research" in guidance
@@ -68,7 +70,7 @@ def main() -> None:
         role_path = root / ".claude" / "agents" / "researcher.md"
         role_before = role_path.read_text(encoding="utf-8")
         agents = root / "AGENTS.md"
-        stale_guidance = agents.read_text(encoding="utf-8").replace("delegation is the default", "delegation is available")
+        stale_guidance = agents.read_text(encoding="utf-8").replace("material Execute work", "small Execute work")
         agents.write_text(stale_guidance + "\n## Project notes\nKeep this text.\n", encoding="utf-8")
         preview = install(
             plugin_root,

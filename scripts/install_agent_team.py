@@ -85,25 +85,45 @@ Use `$plumbline-init` for the combined router/team setup and `$plumbline-agent-t
 
 {role_lines}
 
+Treat explicit user instructions as authoritative over Plumbline defaults and
+process preferences, but interpret them in the context of the user's stated
+outcome, approved artifacts, and repository evidence. Do not follow an
+ambiguous instruction literally when doing so would contradict the apparent
+goal, approved contract, or safety boundary. Resolve ordinary ambiguity with a
+safe reversible default; ask a focused product question only when competing
+interpretations would materially change behavior.
+
 When Git is established, material multi-step Execute work uses a required Git
-policy by default. Ask once before Execute to create main-thread commits at
-coherent checkpoint or batch boundaries, assuming yes unless the user opts
-out; record `HEAD`, keep unrelated dirty files out, and do not advance
-dependent checkpoints with uncommitted plan-owned changes. Use checkpoint
-commits, `git show`, and focused diffs for worker hydration. If Git is absent,
-recommend establishing it before Execute and report an explicit opt-out as
-Git-unanchored.
+policy by default. Create main-thread commits at coherent checkpoint or batch
+boundaries unless the user explicitly opts out; state the policy once without
+blocking for approval. Record `HEAD`, keep unrelated dirty files, scratch, and
+secrets out, and do not advance dependent checkpoints with uncommitted
+plan-owned changes. Use checkpoint commits, `git show`, and focused diffs for
+worker hydration. Ask before push, force-push, history rewriting, or external
+publication. If Git is absent, recommend establishing it before Execute and
+report an explicit opt-out as Git-unanchored.
 
 Maintainable code: when writing, modifying, or reviewing production code,
 invoke the `maintainable-code` skill. Implementers apply its implementation and
 human-legibility guidance; `code-reviewer` applies its adversarial review gate.
 
-Keep the orchestrator thin. The main thread reads only the controlling artifact, repository guidance, Git state, and named paths needed to route and integrate work. Before broad grep, repository archaeology, multi-file fact gathering, external research, or cross-seam review, dispatch a matching project-local role with a bounded question. Ask read-heavy workers for a compact decision packet: conclusion, exact paths/symbols/URLs, constraints, residual uncertainty, and next action; omit search narration, large excerpts, exhaustive inventories, and successful logs. Keep direct work only when the answer and target are already known, the read is tightly coupled to a main-owned product/integration/Git/singleton action, or dispatch costs more context than the task.
+Keep the orchestrator thin. The main thread reads only the controlling artifact, repository guidance, Git state, and named paths needed to route and integrate work. Before broad grep, repository archaeology, multi-file fact gathering, external research, or cross-seam review, dispatch a matching project-local role with a bounded question when it can return a bounded result that materially reduces main-thread context or improves quality; keep small, tightly coupled, and inherently main-owned work direct. Ask read-heavy workers for a compact decision packet: conclusion, exact paths/symbols/URLs, constraints, residual uncertainty, and next action; omit search narration, large excerpts, exhaustive inventories, and successful logs. Keep direct work only when the answer and target are already known, the read is tightly coupled to a main-owned product/integration/Git/singleton action, or dispatch costs more context than the task.
 Give workers anchored read sections and disjoint write sets; do not pass full history or whole documentation trees. The report-only roles (researcher, architect, code-reviewer, and QA) receive no write set. Their `sandbox_mode = "read-only"` is intent; a writable parent may affect the child's effective sandbox. Before each wave, reread the applicable project-local config and selected role files. Emit one compact line such as `Delegated: researcher [model=<slug>, reasoning=<effort>] — map the persistence owner`; include selected roles, current configured model slugs and reasoning efforts, and short assignments. Mention standard boundaries or effective values only when an exception, observable mismatch, or user question makes them material. Omit routine starting, waiting, returned, and unchanged-configuration narration. A changed profile hash refreshes new dispatches; running workers retain their creation profile. Inspect Git status/diff after return and report only unexpected edits or material results. Each write-capable role receives only its approved bounded write set. Workers never spawn child agents. Do not use personal or global agent files as fallbacks. If a role is missing in the active worktree, refresh only the ignored project-local config/role files from the source checkout through `.worktreeinclude`, reread them, and use `Direct: <reason>` only if it remains unavailable.
 Delegation is main-mediated: every worker returns to the main thread, worker recommendations are advisory, and only the main thread selects and dispatches the next capability. Workers never invoke, hand off to, or dispatch another worker. When independent work is ready, the main thread may use one parallel wave only with a stable contract, disjoint scopes, no result dependency, and a clear join condition; otherwise keep it serial.
 Keep an in-flight worker active until the host reports a terminal result. Do not kill, abandon, or duplicate work because of elapsed time, silence, compaction, or an intermediate status; reconcile an observer timeout before recovery. Replace work only after a confirmed terminal/API/transport failure, explicit user stop, obsolete scope, or safety issue.
 Treat role profiles as reusable but worker instances as disposable: retire each terminal worker and dispatch a fresh instance for any new checkpoint, correction, failure, or acceptance task, even when selecting the same role. A follow-up is only for the exact same unfinished assignment when continuity materially helps; all new work gets a fresh instance. Use the host's fresh-child path and Codex `fork_turns="none"` when exposed. Never kill an active worker because it is quiet or compacting.
-For Execute checkpoints, delegation is the default: when an approved project-local role can own useful bounded research, architecture, implementation, review, testing, or another capability with a clear boundary, dispatch that role before the main thread duplicates the work. Use its configured model, reasoning effort, and sandbox intent; do not invent or substitute a personal/global role. Record `delegation_roles` and `delegation_status` in the checkpoint resume record and restore them after compaction. Keep product decisions, lifecycle/plan state, joins, integration, Git, singleton operations, or tiny coupled actions on the main thread. Emit `Direct: <reason>` only when useful bounded work looked delegable but no matching local role or host dispatch remains available; tiny and inherently main-owned actions need no transcript note.
+For material Execute work, prefer a matching project-local role for useful
+bounded research, architecture, implementation, review, testing, or another
+capability with a clear boundary, especially read-heavy or independent work
+that can safely run in parallel. Dispatch that role before the main thread
+duplicates the work. Use its configured model, reasoning effort, and sandbox
+intent; do not invent or substitute a personal/global role. Record
+`delegation_roles` and `delegation_status` in the checkpoint resume record and
+restore them after compaction. Keep product decisions, lifecycle/plan state,
+joins, integration, Git, singleton operations, or tiny coupled actions on the
+main thread. Emit `Direct: <reason>` only when useful bounded work looked
+delegable but no matching local role or host dispatch remains available; tiny
+and inherently main-owned actions need no transcript note.
 Keep current Codex collaboration enabled through `agents.enabled = true`. Treat `agents.max_concurrent_threads_per_session` as a user-owned host setting; the setup template recommends 12 as a starting value, but approved alternatives are preserved. Legacy `features.multi_agent`, `agents.max_threads`, and `agents.max_depth` values are migration candidates, not Plumbline requirements. Every role TOML must carry explicit `model`, `model_reasoning_effort`, and `sandbox_mode` values approved during setup.
 Treat project-local role files as live user-owned dispatch profiles: manual edits to model, reasoning, sandbox, or instructions apply to new workers without an audit or retune, while workers already running keep their original values. Audit/retune approval remains required for installer-managed changes. Never let dispatch overwrite the current project-local values.
 
@@ -144,7 +164,9 @@ AGENT_GUIDANCE_MARKERS = (
     "writable parent",
     "one lifecycle owner",
     "explicitly selected competing controller",
-    "delegation is the default",
+    "explicit user instructions as authoritative",
+    "material Execute work",
+    "materially reduces main-thread context",
     "delegation_roles",
     "delegation_status",
     "reread the applicable project-local config",

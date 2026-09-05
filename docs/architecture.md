@@ -132,11 +132,13 @@ remain serial. Results are classified and integrated at the main thread before
 downstream work is dispatched; this is guidance, not a scheduler or graph
 runtime.
 
-For an approved Execute checkpoint, delegation is the default whenever an
-approved project-local role can own useful bounded research, architecture,
+For material Execute work, delegation is the default whenever an approved
+project-local role can own useful bounded research, architecture,
 implementation, review, testing, or another capability with a clear boundary.
-The main thread dispatches that role before duplicating the work and preserves
-its configured model, reasoning/effort, and sandbox/permission intent. Product
+This applies to implementation, review, testing, and integration-support work
+as well as discovery; it is not limited to audits or broad searches. The main
+thread dispatches that role before duplicating the work and preserves its
+configured model, reasoning/effort, and sandbox/permission intent. Product
 decisions, lifecycle/plan state, joins, integration, Git, singleton operations,
 and tiny coupled actions remain direct. The active checkpoint resume record
 carries `delegation_roles` and `delegation_status` so compaction restores this

@@ -257,7 +257,7 @@ During an explicitly selected Codex Checkpoint Relay, a `Stop` event may write o
 
 If the work spans sessions, tell Plumbline which document is current. It keeps the active plan small: current decisions, checkpoint status, accepted proof, remaining risks, and the next action. It is not a transcript.
 
-For material multi-step work in a Git repository, Execute asks once whether to create commits at coherent checkpoint or batch boundaries. Approval is assumed unless you opt out; opting out is reported as Git-unanchored. Unrelated dirty files, ignored setup, secrets, generated output, and diagnostic scratch are not staged just to satisfy this convention.
+For material multi-step work in a Git repository, Execute creates commits at coherent checkpoint or batch boundaries by default and states that policy once; you may explicitly opt out, which is reported as Git-unanchored. Ask before push, force-push, history rewriting, or external publication. Unrelated dirty files, ignored setup, secrets, generated output, and diagnostic scratch are not staged just to satisfy this convention.
 
 Builds, deployments, restarts, migrations, and package publication stay with the main conversation or a named project owner. Workers can inspect or recommend those actions, but they do not duplicate shared side effects.
 

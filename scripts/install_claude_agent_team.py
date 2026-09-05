@@ -78,7 +78,9 @@ CLAUDE_GUIDANCE_MARKERS = (
     "main-mediated",
     "recommendations are advisory",
     "parallel wave",
-    "delegation is the default",
+    "explicit user instructions as authoritative",
+    "material Execute work",
+    "materially reduces main-thread context",
     "delegation_roles",
     "delegation_status",
     "bounded research",
@@ -264,21 +266,30 @@ Use only the approved project-local Claude Code subagents under `.claude/agents/
 
 {role_lines}
 
+Treat explicit user instructions as authoritative over Plumbline defaults and
+process preferences, but interpret them in the context of the user's stated
+outcome, approved artifacts, and repository evidence. Do not follow an
+ambiguous instruction literally when doing so would contradict the apparent
+goal, approved contract, or safety boundary. Resolve ordinary ambiguity with a
+safe reversible default; ask a focused product question only when competing
+interpretations would materially change behavior.
+
 When Git is established, material multi-step Execute work uses a required Git
-policy by default. Ask once before Execute to create main-thread commits at
-coherent checkpoint or batch boundaries, assuming yes unless the user opts
-out; record `HEAD`, keep unrelated dirty files out, and do not advance
-dependent checkpoints with uncommitted plan-owned changes. Use checkpoint
-commits, `git show`, and focused diffs for worker hydration. If Git is absent,
-recommend establishing it before Execute and report an explicit opt-out as
-Git-unanchored.
+policy by default. Create main-thread commits at coherent checkpoint or batch
+boundaries unless the user explicitly opts out; state the policy once without
+blocking for approval. Record `HEAD`, keep unrelated dirty files, scratch, and
+secrets out, and do not advance dependent checkpoints with uncommitted
+plan-owned changes. Use checkpoint commits, `git show`, and focused diffs for
+worker hydration. Ask before push, force-push, history rewriting, or external
+publication. If Git is absent, recommend establishing it before Execute and
+report an explicit opt-out as Git-unanchored.
 
 Maintainable code: when writing, modifying, or reviewing production code,
 invoke the `maintainable-code` skill. Implementers apply its implementation and
 human-legibility guidance; `code-reviewer` applies its adversarial review gate.
 
-Keep the orchestrator thin. The main thread reads only the controlling artifact, repository guidance, Git state, and named paths needed to route and integrate work. Before broad repository search, multi-file fact gathering, external research, or cross-seam review, dispatch a matching project-local role with a bounded question. Ask read-heavy workers for a compact decision packet: conclusion, exact paths/symbols/URLs, constraints, residual uncertainty, and next action; omit search narration, large excerpts, exhaustive inventories, and successful logs. Keep work direct only when its answer and target are already known, it is tightly coupled to a main-owned product/integration/Git/singleton action, or dispatch costs more context than the task.
-Give subagents anchored briefs and disjoint write sets. Researcher, architect, code-reviewer, and QA roles are report-only and receive no write set; their `permissionMode = plan` and restricted tools are intent, while the parent permission context can take precedence. Implementers use the bundled `maintainable-code` skill while writing; code-reviewer uses its review branch before QA. Each write-capable role receives only its approved bounded write set. Delegation is main-mediated: every worker returns to the main thread, worker recommendations are advisory, and only the main thread selects and dispatches the next capability. Subagents never invoke the Agent tool or spawn children. When independent work is ready, the main thread may dispatch one parallel wave only with a stable contract, disjoint scopes, no result dependency, and a clear join condition; otherwise keep it serial. For Execute checkpoints, delegation is the default: dispatch useful bounded research, architecture, implementation, review, testing, or another matching capability before the main thread duplicates it. Reread the selected `.claude/agents/*.md` before each wave; changed values apply to new subagents, while running workers keep their creation profile. Use current project-local values; never substitute a personal/global role. If a role is absent in the active worktree, refresh only the ignored project-local agent files from the source checkout through the repository's propagation convention, then use `Direct: <reason>` only if it remains unavailable. Record `delegation_roles` and `delegation_status` in the compact checkpoint resume record and restore them after compaction. Emit one compact dispatch line with role names, configured models/efforts, and short assignments; omit routine status and standard-boundary narration. Tiny and inherently main-owned actions need no `Direct:` note. Claude model and effort choices remain adjustable; do not copy Codex model slugs into these files. Claude's automatic delegation matches descriptions; name a role in the dispatch prompt or use `@agent-<role>` for an explicit one-task invocation. `--agent` makes that role the main session agent, not a worker dispatch. Claude Code hot-reloads edits to an existing `.claude/agents/` directory; restart or start a fresh session after creating the directory for the first time. Plumbline does not edit global Claude settings or enable experimental Agent Teams.
+Keep the orchestrator thin. The main thread reads only the controlling artifact, repository guidance, Git state, and named paths needed to route and integrate work. Before broad repository search, multi-file fact gathering, external research, or cross-seam review, dispatch a matching project-local role with a bounded question when it can return a bounded result that materially reduces main-thread context or improves quality; keep small, tightly coupled, and inherently main-owned work direct. Ask read-heavy workers for a compact decision packet: conclusion, exact paths/symbols/URLs, constraints, residual uncertainty, and next action; omit search narration, large excerpts, exhaustive inventories, and successful logs. Keep work direct only when its answer and target are already known, it is tightly coupled to a main-owned product/integration/Git/singleton action, or dispatch costs more context than the task.
+Give subagents anchored briefs and disjoint write sets. Researcher, architect, code-reviewer, and QA roles are report-only and receive no write set; their `permissionMode = plan` and restricted tools are intent, while the parent permission context can take precedence. Implementers use the bundled `maintainable-code` skill while writing; code-reviewer uses its review branch before QA. Each write-capable role receives only its approved bounded write set. Delegation is main-mediated: every worker returns to the main thread, worker recommendations are advisory, and only the main thread selects and dispatches the next capability. Subagents never invoke the Agent tool or spawn children. When independent work is ready, the main thread may dispatch one parallel wave only with a stable contract, disjoint scopes, no result dependency, and a clear join condition; otherwise keep it serial. For material Execute work, prefer a matching project-local role for useful bounded research, architecture, implementation, review, testing, or another capability with a clear boundary, especially read-heavy or independent work that can safely run in parallel. Dispatch that role before the main thread duplicates the work. Reread the selected `.claude/agents/*.md` before each wave; changed values apply to new subagents, while running workers keep their creation profile. Use current project-local values; never substitute a personal/global role. If a role is absent in the active worktree, refresh only the ignored project-local agent files from the source checkout through the repository's propagation convention, then use `Direct: <reason>` only if it remains unavailable. Record `delegation_roles` and `delegation_status` in the compact checkpoint resume record and restore them after compaction. Emit one compact dispatch line with role names, configured models/efforts, and short assignments; omit routine status and standard-boundary narration. Tiny and inherently main-owned actions need no `Direct:` note. Claude model and effort choices remain adjustable; do not copy Codex model slugs into these files. Claude's automatic delegation matches descriptions; name a role in the dispatch prompt or use `@agent-<role>` for an explicit one-task invocation. `--agent` makes that role the main session agent, not a worker dispatch. Claude Code hot-reloads edits to an existing `.claude/agents/` directory; restart or start a fresh session after creating the directory for the first time. Plumbline does not edit global Claude settings or enable experimental Agent Teams.
 When `AGENTS.md` contains provider-specific instructions, follow only provider-neutral or Claude-labeled guidance; do not apply Codex-only TOML, model, or configuration syntax.
 Model values are provider-versioned inputs. Before initialization or an explicit
 profile refresh, resolve the current Claude alias or full model ID from the host

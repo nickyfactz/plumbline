@@ -129,14 +129,16 @@ A trusted host continuity hook may reintroduce a compact reminder after resume o
 
 When `git_policy` is `required`, Execute establishes a clean recovery boundary
 before the first material checkpoint and after every accepted checkpoint. The
-main thread asks once at Execute entry to create main-thread commits, assuming
-yes unless the user explicitly declines. Commit only plan-owned changes; keep
-unrelated dirty work out of the commit. Record the resulting commit in the
-plan's `last_verified_commit` or proof pointer before advancing. Do not advance
-to a dependent checkpoint with uncommitted plan-owned changes. If Git is absent,
-recommend establishing it before Execute; an explicit opt-out continues with a
-visible Git-unanchored warning. `optional` permits a dirty working tree, while
-`forbidden` suppresses Git actions by explicit user choice.
+main thread creates commits at coherent checkpoint or batch boundaries by
+default and states that policy once; the user may explicitly opt out. Commit
+only plan-owned changes; keep unrelated dirty work, scratch, and secrets out of
+the commit. Record the resulting commit in the plan's `last_verified_commit` or
+proof pointer before advancing. Do not advance to a dependent checkpoint with
+uncommitted plan-owned changes. Ask before push, force-push, history rewriting,
+or external publication. If Git is absent, recommend establishing it before
+Execute; an explicit opt-out continues with a visible Git-unanchored warning.
+`optional` permits a dirty working tree, while `forbidden` suppresses Git
+actions by explicit user choice.
 
 The plan-record hash used for proof reuse must cover durable contract inputs, not
 mutable checkpoint status, evidence logs, telemetry, or correction notes. Those

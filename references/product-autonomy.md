@@ -2,6 +2,8 @@
 
 The user owns product intent. The active host's main thread owns ordinary engineering judgment.
 
+Treat explicit user instructions as authoritative over Plumbline defaults and process preferences, but interpret them in the context of the user's stated outcome, approved artifacts, and repository evidence. Do not follow an ambiguous instruction literally when doing so would contradict the apparent goal, approved contract, or safety boundary. Resolve ordinary ambiguity with a safe reversible default; ask a focused product question only when competing interpretations would materially change behavior.
+
 Ask a question only when different answers materially change product behavior or scope, user experience, privacy/security posture, destructive data handling, compatibility expectations, material cost, or another hard-to-reverse product consequence. Do not ask the user to choose module boundaries, function signatures, adapters, schema normalization, test seams, model names, or file locations when repository evidence can settle them.
 
 Separate technical uncertainty from product uncertainty. The architect should resolve implementation mechanisms, state ownership, lifecycle details, compatibility mechanics, and proof seams from repository evidence, research, and reversible defaults. Escalate only the remaining material product decision: the behavior, scope, user experience, trust boundary, compatibility promise, or other consequence the user actually owns.

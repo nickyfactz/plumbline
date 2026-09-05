@@ -60,14 +60,16 @@ the refreshed values.
 ## Use Git as the recovery boundary
 
 When the checkout is Git-controlled, material multi-checkpoint execution uses a
-required Git policy by default. At Execute entry, ask once for permission to
-create main-thread commits at coherent checkpoint or batch boundaries; assume
-approval unless the user explicitly declines. Capture the starting `HEAD`,
-separate unrelated dirty work, and establish a clean plan-owned boundary before
-the first checkpoint. After each accepted checkpoint, commit its intended
-tracked changes, record the commit in the compact plan state, and begin the
-next checkpoint from that clean boundary. Do not advance dependent work while
-plan-owned changes remain uncommitted. Workers never commit.
+required Git policy by default. Create main-thread commits at coherent
+checkpoint or batch boundaries unless the user explicitly opts out; state the
+policy once without blocking for approval. Capture the starting `HEAD`,
+separate unrelated dirty work, scratch, and secrets, and establish a clean
+plan-owned boundary before the first checkpoint. After each accepted
+checkpoint, commit its intended tracked changes, record the commit in the
+compact plan state, and begin the next checkpoint from that clean boundary. Do
+not advance dependent work while plan-owned changes remain uncommitted. Ask
+before push, force-push, history rewriting, or external publication. Workers
+never commit.
 
 If no Git repository exists, recommend `git init` before material Execute work.
 An explicit user opt-out permits continuation but must be reported as
@@ -121,17 +123,22 @@ Keep the orchestrator thin. Read the compact plan/work order, repository
 guidance, current Git state, and explicitly named paths needed to route the
 checkpoint. Before broad grep, repository archaeology, multi-file fact
 gathering, external research, or cross-seam review, dispatch a matching
-project-local role with a bounded question. Use its decision packet to select
-the next action; inspect only integration-critical facts rather than repeating
-its exploration.
+project-local role with a bounded question when it can return a bounded result
+that materially reduces main-thread context or improves quality; keep small,
+tightly coupled, and inherently main-owned work direct. Use its decision packet
+to select the next action; inspect only integration-critical facts rather than
+repeating its exploration.
 
-For every approved Execute checkpoint, classify each bounded work unit before
-doing it on the main thread. Delegation is the default whenever an approved
-project-local role can own useful research, architecture, implementation,
-review, testing, or another capability with a clear read, report, or write
-boundary. Dispatch the matching role or roles before the main thread duplicates
-that work. The main thread should not absorb a bounded task merely because it
-can perform it.
+For every material Execute work unit, classify it before doing it on the main
+thread. Delegation is the default whenever an approved project-local role can
+own useful research, architecture, implementation, review, testing, or another
+capability with a clear read, report, or write boundary. This applies to
+implementation, review, testing, and integration-support work as well as
+discovery; it is not limited to audits or broad searches. Prioritize read-heavy
+or independent work and dependency-safe parallel waves when their contracts
+are stable. Dispatch the matching role or roles before the main thread
+duplicates that work. The main thread should not absorb a bounded task merely
+because it can perform it.
 
 Keep the main thread for product decisions, lifecycle and plan state, worker
 joins and integration, Git, singleton build/deploy/restart/migration/publication
