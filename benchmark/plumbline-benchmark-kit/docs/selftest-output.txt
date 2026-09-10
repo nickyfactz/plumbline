@@ -1,0 +1,29 @@
+test_all_baselines_keep_existing_behavior_but_fail_feature (test_fixtures.Fixtures.test_all_baselines_keep_existing_behavior_but_fail_feature) ... ok
+test_all_reference_implementations_pass (test_fixtures.Fixtures.test_all_reference_implementations_pass) ... ok
+test_six_known_wrong_mutants_are_detected (test_fixtures.Fixtures.test_six_known_wrong_mutants_are_detected) ... ok
+test_failed_attempt_spend_is_not_dropped (test_report.Reports.test_failed_attempt_spend_is_not_dropped) ... ok
+test_missing_cost_suppresses_group_price (test_report.Reports.test_missing_cost_suppresses_group_price) ... ok
+test_no_pass_means_undefined_not_zero (test_report.Reports.test_no_pass_means_undefined_not_zero) ... ok
+test_partial_account_coverage_has_no_cost_per_pass (test_report.Reports.test_partial_account_coverage_has_no_cost_per_pass) ... ok
+test_append_config_and_no_schema_guessing (test_runner.Runner.test_append_config_and_no_schema_guessing) ... ok
+test_completion_claim_requires_exact_marker (test_runner.Runner.test_completion_claim_requires_exact_marker) ... ok
+test_config_and_default_baseline (test_runner.Runner.test_config_and_default_baseline) ... ok
+test_fake_transport_full_pipeline_and_resume (test_runner.Runner.test_fake_transport_full_pipeline_and_resume) ... Starting 001-configscope-terra-vanilla-r1
+001-configscope-terra-vanilla-r1: FAIL
+Starting 002-configscope-terra-plumbline-r1
+002-configscope-terra-plumbline-r1: FAIL
+ok
+test_ponytail_claim_without_evidence_is_rejected (test_runner.Runner.test_ponytail_claim_without_evidence_is_rejected) ... ok
+test_scoped_git_permissions_do_not_use_legacy_sandbox (test_runner.Runner.test_scoped_git_permissions_do_not_use_legacy_sandbox) ... ok
+test_archived_copy_not_double_counted (test_telemetry.Telemetry.test_archived_copy_not_double_counted) ... ok
+test_cumulative_dedup_and_reasoning_subset (test_telemetry.Telemetry.test_cumulative_dedup_and_reasoning_subset) ... ok
+test_long_context_is_per_request_not_session_total (test_telemetry.Telemetry.test_long_context_is_per_request_not_session_total) ... ok
+test_missing_child_suppresses_price (test_telemetry.Telemetry.test_missing_child_suppresses_price) ... ok
+test_mixed_root_worker_prices (test_telemetry.Telemetry.test_mixed_root_worker_prices) ... ok
+test_root_only_stdout_suppresses_price (test_telemetry.Telemetry.test_root_only_stdout_suppresses_price) ... ok
+test_unknown_model_and_reset_not_silently_priced (test_telemetry.Telemetry.test_unknown_model_and_reset_not_silently_priced) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 35.660s
+
+OK

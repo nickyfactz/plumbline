@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "state_root": "../plumbline-benchmark-runs",
+  "codex_command": [
+    "codex"
+  ],
+  "plumbline_source": "https://github.com/nickyfactz/plumbline.git",
+  "plumbline_ref": "a592eec",
+  "models": {
+    "luna": "gpt-5.6-luna",
+    "terra": "gpt-5.6-terra",
+    "sol": "gpt-5.6-sol",
+    "astra": "gpt-6-astra"
+  },
+  "root_effort": "medium",
+  "baseline_mode": "stock",
+  "pricing_file": "pricing/2026-09-05-standard.json",
+  "auth_source_home": null,
+  "reuse_saved_auth": true,
+  "ponytail_mode": "required",
+  "ponytail_seed": null,
+  "extra_codex_args": [],
+  "limits": {
+    "wall_seconds_per_run": 1500,
+    "aggregate_tokens_per_run": 400000,
+    "max_campaign_estimated_usd": 60,
+    "max_run_estimated_usd": 10,
+    "max_total_runs": 24,
+    "telemetry_grace_seconds": 120
+  },
+  "stop_on_telemetry_gap": true,
+  "disclosures": {
+    "continuity_hook": "installed default; not assumed enabled/armed",
+    "execution_mode": "continuous",
+    "setup_and_controller_cost": "excluded from per-task metric; report separately",
+    "grader_isolation": "separate process and undisclosed files, not OS-enforced read isolation"
+  },
+  "permission_mode": "scoped-profile",
+  "hook_trust_mode": "persisted"
+}

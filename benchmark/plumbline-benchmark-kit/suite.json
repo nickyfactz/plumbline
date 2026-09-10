@@ -1,0 +1,11 @@
+{
+  "version": "1.0.0",
+  "tasks": [
+    "jobqueue",
+    "configscope",
+    "docaccess"
+  ],
+  "description": "Small implementation surface; interacting correctness requirements.",
+  "fixture_language": "Python 3.11+ standard library",
+  "checkpoints_per_task": 2
+}

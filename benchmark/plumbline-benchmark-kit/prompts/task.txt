@@ -1,0 +1,24 @@
+Implement the complete approved task in TASK.md, following the two checkpoints in PLAN.md.
+Use this checkout and the repository's existing conventions. Work autonomously through all
+remaining steps; run focused and existing tests and correct concrete in-scope defects.
+The plan and specification are already sufficient; no preparatory lifecycle work is requested.
+Start with a tool call in this same turn. Do not stop after a progress update or skill announcement;
+continue using tools until the implementation and verification are complete.
+Keep context bounded for this small backend-only Python task: skip unrelated UI skills and broad
+instruction-tree dumps; read only the task, plan, relevant source/tests, and minimum applicable
+skill references. Reuse already-read guidance instead of rereading it.
+Do not inspect other benchmark projects, controller data, reference solutions, or external graders.
+Do not change TASK.md, agent/skill/hook configuration, or any pre-existing test file. In particular, treat
+`tests/test_existing.py` as an immutable regression baseline: do not edit, reformat, rename, delete, replace,
+or append to it. If focused tests are needed, add a new file under `tests/` (for example `tests/test_scoped.py`)
+and leave the baseline file byte-for-byte unchanged. Before finishing, inspect the changed-file list and confirm
+no pre-existing test file was modified. The task's “add focused tests” requirement means adding a new test file;
+it never authorizes changing the baseline. No new dependency, network access, publication,
+deployment, or worktree is needed. Remain in this checkout. Stop after the complete feature is
+ready for acceptance; do not perform accepted-work closeout. Update PLAN.md concisely as needed.
+
+End your final response with exactly one honest line:
+BENCHMARK_STATUS: COMPLETE
+or
+BENCHMARK_STATUS: INCOMPLETE
+This line is only your completion claim; independent tests determine success.
