@@ -35,7 +35,7 @@ def main() -> None:
         "shares files",
         "clear join condition",
         "worker recommendation never creates a new delegation wave",
-        "delegation-first ownership",
+        "delegation when it pays",
         "delegation_roles",
         "delegation_status",
         "bounded research",
@@ -111,6 +111,13 @@ def main() -> None:
         assert "worker instances as disposable" in guidance
         assert "fresh instance" in guidance
         assert "exact same unfinished assignment" in guidance
+        assert "fork_context=false" in guidance
+        assert "full-history children inherit the parent agent type" in guidance
+        assert "semantic implementation" in guidance
+        assert "administrative-only" in guidance
+        assert "startup, briefing, reporting" in guidance
+        assert "bounded host-native wait" in guidance
+        assert "optional worker never blocks" in guidance
         assert "compact only when a live plan contains" in guidance
         assert "small direct work need no rewrite" in guidance
         assert "host-versioned inputs" in guidance

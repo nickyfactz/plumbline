@@ -14,3 +14,22 @@ Plumbline supports two operating tiers without a mode flag. Convention mode uses
 | Closeout | Accepted work needs docs reconciliation, transient cleanup, or local integration | Preserve history and ask before destructive cleanup |
 
 Technical breadth alone does not split one feature into multiple plans. A complete work order can keep a broad implementation task direct when no product decision or plan advancement remains. If a direct change reveals hidden risk, state the escalation and why. Direct work stays direct when the evidence supports it.
+
+## Action classification
+
+At each checkpoint, classify the next work unit before dispatching or performing
+it:
+
+- **Semantic implementation** changes the product behavior or required artifact
+  toward the approved contract.
+- **Focused validation** is the smallest check that proves behavior or tests a
+  named risk.
+- **Administrative-only** work changes bookkeeping, receipts, or metadata without
+  changing the product result or its proof.
+
+Advance semantic implementation and focused validation first. Skip or batch
+administrative-only work unless it protects product integrity, input or revision
+identity, recovery, authorization or ownership, singleton or duplicate
+prevention, or a user-requested artifact. Stale or missing administrative
+metadata alone does not invalidate a candidate or justify replay; use the
+smallest affected cone and put behavior and proof before status narration.

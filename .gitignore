@@ -16,3 +16,7 @@ build/
 
 # Scratch material copied from the handoff bundle
 .scratch/
+
+# Benchmark campaign state and vendored runtime repositories
+benchmark/plumbline-benchmark-runs/
+benchmark/ponytail-local/

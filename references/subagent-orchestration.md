@@ -63,6 +63,13 @@ merely to make progress appear faster. This is host-neutral guidance; a host's
 own hard lifecycle limit remains a host boundary, not a reason to duplicate
 work before its state is reconciled.
 
+Observe an active worker through a bounded host-native wait or snapshot rather
+than repeated root turns with unchanged state. Continue independent work while
+it runs. If no independent work remains and a required worker is still
+nonterminal, report `INCONCLUSIVE` or `Blocked` with the last observation and
+leave the worker active for reconciliation; an optional worker never blocks
+forward progress. This is execution guidance, not scheduler policy.
+
 ## Profile refresh and worktree drift
 
 Treat project-local role files and applicable host config as live dispatch
@@ -125,23 +132,22 @@ evidence, and record non-blocking work as a compact residual. This is an interna
 decision check, not a lifecycle state, counter, artifact, user pause, or
 mandatory final-gate rule.
 
-## Delegation-first ownership
+## Delegation when it pays
 
-For an approved Execute checkpoint or other material Execute work, delegation
-is the default whenever an approved project-local role can own useful research,
-architecture, implementation, review, testing, or another capability with a
-clear read, report, or write boundary. This applies to implementation,
-review, testing, and integration-support work as well as discovery; it is not
-limited to audits or broad searches. Prefer read-heavy or independent work and
-dependency-safe parallel waves when their contracts are stable. Dispatch the
-matching role or roles before the main thread duplicates that work. Preserve
-each selected role's configured model, reasoning/effort, and sandbox/permission
-intent; do not invent or substitute a personal/global role.
+For an approved Execute checkpoint or other material Execute work, delegate when
+an approved project-local role's independent, read-heavy, or materially
+risk-reducing work is expected to improve quality or reduce context more than
+its startup, briefing, reporting, and integration cost. Prefer stable
+independent work and dependency-safe parallel waves when their contracts are
+stable. Dispatch the matching role before the main thread duplicates that work;
+otherwise keep it direct. Preserve each selected role's configured model,
+reasoning/effort, and sandbox/permission intent; do not invent or substitute a
+personal/global role. Delegation is not a telemetry obligation.
 
 Keep the main thread for product decisions, lifecycle and plan state, worker
-joins and integration, Git, singleton operations, and work too small or coupled
-to justify a worker. A direct action must be already understood, trivial to
-verify, and have no independent delegation boundary. Emit `Direct: <reason>`
+joins and integration, Git, singleton operations, and work whose dispatch cost
+exceeds its expected value. A direct action must be already understood, trivial
+to verify, and have no independent delegation boundary. Emit `Direct: <reason>`
 only when a useful bounded unit looked delegable but no matching local role or
 host dispatch exists; tiny or inherently main-owned actions need no narration.
 Continue directly rather than pausing the user.
@@ -151,9 +157,8 @@ For a Plumbline-managed plan, persist `delegation_roles` and
 `not-applicable`, `not-dispatched`, `direct`, `dispatched`, `returned`, or
 `integrating`. For an imported plan, use its existing equivalent compact state
 instead of rewriting the artifact only to add these fields. Restore the state
-after compaction or conversational resume before continuing; a bounded task
-without a dispatched or returned role must be delegated before the main thread
-repeats it.
+after compaction or conversational resume before continuing; `direct` or
+`not-applicable` is valid when no useful delegated unit exists.
 
 When a brief permits adding or materially changing a test, probe, snapshot, or
 validation check, require the worker report to name the proof obligation it
@@ -180,13 +185,18 @@ conclusions as untrusted. A changed objective, seam, contract, write set,
 acceptance condition, or materially new failure always requires a fresh
 context.
 
-Use the host's fresh-child path for new assignments. When a Codex dispatch
-surface exposes `fork_turns`, pass `fork_turns="none"` for a fresh independent
-worker. This is a per-dispatch context choice, not a project config or
-agent-file setting. If the host cannot create a fresh child, report the
-capability gap and keep the unit direct rather than silently reusing historical
-context. Do not claim that a fresh context or setting was applied unless the
-dispatch surface exposes or confirms it.
+Use the host's no-history fresh-child path for new assignments. When a Codex
+dispatch surface exposes `fork_turns`, pass `fork_turns="none"`; when
+`multi_agent_v1__spawn_agent` exposes `fork_context`, pass `fork_context=false`
+when selecting a named `agent_type`. `fork_context=true` is a full-history fork,
+not a fresh-child path, and must omit `agent_type` because full-history children
+inherit the parent agent type and the router rejects that pair. If the host
+cannot create a no-history child, omit `agent_type` only when using its
+full-history fallback and report the capability gap; otherwise keep the unit
+direct rather than retrying the invalid combination or silently reusing
+historical context. This is a per-dispatch context choice, not a project config
+or agent-file setting. Do not claim that a fresh context or setting was applied
+unless the dispatch surface exposes or confirms it.
 
 For live or recovery work, add an optional transient runtime-state capsule to
 fresh or reused worker briefs: verified commit or deployed artifact, active

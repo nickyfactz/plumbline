@@ -111,19 +111,30 @@ Keep the orchestrator thin. The main thread reads only the controlling artifact,
 Give workers anchored read sections and disjoint write sets; do not pass full history or whole documentation trees. The report-only roles (researcher, architect, code-reviewer, and QA) receive no write set. Their `sandbox_mode = "read-only"` is intent; a writable parent may affect the child's effective sandbox. Before each wave, reread the applicable project-local config and selected role files. Emit one compact line such as `Delegated: researcher [model=<slug>, reasoning=<effort>] — map the persistence owner`; include selected roles, current configured model slugs and reasoning efforts, and short assignments. Mention standard boundaries or effective values only when an exception, observable mismatch, or user question makes them material. Omit routine starting, waiting, returned, and unchanged-configuration narration. A changed profile hash refreshes new dispatches; running workers retain their creation profile. Inspect Git status/diff after return and report only unexpected edits or material results. Each write-capable role receives only its approved bounded write set. Workers never spawn child agents. Do not use personal or global agent files as fallbacks. If a role is missing in the active worktree, refresh only the ignored project-local config/role files from the source checkout through `.worktreeinclude`, reread them, and use `Direct: <reason>` only if it remains unavailable.
 Delegation is main-mediated: every worker returns to the main thread, worker recommendations are advisory, and only the main thread selects and dispatches the next capability. Workers never invoke, hand off to, or dispatch another worker. When independent work is ready, the main thread may use one parallel wave only with a stable contract, disjoint scopes, no result dependency, and a clear join condition; otherwise keep it serial.
 Keep an in-flight worker active until the host reports a terminal result. Do not kill, abandon, or duplicate work because of elapsed time, silence, compaction, or an intermediate status; reconcile an observer timeout before recovery. Replace work only after a confirmed terminal/API/transport failure, explicit user stop, obsolete scope, or safety issue.
-Treat role profiles as reusable but worker instances as disposable: retire each terminal worker and dispatch a fresh instance for any new checkpoint, correction, failure, or acceptance task, even when selecting the same role. A follow-up is only for the exact same unfinished assignment when continuity materially helps; all new work gets a fresh instance. Use the host's fresh-child path and Codex `fork_turns="none"` when exposed. Never kill an active worker because it is quiet or compacting.
-For material Execute work, prefer a matching project-local role for useful
-bounded research, architecture, implementation, review, testing, or another
-capability with a clear boundary, especially read-heavy or independent work
-that can safely run in parallel. Dispatch that role before the main thread
-duplicates the work. Use its configured model, reasoning effort, and sandbox
-intent; do not invent or substitute a personal/global role. Record
-`delegation_roles` and `delegation_status` in the checkpoint resume record and
-restore them after compaction. Keep product decisions, lifecycle/plan state,
-joins, integration, Git, singleton operations, or tiny coupled actions on the
-main thread. Emit `Direct: <reason>` only when useful bounded work looked
-delegable but no matching local role or host dispatch remains available; tiny
-and inherently main-owned actions need no transcript note.
+Observe an active worker through a bounded host-native wait or snapshot rather than repeated root turns with unchanged state. Continue independent work. If no independent work remains and a required worker is still nonterminal, report `INCONCLUSIVE` or `Blocked` with the last observation and leave the worker active for reconciliation; an optional worker never blocks forward progress. This is execution guidance, not scheduler policy.
+Treat role profiles as reusable but worker instances as disposable: retire each terminal worker and dispatch a fresh instance for any new checkpoint, correction, failure, or acceptance task, even when selecting the same role. A follow-up is only for the exact same unfinished assignment when continuity materially helps; all new work gets a fresh instance. Use the host's no-history fresh-child path: Codex `fork_turns="none"` when exposed, or `multi_agent_v1__spawn_agent` with `fork_context=false` when selecting a named `agent_type`. `fork_context=true` is a full-history fork, not a fresh-child path; it must omit `agent_type` because full-history children inherit the parent agent type and the router rejects that pair. If only full-history spawning is available, omit `agent_type` and report the capability gap rather than retrying the invalid combination. Never kill an active worker because it is quiet or compacting.
+Before each material action, classify it as semantic implementation, focused
+validation, or administrative-only bookkeeping. Advance implementation and
+focused validation first; skip or batch administrative-only work unless it
+protects product integrity, input or revision identity, recovery, authorization
+or ownership, singleton or duplicate prevention, or a user-requested artifact.
+Stale or missing administrative metadata alone does not invalidate a candidate
+or justify replay; use the smallest affected cone and put behavior and proof
+before status narration.
+For material Execute work, delegate useful bounded research, implementation,
+review, testing, or other work only when an approved project-local role's
+independent, read-heavy, or materially risk-reducing work is expected to improve
+quality or reduce context more than its startup, briefing, reporting, and
+integration cost. Prefer stable independent work and safe parallel waves. Use
+the role's configured model, reasoning effort, and sandbox intent; do not invent
+or substitute a personal/global role. Record `delegation_roles` and
+`delegation_status` in the checkpoint resume record and restore them after
+compaction. Keep product decisions, lifecycle/plan state, joins, integration,
+Git, singleton operations, or work whose dispatch cost exceeds its value on the
+main thread. `direct` and `not-applicable` are valid states; delegation is not a
+telemetry obligation. Emit `Direct: <reason>` only when useful bounded work
+looked delegable but no matching local role or host dispatch remains available;
+tiny and inherently main-owned actions need no transcript note.
 Keep current Codex collaboration enabled through `agents.enabled = true`. Treat `agents.max_concurrent_threads_per_session` as a user-owned host setting; the setup template recommends 12 as a starting value, but approved alternatives are preserved. Legacy `features.multi_agent`, `agents.max_threads`, and `agents.max_depth` values are migration candidates, not Plumbline requirements. Every role TOML must carry explicit `model`, `model_reasoning_effort`, and `sandbox_mode` values approved during setup.
 Treat project-local role files as live user-owned dispatch profiles: manual edits to model, reasoning, sandbox, or instructions apply to new workers without an audit or retune, while workers already running keep their original values. Audit/retune approval remains required for installer-managed changes. Never let dispatch overwrite the current project-local values.
 
@@ -157,6 +168,16 @@ AGENT_GUIDANCE_MARKERS = (
     "worker instances as disposable",
     "fresh instance",
     "exact same unfinished assignment",
+    "fork_context=false",
+    "full-history children inherit the parent agent type",
+    "semantic implementation",
+    "focused validation",
+    "administrative-only",
+    "startup, briefing, reporting",
+    "telemetry obligation",
+    "bounded host-native wait",
+    "unchanged state",
+    "optional worker never blocks",
     "parallel wave",
     "report-only roles",
     "no write set",

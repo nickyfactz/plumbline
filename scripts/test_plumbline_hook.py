@@ -82,6 +82,8 @@ def main() -> None:
         assert "Completed worker instances are retired" in context
         assert "fresh instance" in context
         assert 'fork_turns="none"' in context
+        assert "fork_context=false" in context
+        assert "Never combine fork_context=true full-history with agent_type" in context
 
         resume = run_hook({**base, "hook_event_name": "SessionStart", "source": "resume"}, state_root)
         assert json.loads(resume)["hookSpecificOutput"]["hookEventName"] == "SessionStart"

@@ -117,7 +117,7 @@ explicit user gate, a destructive action outside approved authority, or a
 contradiction with no safe in-scope default. When no safe default exists, block
 only the affected checkpoint and continue independent work.
 
-## Delegation-first ownership
+## Forward progress and delegation
 
 Keep the orchestrator thin. Read the compact plan/work order, repository
 guidance, current Git state, and explicitly named paths needed to route the
@@ -129,16 +129,23 @@ tightly coupled, and inherently main-owned work direct. Use its decision packet
 to select the next action; inspect only integration-critical facts rather than
 repeating its exploration.
 
-For every material Execute work unit, classify it before doing it on the main
-thread. Delegation is the default whenever an approved project-local role can
-own useful research, architecture, implementation, review, testing, or another
-capability with a clear read, report, or write boundary. This applies to
-implementation, review, testing, and integration-support work as well as
-discovery; it is not limited to audits or broad searches. Prioritize read-heavy
-or independent work and dependency-safe parallel waves when their contracts
-are stable. Dispatch the matching role or roles before the main thread
-duplicates that work. The main thread should not absorb a bounded task merely
-because it can perform it.
+Before dispatching or performing each material work unit, apply the action
+classification in `references/work-classification.md`. Semantic implementation
+and focused validation move forward first. Skip or batch administrative-only
+bookkeeping unless it protects product integrity, input or revision identity,
+recovery, authorization or ownership, singleton or duplicate prevention, or a
+user-requested artifact. Stale or missing administrative metadata alone does not
+invalidate a candidate or justify replay; use the smallest affected cone and put
+behavior and proof before status narration.
+
+Delegate when an approved project-local role's independent, read-heavy, or
+materially risk-reducing work is expected to improve quality or reduce context
+more than its startup, briefing, reporting, and integration cost. Prefer stable
+independent work and dependency-safe parallel waves when their contracts are
+stable. Dispatch the matching role before the main thread duplicates that work;
+otherwise perform it directly and record `direct` or `not-applicable` when the
+checkpoint resume record requires a delegation state. Delegation is not a
+telemetry obligation.
 
 Keep the main thread for product decisions, lifecycle and plan state, worker
 joins and integration, Git, singleton build/deploy/restart/migration/publication
@@ -167,18 +174,31 @@ Role profiles are reusable, but worker instances are disposable. Retire each
 terminal worker; dispatch a fresh instance for every new checkpoint, correction,
 failure, or acceptance task, even when selecting the same role. A follow-up is
 only for the exact same unfinished assignment when continuity materially helps;
-all new work gets a fresh instance. Use the host's fresh-child path and Codex
-`fork_turns="none"` when exposed. Never kill an active worker because it is
-quiet or compacting.
+all new work gets a fresh instance. Use the host's no-history fresh-child path:
+Codex `fork_turns="none"` when exposed, or
+`multi_agent_v1__spawn_agent` with `fork_context=false` when selecting a named
+`agent_type`. `fork_context=true` is a full-history fork, not a fresh-child path;
+it must omit `agent_type` because full-history children inherit the parent agent
+type and the router rejects that pair. If only full-history spawning is
+available, omit `agent_type` and report the capability gap rather than retrying
+the invalid combination. Never kill an active worker because it is quiet or
+compacting.
 
 For a Plumbline-managed plan, keep `delegation_roles` and
 `delegation_status` in the active checkpoint resume record. Use
 `not-applicable`, `not-dispatched`, `direct`, `dispatched`, `returned`, or
 `integrating`. For an imported plan, use its existing equivalent compact state
 instead of rewriting the artifact only to add these fields. On every compaction
-or conversational resume, restore the delegation state before continuing. If a
-bounded task has no dispatched or returned role, dispatch it before the main
-thread repeats that work.
+or conversational resume, restore the delegation state before continuing. A
+checkpoint with no useful delegated unit records `not-applicable` or `direct`;
+do not dispatch solely to fill the field.
+
+Keep an active worker alive until the host reports a terminal result, but observe
+it through a bounded host-native wait or snapshot rather than repeated root turns
+with unchanged state. Continue independent work. If no independent work remains
+and a required worker is still nonterminal, report `INCONCLUSIVE` or `Blocked`
+with the last observation and leave the worker active for reconciliation; an
+optional worker never blocks forward progress.
 
 ## Checkpoint execution loop
 
@@ -186,7 +206,7 @@ For each checkpoint:
 
 1. Read the exact checkpoint and referenced contract sections, then inspect the
    current delta and last verified state.
-2. Apply the delegation-first ownership rule above, then dispatch or perform
+2. Apply the forward-progress and delegation rules above, then dispatch or perform
    the bounded work unit. For a blocker or failed validation, complete the
    minimum sufficient failure-path trace before correction. Choose the smallest
    complete solution: avoid

@@ -19,13 +19,34 @@ The global Codex config may be inspected for host capability and the current mai
 
 A depth of one is a recommended delegation boundary, not a host setting Plumbline enforces. Claude applies the same recommended behavior by omitting the `Agent` tool from generated roles and stating it in every role prompt. Every worker instruction must say it cannot spawn children, own Git, or edit the active spec/plan. This main-mediated rule means every worker returns to the main thread; worker recommendations are advisory, and only the main thread selects and dispatches the next capability. Generated guidance must keep the orchestrator thin: delegate bounded read-heavy or otherwise useful discovery before broad repository search when a matching role can materially reduce main-thread context or improve quality, request a compact decision packet, and prevent the main thread from repeating worker exploration. When independent work is ready, the main thread may dispatch one parallel wave only after a stable contract, disjoint scopes, no result dependency, and a clear join condition are established. Give each worker only the exact read paths and anchored sections needed for its brief; do not pass full history or whole documentation trees when unchanged artifacts answer the question. Report-only roles (researcher, architect, code-reviewer, and QA) receive no write set. Codex `sandbox_mode = "read-only"` and Claude `permissionMode: plan` are intent; a writable or permissive parent may affect effective permissions and effective sandbox. Emit one compact dispatch line with role, configured model/reasoning or effort, and assignment; standard boundaries and routine status narration are omitted unless an exception matters. Inspect returned diffs; each approved write-capable role receives only its bounded write set.
 
+Before each material action, classify it as semantic implementation, focused
+validation, or administrative-only bookkeeping. Advance implementation and
+focused validation first; skip or batch administrative-only work unless it
+protects product integrity, input or revision identity, recovery, authorization
+or ownership, singleton or duplicate prevention, or a user-requested artifact.
+Delegate only when an approved role's expected quality or context value exceeds
+startup, briefing, reporting, and integration cost. `direct` and
+`not-applicable` are valid delegation states, not telemetry obligations.
+
+Observe active workers through bounded host-native waits or snapshots rather than
+repeated root turns with unchanged state. Continue independent work; report a
+required nonterminal worker as `INCONCLUSIVE` or `Blocked` with the last
+observation and leave it active for reconciliation. Optional workers never block
+forward progress. This is execution guidance, not scheduler policy.
+
 Role profiles are reusable; worker instances are disposable. Retire a worker
 after a terminal result and use a fresh instance for a new checkpoint, correction,
 failure, or acceptance task, even when selecting the same role. A follow-up is
 only for the exact same unfinished assignment when continuity materially helps;
-all new work gets a fresh instance. Use the host's fresh-child path and Codex
-`fork_turns="none"` when exposed. Never kill an active worker because it is
-quiet or compacting.
+all new work gets a fresh instance. Use the host's no-history fresh-child path:
+Codex `fork_turns="none"` when exposed, or
+`multi_agent_v1__spawn_agent` with `fork_context=false` when selecting a named
+`agent_type`. `fork_context=true` is a full-history fork, not a fresh-child path;
+it must omit `agent_type` because full-history children inherit the parent agent
+type and the router rejects that pair. If only full-history spawning is
+available, omit `agent_type` and report the capability gap rather than retrying
+the invalid combination. Never kill an active worker because it is quiet or
+compacting.
 
 Treat project-local role files and applicable host config as live dispatch inputs. Before each delegation wave, reread the selected files. A changed profile is a profile refresh: it updates the model, reasoning/effort, sandbox/permission, or instruction values used by new workers; it does not invalidate prior evidence or retune workers already running. If a role is missing in a worktree, refresh only the ignored project-local team files from the source checkout through the repository's propagation convention, reread them, and use `Direct: <reason>` only if the role is still unavailable. Never use global roles or copy secrets, dependencies, or source trees.
 

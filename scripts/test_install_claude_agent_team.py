@@ -55,6 +55,11 @@ def main() -> None:
         assert "worker instances as disposable" in guidance
         assert "fresh instance" in guidance
         assert "exact same unfinished assignment" in guidance
+        assert "semantic implementation" in guidance
+        assert "administrative-only" in guidance
+        assert "startup, briefing, reporting" in guidance
+        assert "bounded host-native wait" in guidance
+        assert "optional worker never blocks" in guidance
         assert "compact only when a live plan contains" in guidance
         assert "small direct work need no rewrite" in guidance
         assert "provider-versioned inputs" in guidance

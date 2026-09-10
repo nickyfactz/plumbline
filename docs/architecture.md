@@ -132,18 +132,20 @@ remain serial. Results are classified and integrated at the main thread before
 downstream work is dispatched; this is guidance, not a scheduler or graph
 runtime.
 
-For material Execute work, delegation is the default whenever an approved
-project-local role can own useful bounded research, architecture,
-implementation, review, testing, or another capability with a clear boundary.
-This applies to implementation, review, testing, and integration-support work
-as well as discovery; it is not limited to audits or broad searches. The main
-thread dispatches that role before duplicating the work and preserves its
-configured model, reasoning/effort, and sandbox/permission intent. Product
-decisions, lifecycle/plan state, joins, integration, Git, singleton operations,
-and tiny coupled actions remain direct. The active checkpoint resume record
-carries `delegation_roles` and `delegation_status` so compaction restores this
-obligation. A missing local role is an explicit direct fallback, not a user
-pause.
+For material Execute work, delegate when an approved project-local role's
+independent, read-heavy, or materially risk-reducing work is expected to improve
+quality or reduce context more than its startup, briefing, reporting, and
+integration cost. Prefer stable independent work and dependency-safe parallel
+waves; otherwise keep the action direct. Preserve the role's configured
+model, reasoning/effort, and sandbox/permission intent. Product decisions,
+lifecycle/plan state, joins, integration, Git, singleton operations, and work
+whose dispatch cost exceeds its value remain direct. The active checkpoint
+resume record carries `delegation_roles` and `delegation_status`; `direct` and
+`not-applicable` are valid states, not telemetry obligations. A missing local
+role is an explicit direct fallback, not a user pause. Observe active workers
+with bounded host-native waits or snapshots, not repeated root turns with
+unchanged state; continue independent work and report an unresolved required
+worker literally as `INCONCLUSIVE` or `Blocked`.
 
 ## Ownership and worktrees
 
