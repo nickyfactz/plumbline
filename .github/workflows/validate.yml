@@ -13,3 +13,6 @@ jobs:
         with:
           python-version: "3.11"
       - run: python scripts/validate.py
+      - run: python scripts/test_router.py
+      - run: python scripts/test_install_agent_team.py
+      - run: python scripts/test_install_claude_agent_team.py

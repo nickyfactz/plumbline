@@ -693,9 +693,12 @@ def validate_references_and_templates(errors: list[str]) -> None:
     if "plumbline-router" not in router_text:
         error(errors, "router template is missing its activation identity")
     for marker in (
-        "invoke the installed `$plumbline` front door",
+        "callable name advertised by the host",
+        "resolve_front_door.py",
+        "currently visible `plumbline:*` skill paths",
+        "Read the returned front-door file",
         "Never substitute a `plumbline-*-engine` skill",
-        "Direct: Plumbline front door unavailable",
+        "Blocked: Plumbline routing unavailable",
     ):
         if marker not in router_text:
             error(errors, f"router template is missing handoff marker {marker}")
@@ -770,6 +773,8 @@ def validate_scripts(errors: list[str]) -> None:
     for name in (
         "validate.py",
         "install_router.py",
+        "resolve_front_door.py",
+        "test_router.py",
         "install_agent_team.py",
         "test_install_agent_team.py",
         "install_claude_agent_team.py",

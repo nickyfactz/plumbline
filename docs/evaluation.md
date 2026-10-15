@@ -62,6 +62,10 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 36. Worker briefs use anchored paths and existing evidence; successful command output is summarized rather than pasted into the main context.
 37. Closeout selects light or full mode proportionally without skipping required UAT, documentation, or explicit transient cleanup boundaries.
 38. Router dry-run previews an existing stale copy without writing and reports when `--replace` is required.
+38a. Router-only setup previews/applies its conditional `AGENTS.md` activation block and ignore rule without creating a team. It offers `.gitignore` plus `.worktreeinclude` independently of team propagation and preserves user instructions and unrelated include entries.
+38b. An initialized router omitted from the skill list is read through its conditional `AGENTS.md` pointer. An unavailable named front door resolves from one currently visible Plumbline installation and loads the real installed front-door file.
+38c. Missing, stale, invalid, disabled, or ambiguous plugin capabilities block automatic routing with a repair message. Cached files alone do not establish an active plugin, and removing the local router disables automatic routing without self-recreation.
+38d. A real Git-worktree fixture proves durable activation guidance survives and the ignored router can be copied through the selected manifest. This simulates the documented local host copy; it does not claim native remote/manual worktree propagation or fresh-session model activation.
 
 39. An unchanged resume fingerprint reuses the compact record and checkpoint evidence without rereading agent TOMLs, broad plan bodies, or delegation doctrine.
 40. The first actual delegation loads the detailed orchestration reference, reports roles with host-native model/reasoning and short assignments, omits routine status narration, and inspects Git once after the wave.

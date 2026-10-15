@@ -24,6 +24,20 @@ repository-local router at `.agents/skills/plumbline-router/SKILL.md`. It is
 created only after explicit initialization approval. Removing that directory
 stops automatic routing while leaving explicit skills available.
 
+Router setup also installs a conditional managed `AGENTS.md` pointer and its own
+ignore rule, independently of the team. The pointer reads the router even when
+the host omits it from skill discovery. If the named front door is unavailable,
+a small read-only resolver validates the active installation from visible
+Plumbline skill paths and returns the real front-door file. Missing or ambiguous
+active installations block routing with a repair message. The resolver neither
+selects a phase nor searches historical plugin caches.
+
+Router-only setup can prepare `.gitignore` and `.worktreeinclude` for local
+Codex-managed worktrees while the router stays untracked. The manifest and
+activation guidance are durable tracked setup. Remote/manual worktrees and new
+clones require explicit local initialization; ordinary work does not recreate a
+removed router.
+
 ## Durable state
 
 Small work stays in conversation. Broad or multi-session work may use one

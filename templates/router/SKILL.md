@@ -7,8 +7,8 @@ description: Route ordinary repository prompts through Plumbline only after this
 
 This is the repository's only automatic Plumbline activation boundary. It exists only after explicit `$plumbline-init` approval; deleting it disables automatic routing.
 
-For ordinary prompts, invoke the installed `$plumbline` front door by that exact skill name. It selects exactly one safe phase and owns lifecycle decisions; do not copy phase doctrine into this repository-local shim.
+For ordinary prompts, invoke the installed Plumbline front door using the callable name advertised by the host (`$plumbline` when available).
 
-Honor explicit overrides. Never substitute a `plumbline-*-engine` skill, auto-initialize, set up teams, dispatch workers, or advance a plan from this shim. If `$plumbline` cannot be resolved, state `Direct: Plumbline front door unavailable`; do not claim Plumbline lifecycle ownership or execute checkpoints from this shim.
+If unavailable, take only currently visible `plumbline:*` skill paths, derive their plugin root from `<root>/skills/<skill>/SKILL.md`, and run `python "<root>/scripts/resolve_front_door.py" --skill-path "<visible-path>"` (repeat `--skill-path` per path). Read the returned front-door file and follow it, reporting `Plumbline: loaded installed front door directly` once. Resolve references from that installation. Never select cached versions by age or reuse saved cache paths.
 
-The selected phase owns delegation and reports its own role, model, reasoning, and boundary values. The main thread is the only worker dispatcher: worker recommendations are advisory and every worker returns to the main thread before another capability is selected. This shim never selects global agents or creates child workers.
+If capabilities are absent, invalid, or ambiguous, report `Blocked: Plumbline routing unavailable` with the repair needed; stop before ordinary implementation. Honor explicit overrides. Never substitute a `plumbline-*-engine` skill, auto-initialize, set up teams, dispatch workers, or advance a plan from this shim. The real front door owns phase selection and lifecycle decisions.

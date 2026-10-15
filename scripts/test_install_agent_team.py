@@ -241,8 +241,9 @@ def main() -> None:
         assert router_payload["writes_applied"] is False
         assert router_payload["changes"][0]["operation"] == "create"
 
-        router_target = install_router(plugin_root, root, dry_run=True)
-        assert router_target.name == "SKILL.md"
+        router_preview = install_router(plugin_root, root, dry_run=True)
+        router_target = root / ".agents/skills/plumbline-router/SKILL.md"
+        assert router_target in router_preview.changes
         assert not router_target.exists()
 
     with tempfile.TemporaryDirectory() as raw_root:

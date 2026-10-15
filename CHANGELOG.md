@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 0.1.16 - 2026-10-15
+
+- Make initialized routers recover an unavailable named front door from one validated active Plumbline installation, using current visible skill paths and a read-only resolver.
+- Install conditional AGENTS routing guidance and router ignore rules even without a team; offer router-only local managed-worktree propagation while keeping the router untracked by default.
+- Add router setup, active-installation validation, deactivation, and worktree-copy regression coverage, plus fresh-session activation scenarios.
 
 - Add Claude-native role recommendations (`opus`/`low` architects, `sonnet`/`low` researcher, `sonnet`/`high` implementer and code-reviewer, and `opus`/`medium` QA), native `@agent-<role>` dispatch guidance, and structural validation for Claude effort, permission, tools, and provider model values.
 - Make Claude project guidance load through its supported `CLAUDE.md` mechanism by importing the shared `AGENTS.md` guidance, while preserving one source of truth and auditing the import on repeat initialization.

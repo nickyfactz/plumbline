@@ -7,3 +7,10 @@ Before work starts, inspect repository-owned setup: package managers, virtual en
 Safe symlinks are optional and platform-sensitive. Only borrow a target outside disposable worktree roots, never link a source tree or package tree, and ensure cleanup cannot follow the link into shared assets. Use `.worktreeinclude` only for small ignored local files when the host/repository workflow supports it. Do not use it to copy secrets, models, dependencies, or source trees. For the Plumbline team, list only the applicable host-local config/role files (`.codex/config.toml`, `.codex/agents/*.toml`, or `.claude/agents/*.md`) and the local router. The manifest itself must be in the starting commit for future managed worktrees to see it; its listed files remain ignored and untracked. `AGENTS.md` is durable guidance and should be reviewed and committed separately. Existing worktrees are not retroactive. If a required project-local team file is missing at dispatch, the main thread may perform an on-demand refresh of only those ignored files from the source checkout and reread them before using `Direct: <reason>`; existing worktrees need this explicit refresh.
 
 Hand UAT back to Local when the check is singleton, hardware-bound, exceptionally heavy, or materially cheaper in the user's normal environment. Record the exact command and expected observation.
+
+Router-only setup has the same propagation option as a team. Recommend the
+router installer's `--propagate` for local Codex-managed worktrees and commit its
+`.worktreeinclude`, `.gitignore`, and conditional `AGENTS.md` block. This host
+copy does not cover remote/manual worktrees or fresh clones. If the router is
+absent there, automatic routing is off until explicit local initialization;
+ordinary work must not recreate a deliberately removed router.

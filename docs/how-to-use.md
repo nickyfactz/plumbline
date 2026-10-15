@@ -171,13 +171,19 @@ There is no silent bootstrap. A later explicit initialization can audit an exist
 
 | Choice | Project-local result |
 | --- | --- |
-| Router | `.agents/skills/plumbline-router/SKILL.md`, a small entry point that lets ordinary prompts reach the front door. It is the only automatic activation boundary. |
+| Router | Untracked `.agents/skills/plumbline-router/SKILL.md`, plus a conditional managed instruction in `AGENTS.md` that reads it before ordinary work even when skill discovery omits it. Deleting the router turns automatic routing off. |
 | Codex team | Selected `.codex/agents/*.toml` role files and, if approved, `.codex/config.toml` settings. |
 | Claude Code team | Selected `.claude/agents/*.md` role files. Shared guidance stays in `AGENTS.md`, and `CLAUDE.md` imports it with `@AGENTS.md`. |
 | Shared guidance | A marked, host-specific team section in `AGENTS.md`; Claude also receives the supported import in `CLAUDE.md`. |
 | Local setup hygiene | `.git/info/exclude` entries for local setup, and optionally root `.gitignore` plus `.worktreeinclude` when propagation is approved. |
 
 The proposal can select only part of this list. For example, a repository can use the router without a team, or a team without automatic routing.
+
+Router-only setup includes its own ignore rule and offers local managed-worktree
+propagation. The router recovers an unavailable named front door by loading the
+real installed instructions from one validated, currently visible Plumbline
+installation. It reports that recovery once. If the plugin is disabled, missing,
+or ambiguous, it reports a routing blocker and the repair needed.
 
 Initialization does not edit global Codex or Claude settings, install global agents, enable Claude's experimental Agent Teams feature, create external tickets, or create a custom worktree system.
 
@@ -276,6 +282,15 @@ Plumbline never infers Relay from plan size. It fails closed on ambiguous transi
 ## Worktree and uninstall boundaries
 
 When propagation is approved, `.worktreeinclude` is the manifest that lets future managed worktrees receive the selected ignored setup. The manifest must be committed for future worktrees to see it; existing worktrees are not updated retroactively and need an explicit refresh or local copy.
+
+This propagation is supported for local Codex-managed worktrees. Remote or
+manual Git worktrees and fresh clones need explicit local setup. Commit the
+reviewed activation guidance and propagation files; keep the router untracked.
+To upgrade an older initialized router, ask `$plumbline-init` to preview a router
+refresh; applying a differing copy requires the approved `--replace` operation.
+If that setup skill is also absent from the catalog, explicitly ask Codex to
+resolve the real front door from its currently visible `plumbline:*` skill paths
+and use its setup branch. The same read-only preview and approval apply.
 
 Uninstalling the plugin removes the installed bundle, not files already created in a repository. Review project-local router, role, guidance, and ignore files before removing any setup. Preserve user-owned documentation, repository agents, and accepted history.
 

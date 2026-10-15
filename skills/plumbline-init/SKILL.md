@@ -30,6 +30,10 @@ Adopt an established repository's terminology and document structure. Do not cre
 
 ## Required proposal
 
+For router-only setup or repair, keep any existing team unchanged and skip
+role/model discovery and the team proposal table. Preview only the router
+installer's activation, ignore, and selected propagation changes.
+
 Present one reviewable proposal and wait for explicit approval before writing anything. Show the proposed agent set in a table with one row per role and these columns:
 
 `role | why it is needed | host-native model value | reasoning/effort | sandbox/permission intent | write access`
@@ -66,16 +70,23 @@ For Codex, explain that current releases enable subagents by default. Recommend 
 
 The same proposal must name every selected change and state `Create`, `Keep`, `Patch`, or `Skip`:
 
-- install `.agents/skills/plumbline-router/SKILL.md` from `templates/router/SKILL.md`;
+- install `.agents/skills/plumbline-router/SKILL.md` from `templates/router/SKILL.md`, its conditional managed `AGENTS.md` activation block, and the router's local ignore rule, even when no team is selected; for Claude also import `@AGENTS.md` in `CLAUDE.md`;
 - create or audit the selected project agents using the host adapter: `.codex/agents/*.toml` for Codex or `.claude/agents/*.md` for Claude Code;
 - for Codex, create or patch project `.codex/config.toml` with current `agents.enabled` and concurrency settings only when approved;
 - add or update the host guidance section in `AGENTS.md` with delegation and no-child rules; for Claude Code, add the supported `@AGENTS.md` import to `CLAUDE.md`; on a later explicit `$plumbline-init`, audit both and offer a guidance-only refresh when either is stale;
 - add local `.git/info/exclude` entries so the host agent files and router stay untracked;
-- when propagation is approved, patch the root `.gitignore` with the exact host-local ignore entries and add `.worktreeinclude` for the selected host paths; the proposal must show both changes together rather than promising to keep `.gitignore` unchanged;
+- recommend router propagation for local Codex-managed worktrees independently of team setup; when approved, patch root `.gitignore` and `.worktreeinclude` for the selected ignored paths and show both changes together. The router stays untracked. Remote/manual worktrees and new clones need explicit local setup; do not promise that `.worktreeinclude` covers them;
 - repair documentation routing only if the repository already needs it;
 - identify competing controllers and offer reversible conflict actions without applying them.
 
 Before asking for approval, run the host-specific candidate installer with `--dry-run --format json` and include the file/operation/field manifest in the proposal: `scripts/install_agent_team.py` for Codex or `scripts/install_claude_agent_team.py` for Claude Code. For an existing setup, use the same preview for `--mode initialize --update-agents --refresh-agents`; it changes only the managed `AGENTS.md` section for Codex or the managed Claude guidance plus its `CLAUDE.md` import for Claude Code. If the section is an older unmarked block, the preview must report that `--replace-agents-guidance` is required. If a repository-local router already exists, the preview must state whether it matches the current template and whether `--replace` would be required; never overwrite it merely because it is stale. This is read-only and does not approve or apply anything.
+
+For router-only setup, run `scripts/install_router.py --root <checkout> --dry-run
+--format json`, adding `--propagate` for the approved local worktree scope and
+`--host claude` on Claude Code. Its manifest includes the conditional activation
+block and ignore rules. Run the same preview when upgrading an existing router;
+apply a differing copy only with the approved `--replace`. Reuse current role
+profiles; router repair requires no team creation or retuning.
 
 ## After approval
 

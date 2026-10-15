@@ -10,7 +10,7 @@ You are the explicit front door. Inspect the user's request, supplied artifacts,
 
 First distinguish setup from phase work:
 
-- If the user explicitly asks for initialization or setup, hand off to the explicit `plumbline-init` skill. In Codex this is `$plumbline-init`; in Claude Code it is `/plumbline:plumbline-init`. It remains read-only until the user approves its proposal.
+- If the user explicitly asks for initialization or setup, hand off to the explicit `plumbline-init` skill. In Codex this is `$plumbline-init`; in Claude Code it is `/plumbline:plumbline-init`. If the host cannot call it, read the installed sibling `skills/plumbline-init/SKILL.md` from this plugin root and follow it directly. It remains read-only until the user approves its proposal.
 - An explicitly invoked phase side door may run without a project-local router or agent team. Use convention mode: honor supplied artifacts and ordinary repository conventions, and keep execution on the main thread when no local role exists.
 - If the front door is invoked in a repository without the project-local Plumbline router, offer setup for an ordinary unclassified request. If the request supplies a sufficient external specification, plan, handoff, or work order, assess that artifact set first and continue at the appropriate phase; setup is optional, not a prerequisite for the artifact-backed work.
 
