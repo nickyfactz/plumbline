@@ -64,7 +64,9 @@ Prefer a small number of root-cause findings that explain many symptoms. If six 
 
 ## Executive summary
 
-For a post-implementation audit, end with:
+For a post-implementation audit, summarize the applicable items below; report no
+findings when warranted rather than inventing refactors or a cleanup queue.
+Recommendations inform the orchestrator's disposition, not an automatic work order:
 
 1. overall maintainability assessment
 2. highest-leverage refactors

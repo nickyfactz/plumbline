@@ -15,10 +15,11 @@ approval at each boundary.
 
 Execute is complete only when every required checkpoint is `Complete`, the
 stable delta has focused/full proof, the plan says `Ready for Acceptance`, and
-the main thread has reported the remaining risk. `Blocked`, `Reopened`,
-`CHANGES_REQUIRED`, `INCONCLUSIVE`, or any other failure classification is
-unresolved work; it never satisfies completion. Execute may clean clearly
-task-owned superseded diagnostic/build scratch as it works. Accepted-work
+the main thread has reported the remaining risk. The main thread assesses
+`CHANGES_REQUIRED` and `INCONCLUSIVE` reports under `references/qa-audit.md`;
+confirmed acceptance blockers, `Blocked`/`Reopened` checkpoints, and missing
+required proof remain unresolved work and never satisfy completion. Execute may
+clean clearly task-owned superseded diagnostic/build scratch as it works. Accepted-work
 Closeout owns specification/plan retirement, integration cleanup, and publishing.
 
 Resolve `execution_mode` before traversal. A missing value means `continuous`.
@@ -217,15 +218,16 @@ For each checkpoint:
    deterministic probe, manual UAT, targeted review, or justified no-test
    decision can be valid evidence.
    Compare the result with the checkpoint's proof obligations before stopping.
-   Record material durable behavior discovered during implementation as an
-   additional obligation. For checks introduced or materially changed by this
+   The orchestrator assesses newly discovered behavior against the accepted
+   contract before adding a proof obligation. For checks introduced or materially changed by this
    candidate, state whether they protect durable behavior, were generalized or
    consolidated, or were diagnostic-only; test count and coverage are signals,
    not completion criteria.
 4. Integrate worker changes at the main thread. For material code, obtain a
    fresh report-only `code-reviewer` verdict before `qa-auditor` acceptance;
-   return concrete quality findings to the implementer first. Record only the
-   durable conclusion, useful pointers, residuals, and deviations in the
+   apply `references/qa-audit.md` to disposition findings before dispatching
+   remediation, returning only fix-now blockers to the implementer first. Record
+   only the durable conclusion, useful pointers, residuals, and deviations in the
    controlling artifact.
 5. Update exactly one current checkpoint, matching status, and
    `next_safe_action`, then select the next dependency-safe checkpoint.
@@ -255,9 +257,9 @@ When repeated correction cycles or an expensive acceptance/evidence gate produce
 no checkpoint advancement, perform the internal acceptance-churn check from
 `references/subagent-orchestration.md` before another corrective dispatch or
 expensive gate. Continue the approved objective automatically when safe; do not
-treat the check as a stop, user gate, or new lifecycle state. Material behavior,
-contract, safety, legibility, or changeability defects still require correction;
-non-material preferences may remain compact residuals.
+treat the check as a stop, user gate, or new lifecycle state. Confirmed current
+acceptance blockers require correction; legitimate non-blocking findings need
+not interrupt dependency-safe implementation and integrated-product testing.
 
 Reuse a build, package, deployment, or proof result while its relevant source,
 configuration, environment, contract, and candidate identity remain valid. A
@@ -337,5 +339,6 @@ omit ceremony that serves none of those purposes.
 For material code changes, the stable-delta review runs in two complementary
 steps: a fresh `code-reviewer` first for maintainability, design, and
 human-legibility defects, then a fresh `qa-auditor` for acceptance behavior,
-proof coverage, and documentation alignment. A code-reviewer finding returns to
-the implementer before QA; a missing role uses the main-thread direct fallback.
+proof coverage, and documentation alignment. The main thread dispositions
+findings under `references/qa-audit.md` before assigning repairs; a missing role
+uses the main-thread direct fallback.

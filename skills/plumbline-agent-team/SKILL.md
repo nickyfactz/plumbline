@@ -50,8 +50,10 @@ compacting.
 
 Treat project-local role files and applicable host config as live dispatch inputs. Before each delegation wave, reread the selected files. A changed profile is a profile refresh: it updates the model, reasoning/effort, sandbox/permission, or instruction values used by new workers; it does not invalidate prior evidence or retune workers already running. If a role is missing in a worktree, refresh only the ignored project-local team files from the source checkout through the repository's propagation convention, reread them, and use `Direct: <reason>` only if the role is still unavailable. Never use global roles or copy secrets, dependencies, or source trees.
 
-Worker reports cannot override lifecycle invariants. `CHANGES_REQUIRED` reopens
-the same candidate checkpoint; an inconclusive, environment, or harness result
+Worker reports cannot override lifecycle invariants. The main thread applies
+`references/qa-audit.md` before assigning remediation; `CHANGES_REQUIRED` alone
+does not reopen the same candidate checkpoint. A confirmed acceptance failure
+reopens it; an inconclusive, environment, or harness result
 blocks it only when safe progress cannot continue beyond a bounded Diagnose
 repair. Severity alone cannot abandon the objective or select a successor objective;
 the main thread preserves the candidate and owns that decision.

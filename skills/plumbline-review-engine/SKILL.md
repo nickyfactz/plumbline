@@ -75,10 +75,21 @@ Return one verdict:
 - `CHANGES_REQUIRED` — a concrete defect or missing requirement blocks acceptance;
 - `INCONCLUSIVE` — required evidence or environment is unavailable.
 
-Quote paths, commands, and observed results. Do not manufacture style findings. Treat maintainability and human legibility as part of the acceptance surface for changed code, but judge them proportionally. Block or reopen only for a material failure of comprehension, ownership, safe changeability, required behavior, or documented risk. Subjective refactor preferences, fringe hypotheticals without evidence, minor style, and non-material defensive code are bounded residuals; report a pointer, why they are non-blocking now, and a revisit trigger. If QA or UAT finds a defect in planned work, identify the affected checkpoint and the evidence that prior validation missed; the execution flow must reopen it.
+Quote paths, commands, and observed results. Do not manufacture style findings.
+Treat maintainability and human legibility as part of the acceptance surface for
+changed code, but judge them proportionally. Report findings to the main
+orchestrator, which must apply `references/qa-audit.md` before assigning repairs
+or changing checkpoint state. Bounded residuals retain a pointer, non-blocking
+rationale, and revisit trigger; unfinished accepted requirements stay required.
+No findings is valid. On follow-up, inspect the repair batch and affected
+behavior; materially new evidence can justify broader review, not independent
+remediation-scope expansion or reopening an unchanged deferred finding.
 
-`CHANGES_REQUIRED` reopens the affected checkpoint and `INCONCLUSIVE` blocks
-it for Diagnose. For corrective work, a green symptom check is insufficient
+After disposition, the orchestrator reopens a checkpoint only when its
+acceptance is invalidated; `CHANGES_REQUIRED` alone is not an automatic transition.
+`INCONCLUSIVE` blocks acceptance when required proof remains unavailable, not
+merely because optional evidence is absent. For corrective work, a green symptom
+check is insufficient
 when the failure is non-local or repeated: verify the reported failure path,
 contract or owner boundary, and one focused adjacent proof. Finding severity,
 including P0 or P1, controls urgency but does not decide candidate terminality.

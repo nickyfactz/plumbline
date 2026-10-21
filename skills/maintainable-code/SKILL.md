@@ -61,5 +61,6 @@ No branch is complete until:
 - a reproducible formatter and useful baseline linter/static-analysis path exists for materially maintained languages, and their checks pass at the repository's agreed baseline
 - materially changed code is human-scannable
 - important state, side effects, and contracts are understandable
-- no material design debt was introduced merely to finish the task
-- intentionally retained complexity has a concrete reason
+- material design risks and intentionally retained complexity have a concrete
+  rationale and orchestrator disposition against the accepted spec and current
+  milestone; accepted requirements and supported behavior remain satisfied

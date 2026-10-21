@@ -1,8 +1,16 @@
 # Runtime-value testing
 
-Tests are a risk-control decision, not a ritual. Start with behavioral proof obligations: the observable behavior, invariant, public/interface contract, meaningful regression risk, or durable edge case that must remain true. Add a permanent test when it protects stable behavior at a public seam or catches a plausible regression that other checks would miss. Prefer one valuable test over many implementation-coupled tests.
+Tests are a risk-control decision, not a ritual. The accepted project specification and plan determine required proof and acceptable evidence methods; Plumbline selects proportionate checks within that contract, not substitute or stricter acceptance gates. Keep required repository checks. Start with behavioral proof obligations: the observable behavior, invariant, public/interface contract, meaningful regression risk, or durable edge case that must remain true. Add a permanent test when it protects stable behavior at a public seam or catches a plausible regression that other checks would miss. Prefer one valuable test over many implementation-coupled tests.
 
 Good seams include a CLI/API boundary, user-visible workflow, public service contract, persisted state transition, or integration behavior with a known failure mode. Expected values should come from the specification, a worked example, or an independent known-good source.
+
+Exercise the integrated product as soon as the relevant workflow is safely
+testable, using the spec/plan's runtime or live-product proof. Review, fixture
+tests, and package creation do not replace that proof. Reuse existing test seams
+and light regression checks where sufficient; new harnesses, generalized fixture
+systems, or evidence tooling need a concrete unmet proof obligation that simpler
+checks cannot satisfy. Optional hardening must not postpone required integration
+or product verification.
 
 Use three evidence classes. A diagnostic probe answers a hypothesis or
 reproduction question and is working evidence, not an acceptance attempt. A
@@ -22,8 +30,10 @@ For bugs, test the minimized failure at a correct public seam when one exists. I
 
 Throwaway prototypes and implementation-time diagnostics may use a one-command smoke run or documented observation instead of a permanent production test suite. They still need enough runtime evidence to answer the stated question. If prototype logic is promoted into a production seam, re-evaluate it under this gate rather than treating the throwaway probe as permanent coverage.
 
-Implementation may reveal a new durable proof obligation. Add it to the existing
-checkpoint evidence surface when it changes what completion means; do not create
+Implementation may reveal a new durable proof obligation. The orchestrator
+assesses it against the accepted contract and records necessary refinements in
+the existing checkpoint evidence surface; product-scope changes require the
+applicable approval rather than a reviewer-created gate. Do not create
 a parallel testing artifact. Before completion, review only tests, probes,
 snapshots, and checks introduced or materially changed by the candidate. Classify
 each as retain for durable protection, generalize or consolidate, remove as
@@ -48,6 +58,12 @@ would be less reliable than regeneration. At acceptance, keep the result and
 the smallest useful command, revision, counts or failure tail, and artifact
 pointer; the generated output itself remains scratch unless deployment,
 recovery, audit, safety, or costly reproduction requires it.
+
+A changed source file may require focused checks without requiring a full
+package rebuild. Before repeating an expensive gate, identify which required
+proof the change invalidates and why a cheaper check cannot restore it; batch
+compatible repairs before that gate. Never present an older package as proof of
+changed behavior it does not contain.
 
 ## Deterministic operations
 

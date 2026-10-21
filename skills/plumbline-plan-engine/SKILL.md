@@ -121,9 +121,11 @@ partial-failure boundary, edge behavior, proof, write set, non-goals, and
 assumptions. Keep it in the prompt; it is not a new durable artifact.
 
 Identify known proof obligations before implementation from acceptance criteria,
-invariants, contracts, and meaningful regression risks. A new durable behavior
-discovered during implementation may extend the existing proof/evidence surface;
-do not create a second testing artifact or a test-count target.
+invariants, contracts, and meaningful regression risks. The accepted spec and
+plan determine required proof and acceptable evidence methods; apply
+`references/runtime-value-testing.md` without inventing stricter evidence gates.
+The orchestrator assesses discoveries against that contract before extending the
+existing proof/evidence surface; do not create a second testing artifact or a test-count target.
 
 ## Resolve uncertainty at the right level
 
@@ -150,9 +152,10 @@ accepted work or an explicit user-approved defer or abandonment.
 
 ## Preserve the objective, compact the evidence
 
-Normalize checkpoint outcomes as follows: `CHANGES_REQUIRED` from review
-reopens the affected checkpoint. `INCONCLUSIVE`, environment failures, and
-harness failures block it only when they prevent safe progress beyond a bounded
+Normalize checkpoint outcomes after main-thread disposition under
+`references/qa-audit.md`: `CHANGES_REQUIRED` alone does not reopen a checkpoint;
+confirmed invalidation of its acceptance does. `INCONCLUSIVE`, environment
+failures, and harness failures block it only when they prevent safe progress beyond a bounded
 repair; otherwise keep the checkpoint in progress while Diagnose repairs or
 replaces the evidence path. The same candidate returns through correction and
 review. P0/P1 severity does not automatically mean rejection, rollback,

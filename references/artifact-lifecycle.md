@@ -23,6 +23,13 @@ artifact does not materially improve that rehydration, it has little reason to
 be durable. Keep this truth in the controlling plan or existing canonical
 surface; do not create a parallel evidence ledger.
 
+The spec and plan govern required evidence and retention. Otherwise keep one
+compact current result per proof obligation in the existing surface: what was
+checked, outcome, relevant revision/environment, and a useful pointer when needed.
+Do not create an evidence database, per-build receipts, or an iteration archive
+merely to show activity; detail needs an identifiable future consumer, not just
+a possible future review. Preserve required audit/safety records and Git recovery.
+
 Generated execution outputs are working material by default. Builds, packages,
 binaries, command logs, diagnostic captures, repeated manifests, correction
 directories, and intermediate receipts live only while they help reach or

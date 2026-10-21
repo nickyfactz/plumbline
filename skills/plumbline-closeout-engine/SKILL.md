@@ -14,7 +14,7 @@ final branch/worktree/publishing preparation report. Closeout does not redo
 first-time implementation proof.
 
 Normal Closeout refuses to retire an objective with any required checkpoint in
-`Blocked`, `Reopened`, `CHANGES_REQUIRED`, `INCONCLUSIVE`, or another unresolved
+`Blocked`, `Reopened`, or another unresolved
 state. Preserve the current candidate and any genuinely required audit record,
 then return the work to Execute/Diagnose; ordinary diagnostic output remains
 disposable.
@@ -29,8 +29,9 @@ handling, and publishing preparation.
 For material code, stable-delta review is ordered: a fresh report-only
 `code-reviewer` checks maintainability, design, and human legibility using the
 bundled `maintainable-code` skill, then a fresh `qa-auditor` checks acceptance,
-behavioral proof, and documentation alignment. A code-quality finding returns
-to the implementer before QA; small or documentation-only work stays
+behavioral proof, and documentation alignment. The main thread applies the
+finding dispositions in `references/qa-audit.md` before returning fix-now blockers
+to the implementer; small or documentation-only work stays
 proportional.
 
 ## Acceptance-led preflight and open items
@@ -45,7 +46,8 @@ blocks the requested operation.
 Classify remaining items as Acceptance blocker, Residual risk, Operational
 follow-up, or Future enhancement. An Acceptance blocker or any unresolved
 `Blocked`/`Reopened` checkpoint prevents closeout; keep non-blocking categories
-visible without starting a new planning cycle.
+visible without starting a new planning cycle. An empty residual list is not a
+completion requirement; unfinished accepted requirements remain required work.
 
 ## Choose the smallest closeout mode that is sufficient
 

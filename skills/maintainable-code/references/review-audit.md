@@ -66,10 +66,13 @@ Prefer diagnosis over labels such as "God object", "not SOLID", or "unclean".
 - **Medium:** localized complexity, duplicated knowledge, confusing control flow, poor scanability, weak boundaries, or test friction with plausible maintenance cost
 - **Low:** local readability or consistency improvement with limited downstream effect
 
-Do not inflate severity to force cleanup.
+Severity describes impact, not permission to require cleanup now. The main
+orchestrator decides disposition and timing against the accepted spec, current
+milestone, supported behavior, and remaining plan. A legitimate maintenance
+finding may be non-blocking, especially when later planned work replaces the code.
 
 For a formal report, read [`reporting.md`](reporting.md).
 
 ## Completion criterion
 
-The review is complete only when every reported finding has concrete evidence, a maintenance or runtime consequence, a proportionate direction, and a validation path; human legibility has been explicitly assessed; high-risk areas in scope have been inspected; and pure taste differences have been removed.
+The review is complete when every reported finding has concrete evidence, a maintenance or runtime consequence, a proportionate direction, and a validation path; human legibility has been explicitly assessed; high-risk areas in scope have been inspected; and pure taste differences have been removed. No findings is valid. Follow-up review verifies the assigned repairs and affected behavior; materially new evidence can justify broader review. Return findings to the orchestrator without independently expanding remediation scope or reopening deferred findings.

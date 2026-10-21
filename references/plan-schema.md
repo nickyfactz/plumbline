@@ -51,7 +51,9 @@ Expand the card with Outcome, Specification coverage, Dependencies, Execution to
 
 ### Non-overridable failure transitions
 
-`CHANGES_REQUIRED` from review sets the affected checkpoint to `Reopened`.
+The main orchestrator dispositions review findings under `references/qa-audit.md`.
+`CHANGES_REQUIRED` alone does not change state; a confirmed acceptance-invalidating
+finding sets the affected checkpoint to `Reopened`.
 `INCONCLUSIVE`, environment failures, and test-harness failures set it to
 `Blocked` only when they prevent safe progress and cannot be repaired inside
 the current execution flow. An ordinary diagnostic or bounded evidence-path
@@ -157,6 +159,6 @@ Whenever the plan is written, verify that exactly one current checkpoint is name
 
 Do not require this frontmatter or checkpoint format for an external artifact that already provides sufficient scope, boundaries, proof, and next action. If a companion plan improves recovery, recommend it; do not block execution solely because it is absent.
 
-Label unresolved items as Acceptance blocker, Residual risk, Operational follow-up, or Future enhancement. An Acceptance blocker or an unresolved `Blocked`/`Reopened` checkpoint prevents Ready for Acceptance. Preserve non-blocking categories as explicit residual state rather than reopening planning to eliminate them.
+Label unresolved items as Acceptance blocker, Residual risk, Operational follow-up, or Future enhancement. Keep unfinished accepted requirements in their required checkpoints, including later planned integration; never reclassify them as optional residuals. An Acceptance blocker or an unresolved `Blocked`/`Reopened` checkpoint prevents Ready for Acceptance. Preserve non-blocking categories using the residual guidance in `references/qa-audit.md`, not as an automatic next work queue or mandatory cleanup phase.
 
 Rolling telemetry is sample evidence, not automatically durable truth. Record the observation date or generation/window and stable assertions separately from changing counts; do not rewrite acceptance merely because a live count moved.
