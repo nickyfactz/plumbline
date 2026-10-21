@@ -27,6 +27,17 @@ def run_git(*args: str, cwd: Path) -> None:
 
 def main() -> None:
     plugin_root = Path(__file__).resolve().parents[1]
+    for model, effort in ((None, None), ("sol", "medium"), ("latest", "medium")):
+        with tempfile.TemporaryDirectory() as raw_root:
+            root = Path(raw_root)
+            (root / ".git" / "info").mkdir(parents=True)
+            try:
+                install(plugin_root, root, model=model, reasoning_effort=effort)
+            except ValueError as exc:
+                assert "Resolve the current supported" in str(exc)
+            else:
+                raise AssertionError("setup must require resolved model IDs")
+            assert not (root / ".codex").exists()
     orchestration = (plugin_root / "references" / "subagent-orchestration.md").read_text(encoding="utf-8").lower()
     for marker in (
         "independent research",
@@ -131,18 +142,22 @@ def main() -> None:
     with tempfile.TemporaryDirectory() as raw_root:
         root = Path(raw_root)
         (root / ".git" / "info").mkdir(parents=True)
-        install(plugin_root, root, roles=ROLES)
+        for role, (family, reasoning) in RECOMMENDED_PROFILES.items():
+            install(
+                plugin_root, root, roles=(role,),
+                model=f"fixture-current-{family}", reasoning_effort=reasoning,
+            )
         config = tomllib.loads((root / ".codex" / "config.toml").read_text(encoding="utf-8"))
         assert config["agents"]["max_concurrent_threads_per_session"] == 12
-        for role, (model, reasoning) in RECOMMENDED_PROFILES.items():
+        for role, (family, reasoning) in RECOMMENDED_PROFILES.items():
             data = tomllib.loads((root / ".codex" / "agents" / f"{role}.toml").read_text(encoding="utf-8"))
-            assert data["model"] == model
+            assert data["model"] == f"fixture-current-{family}"
             assert data["model_reasoning_effort"] == reasoning
             assert data["model"] not in {"sol", "luna"}
-        assert RECOMMENDED_PROFILES["code-reviewer"] == ("gpt-5.6-luna", "high")
+        assert RECOMMENDED_PROFILES["code-reviewer"] == ("luna", "high")
         reviewer_path = root / ".codex" / "agents" / "code-reviewer.toml"
         reviewer_path.write_text(
-            reviewer_path.read_text(encoding="utf-8").replace('model = "gpt-5.6-luna"', 'model = "luna"'),
+            reviewer_path.read_text(encoding="utf-8").replace('model = "fixture-current-luna"', 'model = "luna"'),
             encoding="utf-8",
         )
         audit = install(plugin_root, root, mode="audit", roles=("code-reviewer",))

@@ -40,31 +40,21 @@ Present one reviewable proposal and wait for explicit approval before writing an
 
 Use the current project/main model when available; otherwise show a host model only as a candidate to approve. Do not invent a model slug or alias. Treat the table as a recommended, role-aware starting profile aimed at the cheapest effective model and reasoning/effort: lower-cost settings for bounded research or mechanical work, higher settings only for material architecture, persistence, concurrency, security, ownership, or acceptance risk. These values are adjustable and hotswappable after setup.
 
-When the project benefits from the full shared team, recommend these starting
-profiles and let the user select or adjust them:
+For a team proposal, read and apply `references/model-selection.md` in full.
+Recommend the latest supported Sol/Luna families for Codex and Opus/Sonnet for
+Claude, then resolve current supported model IDs and efforts for this installation.
+The reference owns the role-aware starting recommendations and discovery rules;
+they are adjustable, not a required team or immutable policy.
 
-| Role | Codex model / reasoning | Claude model / effort |
-| --- | --- | --- |
-| `frontend-architect` | `gpt-5.6-sol` / `medium` | `opus` / `low` |
-| `backend-architect` | `gpt-5.6-sol` / `medium` | `opus` / `low` |
-| `researcher` | `gpt-5.6-luna` / `medium` | `sonnet` / `low` |
-| `implementer` | `gpt-5.6-luna` / `high` | `sonnet` / `high` |
-| `code-reviewer` | `gpt-5.6-luna` / `high` | `sonnet` / `high` |
-| `qa-auditor` | `gpt-5.6-luna` / `max` | `opus` / `medium` |
-
-These are recommendations, not a required role set or immutable policy. The
-`maintainable-code` skill is model-invoked for implementation and review;
+The `maintainable-code` skill is model-invoked for implementation and review;
 `code-reviewer` runs before `qa-auditor` on material code.
 
-Resolve the exact current model values before presenting the proposal. Use the
-active host's model picker or the provider's official model documentation/API
-(OpenAI model IDs and list API; Anthropic Models API/docs), not memory or an
-unverified alias. Claude's provider-native family aliases are `opus`, `sonnet`,
-`haiku`, and `fable`; a full current Claude ID may be used when a pinned version
-is preferred. The adapters do not call provider APIs or require credentials;
-they write only the values the user approves. On an explicit repeat
-initialization, repeat this lookup so released or retired models can be
-course-corrected without replacing the rest of a role.
+On explicit repeat initialization, repeat discovery and compare existing approved
+IDs for availability and deprecation. Keep them unless a replacement is approved;
+the adapters write explicit values supplied by the proposal and have no dated
+model fallback. Discovery failure leaves existing profiles unchanged and new
+unresolved pins unapplied. Claude's `opus`, `sonnet`, `haiku`, and `fable` aliases
+are discovery inputs, not the exact IDs to write for a versioned model pin.
 
 For Codex, explain that current releases enable subagents by default. Recommend `agents.enabled = true` only as an explicit project intent and `agents.max_concurrent_threads_per_session = 12` as an adjustable, user-owned starting value; preserve an existing or approved alternative such as 6. Detect legacy `features.multi_agent`, `agents.max_threads`, and `agents.max_depth` entries and offer their exact migration for approval. A selected role's explicit `model` field is sufficient to select the approved current model, including a full leaf-model ID, through current v2 delegation; do not force a v1 path or claim that a depth setting is required. For Claude Code, recommend project `.claude/agents/*.md` definitions with the role-aware `model`/`effort` baseline above, restricted tools and `permissionMode: plan` for report-only roles, and no `Agent` tool for any generated role. Claude automatically matches descriptions; the main thread can explicitly name a role in its dispatch prompt or use `@agent-<role>` for one task. Do not use `--agent` to dispatch a worker, enable Claude's experimental Agent Teams, or edit global settings.
 

@@ -30,14 +30,14 @@ SANDBOXES = {
     "qa-auditor": "read-only",
 }
 RECOMMENDED_PROFILES = {
-    "frontend-architect": ("gpt-5.6-sol", "medium"),
-    "backend-architect": ("gpt-5.6-sol", "medium"),
-    "researcher": ("gpt-5.6-luna", "medium"),
-    "implementer": ("gpt-5.6-luna", "high"),
-    "code-reviewer": ("gpt-5.6-luna", "high"),
-    "qa-auditor": ("gpt-5.6-luna", "max"),
+    "frontend-architect": ("sol", "medium"),
+    "backend-architect": ("sol", "medium"),
+    "researcher": ("luna", "medium"),
+    "implementer": ("luna", "high"),
+    "code-reviewer": ("luna", "high"),
+    "qa-auditor": ("luna", "max"),
 }
-CODEX_SHORT_MODEL_ALIASES = {"sol": "gpt-5.6-sol", "luna": "gpt-5.6-luna"}
+CODEX_SHORT_MODEL_ALIASES = {"sol", "luna", "latest"}
 REQUIRED_AGENT_FIELDS = (
     "name",
     "description",
@@ -467,12 +467,14 @@ def _render_agent(template: Path, model: str, reasoning_effort: str) -> tuple[st
 def _profile(role: str, model: str | None, reasoning_effort: str | None) -> tuple[str, str]:
     if (model is None) != (reasoning_effort is None):
         raise ValueError("--model and --reasoning-effort must be supplied together")
-    profile = (model, reasoning_effort) if model is not None else RECOMMENDED_PROFILES[role]
-    if profile[0] in CODEX_SHORT_MODEL_ALIASES:
+    if not model or not reasoning_effort or model in CODEX_SHORT_MODEL_ALIASES:
+        family = RECOMMENDED_PROFILES[role][0]
         raise ValueError(
-            f"Codex model must be a full host-native ID; use {CODEX_SHORT_MODEL_ALIASES[profile[0]]!r} instead of {profile[0]!r}"
+            f"Resolve the current supported {family} family model and effort during setup; "
+            "pass the approved exact ID with --model and --reasoning-effort. "
+            "There is no bundled model-version fallback."
         )
-    return profile
+    return model, reasoning_effort
 
 
 def _template_data(template_root: Path, role: str) -> dict:
@@ -683,6 +685,9 @@ def _retune(
         raise ValueError("--model and --reasoning-effort must be supplied together")
     if update_profile and (model is None or reasoning_effort is None):
         raise ValueError("--update-profile requires --model and --reasoning-effort")
+    if fill_missing or update_profile:
+        for role in roles:
+            _profile(role, model, reasoning_effort)
     changes: dict[Path, tuple[str, ...]] = {}
     operations: dict[Path, str] = {}
     findings = _audit_config(repo)
@@ -712,7 +717,9 @@ def _retune(
             continue
 
         template = _template_data(template_root, role)
-        role_model, role_reasoning = _profile(role, model, reasoning_effort)
+        role_model, role_reasoning = (
+            _profile(role, model, reasoning_effort) if fill_missing or update_profile else (None, None)
+        )
         after_text = before_text
         changed: list[str] = []
         missing: dict[str, str] = {}
@@ -794,6 +801,8 @@ def _initialize(
 ) -> InstallReport:
     if (model is None) != (reasoning_effort is None):
         raise ValueError("--model and --reasoning-effort must be supplied together")
+    for role in roles:
+        _profile(role, model, reasoning_effort)
     for role in roles:
         target = repo / ".codex" / "agents" / f"{role}.toml"
         if target.exists() and not replace:
@@ -997,8 +1006,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path.cwd(), help="Target repository root")
     parser.add_argument("--mode", choices=MODES, default="initialize")
-    parser.add_argument("--model", help="Override the recommended model for every selected role")
-    parser.add_argument("--reasoning-effort", help="Override the recommended effort for every selected role")
+    parser.add_argument("--model", help="Approved exact model ID resolved from the current host/provider catalog")
+    parser.add_argument("--reasoning-effort", help="Approved host-supported reasoning effort for the selected model")
     parser.add_argument("--roles", type=_parse_roles, default=ROLES, help="Comma-separated roles")
     parser.add_argument("--max-threads", type=int, default=12)
     parser.add_argument("--replace", action="store_true", help="Replace existing role files during initialize only")

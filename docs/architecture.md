@@ -116,8 +116,9 @@ Agent teams are optional and project-local:
   project records an explicit cap.
 - Claude Code uses selected `.claude/agents/*.md` files with Claude-native
   model, effort, tool, and permission fields. The recommended baseline is
-  `opus/low` for architects, `sonnet/low` for research, `sonnet/high` for
-  implementation and code review, and `opus/medium` for QA. Claude can match
+  the latest supported Opus family for architects/QA and Sonnet for research,
+  implementation, and code review, with the role-aware effort recommendations in
+  `references/model-selection.md`. Claude can match
   these agents from their descriptions or the main thread can explicitly use
   `@agent-<role>`; `--agent` selects the role as the main session agent.
   Claude loads project guidance from `CLAUDE.md`, not `AGENTS.md`; the Claude

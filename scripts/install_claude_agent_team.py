@@ -160,7 +160,14 @@ def _render_agent(plugin: Path, role: str, model: str, effort: str) -> str:
 def _profile(role: str, model: str | None, effort: str | None) -> tuple[str, str]:
     if (model is None) != (effort is None):
         raise ValueError("--model and --effort must be supplied together")
-    return (model, effort) if model is not None else RECOMMENDED_PROFILES[role]
+    if not model or not effort or model in {"opus", "sonnet", "haiku", "fable", "default", "best", "latest"}:
+        family = RECOMMENDED_PROFILES[role][0]
+        raise ValueError(
+            f"Resolve the current supported {family} family model and effort during setup; "
+            "pass the approved exact ID with --model and --effort (or explicitly approve inherit). "
+            "There is no bundled model-version fallback."
+        )
+    return model, effort
 
 
 def _frontmatter(text: str, path: Path) -> tuple[list[str], int, dict[str, object], str]:
@@ -444,6 +451,9 @@ def _retune(
 ) -> InstallReport:
     if update_profile and (model is None or effort is None):
         raise ValueError("--update-profile requires --model and --effort")
+    if fill_missing or update_profile:
+        for role in roles:
+            _profile(role, model, effort)
     changes: dict[Path, tuple[str, ...]] = {}
     operations: dict[Path, str] = {}
     findings: list[str] = []
@@ -461,7 +471,7 @@ def _retune(
 
         after = before
         changed: list[str] = []
-        role_model, role_effort = _profile(role, model, effort)
+        role_model, role_effort = _profile(role, model, effort) if fill_missing or update_profile else (None, None)
         if fill_missing:
             template = _template_data(plugin, role)
             defaults = {
@@ -513,6 +523,8 @@ def _initialize(
     propagate: bool,
     dry_run: bool,
 ) -> InstallReport:
+    for role in roles:
+        _profile(role, model, effort)
     for role in roles:
         target = repo / AGENT_ROOT / f"{role}.md"
         if target.exists() and not replace:
@@ -691,7 +703,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path.cwd(), help="Target repository root")
     parser.add_argument("--mode", choices=MODES, default="initialize")
-    parser.add_argument("--model", help="Current Claude model alias or full model ID")
+    parser.add_argument("--model", help="Approved exact model ID resolved for the current provider, or explicit inherit")
     parser.add_argument("--effort", "--reasoning-effort", dest="effort", help="Claude reasoning effort")
     parser.add_argument("--roles", type=_parse_roles, default=ROLES, help="Comma-separated roles")
     parser.add_argument("--replace", action="store_true", help="Replace existing role files during initialize only")

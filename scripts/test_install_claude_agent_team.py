@@ -11,6 +11,25 @@ from install_claude_agent_team import RECOMMENDED_EFFORTS, RECOMMENDED_PROFILES,
 
 def main() -> None:
     plugin_root = Path(__file__).resolve().parents[1]
+    assert RECOMMENDED_PROFILES == {
+        "frontend-architect": ("opus", "low"),
+        "backend-architect": ("opus", "low"),
+        "researcher": ("sonnet", "low"),
+        "implementer": ("sonnet", "high"),
+        "code-reviewer": ("sonnet", "high"),
+        "qa-auditor": ("opus", "medium"),
+    }
+    for model, effort in ((None, None), ("opus", "low"), ("latest", "low")):
+        with tempfile.TemporaryDirectory() as raw_root:
+            root = Path(raw_root)
+            (root / ".git" / "info").mkdir(parents=True)
+            try:
+                install(plugin_root, root, model=model, effort=effort)
+            except ValueError as exc:
+                assert "Resolve the current supported" in str(exc)
+            else:
+                raise AssertionError("setup must require resolved model IDs")
+            assert not (root / ".claude").exists()
     with tempfile.TemporaryDirectory() as raw_root:
         root = Path(raw_root)
         (root / ".git" / "info").mkdir(parents=True)
@@ -105,11 +124,12 @@ def main() -> None:
     with tempfile.TemporaryDirectory() as raw_root:
         root = Path(raw_root)
         (root / ".git" / "info").mkdir(parents=True)
-        install(plugin_root, root, roles=ROLES)
-        for role, (model, effort) in RECOMMENDED_PROFILES.items():
+        for role, (family, effort) in RECOMMENDED_PROFILES.items():
+            install(plugin_root, root, roles=(role,), model=f"fixture-current-{family}", effort=effort)
+        for role, (family, effort) in RECOMMENDED_PROFILES.items():
             path = root / ".claude" / "agents" / f"{role}.md"
             text = path.read_text(encoding="utf-8")
-            assert f'model: "{model}"' in text
+            assert f'model: "fixture-current-{family}"' in text
             assert f"effort: {effort}" in text
         reviewer = (root / ".claude" / "agents" / "code-reviewer.md").read_text(encoding="utf-8")
         assert "maintainable-code" in reviewer
@@ -168,7 +188,10 @@ def main() -> None:
     with tempfile.TemporaryDirectory() as raw_root:
         root = Path(raw_root)
         (root / ".git" / "info").mkdir(parents=True)
-        preview = install(plugin_root, root, roles=("researcher",), dry_run=True)
+        preview = install(
+            plugin_root, root, roles=("researcher",),
+            model="fixture-current-sonnet", effort="low", dry_run=True,
+        )
         assert preview.operations[root / ".claude" / "agents" / "researcher.md"] == "create"
         assert not (root / ".claude").exists()
 
@@ -214,14 +237,17 @@ def main() -> None:
         assert 'model: "approved-claude-model"' in refreshed
         assert 'effort: "max"' in refreshed
         assert "Custom instructions." in refreshed
+        install(plugin_root, root, mode="retune", roles=("researcher",), update_instructions=True)
+        assert 'model: "approved-claude-model"' in path.read_text(encoding="utf-8")
+        assert 'effort: "max"' in path.read_text(encoding="utf-8")
 
     with tempfile.TemporaryDirectory() as raw_root:
         root = Path(raw_root)
         (root / ".git" / "info").mkdir(parents=True)
-        install(plugin_root, root, roles=ROLES)
+        install(plugin_root, root, roles=ROLES, model="fixture-current-sonnet", effort="low")
         researcher_path = root / ".claude" / "agents" / "researcher.md"
         researcher_path.write_text(
-            researcher_path.read_text(encoding="utf-8").replace('model: "sonnet"', 'model: "gpt-5.6-luna"'),
+            researcher_path.read_text(encoding="utf-8").replace('model: "fixture-current-sonnet"', 'model: "gpt-5.6-luna"'),
             encoding="utf-8",
         )
         audit = install(plugin_root, root, mode="audit", roles=("researcher",))

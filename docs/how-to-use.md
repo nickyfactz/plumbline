@@ -221,7 +221,7 @@ The two tools use the same role responsibilities but different project files.
 
 - Roles live in project-local `.claude/agents/*.md` files.
 - Claude has no required Plumbline project config switch. Role frontmatter carries `model`, `effort`, `tools`, and `permissionMode`.
-- Use Claude's own family aliases—`opus`, `sonnet`, `haiku`, or `fable`—a full current model ID, or `inherit`; do not copy a Codex model ID into a Claude role.
+- Existing Claude roles may use family aliases (`opus`, `sonnet`, `haiku`, or `fable`) or `inherit`. For a new model pin, setup resolves the family to an exact current provider-native ID; explicitly approved `inherit` is also supported. Never copy a Codex ID into a Claude role.
 - Claude reads `CLAUDE.md`, not `AGENTS.md`. Plumbline keeps shared, reviewable guidance in `AGENTS.md` and adds the supported `@AGENTS.md` import to `CLAUDE.md`, preserving other Claude instructions.
 - Claude can match a role from its description. Use `@agent-<role>` for an explicit one-task invocation. `--agent <role>` makes that role the main session agent; it does not dispatch a worker.
 - Claude hot-reloads edits to an existing `.claude/agents/` directory. Creating that directory for the first time may require a fresh session.
@@ -231,16 +231,25 @@ The two tools use the same role responsibilities but different project files.
 
 These are adjustable recommendations, not a required team. Before asking for approval, setup resolves the exact values supported by the active tool or provider. Existing tuned values remain user-owned during audit and retune.
 
-| Role | Codex model / reasoning | Claude model / effort |
-| --- | --- | --- |
-| `frontend-architect` | `gpt-5.6-sol` / `medium` | `opus` / `low` |
-| `backend-architect` | `gpt-5.6-sol` / `medium` | `opus` / `low` |
-| `researcher` | `gpt-5.6-luna` / `medium` | `sonnet` / `low` |
-| `implementer` | `gpt-5.6-luna` / `high` | `sonnet` / `high` |
-| `code-reviewer` | `gpt-5.6-luna` / `high` | `sonnet` / `high` |
-| `qa-auditor` | `gpt-5.6-luna` / `max` | `opus` / `medium` |
+The [model-selection reference](../references/model-selection.md) owns the
+role-aware family and effort recommendations: latest supported Sol/Luna for
+Codex, and Opus/Sonnet for Claude. These are family recommendations, not slugs
+that the installer writes directly.
 
-The model and reasoning/effort values are release-sensitive. The adapters do not call provider APIs or require credentials; the setup proposal supplies the values you approve.
+On every explicit team setup, audit, retune, or update, the skill checks the
+current host/provider catalog, supported effort levels, and lifecycle evidence.
+It reports whether each existing ID is active, deprecated, retired, unavailable,
+or unverified. A newer model alone does not authorize changing an approved pin.
+Retired or unavailable models get a proposed active replacement; uncertain
+discovery leaves existing profiles untouched.
+
+After approval, setup groups roles by exact resolved model/effort and calls the
+host adapter with `--roles`, `--model`, and `--reasoning-effort` (Codex) or
+`--effort` (Claude). Preview all groups with `--dry-run --format json` first.
+The adapters require explicit values for new profiles instead of falling back
+to a dated release; they do not call provider APIs or require credentials.
+Existing agents change only through an approved `--mode retune --update-profile`.
+Instruction-only updates preserve model pins, permissions, and custom settings.
 
 ## Optional continuity after a long session
 

@@ -32,6 +32,12 @@ python <snapshot>/scripts/install_router.py --root <candidate>
 python <snapshot>/scripts/install_agent_team.py --root <candidate> --update-agents
 ```
 
+That command uses the historical pinned snapshot's defaults. Newer Plumbline
+snapshots require resolved model/effort values. For those snapshots, explicitly
+approve and enable the existing `uniform_role_profiles` option so the runner
+passes the configured cell model and root effort; record the changed benchmark
+condition rather than silently substituting a new model policy.
+
 The generated local profiles and guidance are hashed. Do not replace these with remembered role definitions. Confirm six local roles, intended model/effort values, native availability, and actual worker selection in first-pair evidence. A model-ID migration may be necessary on a future host; apply only a documented approved profile refresh before the freeze, never an undisclosed fallback during a run.
 
 Installing a plugin is not proof its hook or skill ran. Confirm router activation and the actual dispatched roles. Vanilla must not inherit Plumbline, Ponytail, or a benchmark controller skill.

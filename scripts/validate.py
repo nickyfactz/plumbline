@@ -76,6 +76,7 @@ CONTRACT_MARKERS = {
         "guidance-only refresh",
         "opus",
         "sonnet",
+        "model-selection.md",
         "@agent-<role>",
         "CLAUDE.md",
         "@AGENTS.md",
@@ -105,6 +106,7 @@ CONTRACT_MARKERS = {
         "no write set",
         "router",
         "host-guidance schema drift",
+        "model-selection.md",
         "proposed refresh",
         "repeat initialization",
         "replace-agents-guidance",
@@ -379,6 +381,7 @@ REFERENCES = {
     "offboarding.md",
     "router-installation.md",
     "checkpoint-relay.md",
+    "model-selection.md",
 }
 FRONTMATTER_FIELD = re.compile(r"^(name|description):\s*(.+?)\s*$", re.MULTILINE)
 SEMVER = re.compile(r"^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$")
@@ -679,6 +682,7 @@ def validate_references_and_templates(errors: list[str]) -> None:
         "qa-audit.md": ("proof obligation", "main thread decides deletion", "material quality findings", "revisit trigger"),
         "artifact-lifecycle.md": ("durable state", "working material by default", "future consumer", "failed result is not automatically"),
         "worktree-readiness.md": ("on-demand refresh", "existing worktrees need this explicit refresh"),
+        "model-selection.md": ("Every invocation", "deprecated-but-usable", "retired", "unknown", "preserve existing approved values", "--mode retune --update-profile", "no bundled version"),
     }
     for name, markers in reference_markers.items():
         source = (ROOT / "references" / name).read_text(encoding="utf-8").lower()
@@ -787,11 +791,11 @@ def validate_scripts(errors: list[str]) -> None:
             source = path.read_text(encoding="utf-8")
             compile(source, str(path), "exec")
             if name == "install_agent_team.py":
-                for marker in ("MODES = (\"initialize\", \"audit\", \"retune\")", "class InstallReport", "ROLE_DESCRIPTIONS", "def _retune", "def _audit_router", "def _audit_agents_guidance", "update_instructions", "update_profile", "host-versioned inputs", "dry_run", "output_format", "Delegated:", "model slugs", "reasoning efforts"):
+                for marker in ("MODES = (\"initialize\", \"audit\", \"retune\")", "class InstallReport", "ROLE_DESCRIPTIONS", "def _retune", "def _audit_router", "def _audit_agents_guidance", "update_instructions", "update_profile", "Resolve the current supported", "no bundled model-version fallback", "host-versioned inputs", "dry_run", "output_format", "Delegated:", "model slugs", "reasoning efforts"):
                     if marker not in source:
                         error(errors, f"scripts/{name}: missing preservation marker {marker}")
             elif name == "install_claude_agent_team.py":
-                for marker in ("AGENT_ROOT", "CLAUDE_GUIDANCE_FILE", "CLAUDE_AGENTS_IMPORT", "ROLE_TOOLS", "permissionMode", "RECOMMENDED_PROFILES", "CLAUDE_EFFORTS", "CLAUDE_PERMISSION_MODES", "def _retune", "def _prepare_claude_import", "update_profile", "provider-versioned inputs", "@agent-<role>", "hot-reloads", "dry_run", "claude_settings_modified", "experimental_agent_teams_enabled"):
+                for marker in ("AGENT_ROOT", "CLAUDE_GUIDANCE_FILE", "CLAUDE_AGENTS_IMPORT", "ROLE_TOOLS", "permissionMode", "RECOMMENDED_PROFILES", "Resolve the current supported", "no bundled model-version fallback", "CLAUDE_EFFORTS", "CLAUDE_PERMISSION_MODES", "def _retune", "def _prepare_claude_import", "update_profile", "provider-versioned inputs", "@agent-<role>", "hot-reloads", "dry_run", "claude_settings_modified", "experimental_agent_teams_enabled"):
                     if marker not in source:
                         error(errors, f"scripts/{name}: missing Claude adapter marker {marker}")
             elif name == "install_router.py":

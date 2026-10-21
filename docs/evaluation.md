@@ -108,7 +108,8 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 70. Plan updates are idempotent and leave enough current truth for a fresh agent to resume without reading superseded events.
 71. An unfamiliar read-heavy task keeps the main orchestrator thin by delegating bounded repository exploration and continuing from a compact decision packet rather than repeating the search.
 72. Material code review dispatches a fresh report-only `code-reviewer` before `qa-auditor`; the reviewer owns maintainability and design findings while QA owns acceptance, proof, and documentation alignment.
-73. The default initialized team exposes the role-aware starting recommendations: Codex Sol/medium architects, Luna/medium researcher, Luna/high implementer and code-reviewer, Luna/max QA; Claude Opus/low architects, Sonnet/low researcher, Sonnet/high implementer and code-reviewer, Opus/medium QA; and 12 concurrent Codex threads. Users may override these values without the installer treating them as policy.
+73. Setup recommends the latest supported model families and role-aware efforts from `references/model-selection.md`, resolves exact available IDs and supported effort levels before approval, and passes them explicitly to the adapters. No bundled release silently fills an unresolved model. The adjustable Codex concurrency recommendation remains 12.
+74. Every explicit team audit/update checks current model availability and lifecycle evidence. Older active pins remain approved; deprecated/retired/unavailable IDs receive an evidence-bound proposal, not an automatic rewrite. Unavailable discovery preserves current configuration. Approved profile-only retunes preserve instructions, permissions, and custom fields; ordinary feature work never upgrades models.
 
 ## User UAT
 

@@ -1,6 +1,6 @@
 ---
 name: plumbline-agent-team
-description: Initialize, audit, retune, or extend a repository-adapted Plumbline agent team for Codex or Claude Code without global installation.
+description: Initialize, audit, update, retune, or extend a repository-adapted Plumbline agent team for Codex or Claude Code without global installation.
 disable-model-invocation: true
 ---
 
@@ -60,38 +60,14 @@ the main thread preserves the candidate and owns that decision.
 
 ## Starting model recommendation
 
-For Codex, propose this role-aware starting profile when the host supports these
-model IDs:
-
-| Role | Model | Reasoning | Purpose |
-| --- | --- | --- | --- |
-| `frontend-architect` | `gpt-5.6-sol` | `medium` | UI and integration design |
-| `backend-architect` | `gpt-5.6-sol` | `medium` | contracts and state ownership |
-| `researcher` | `gpt-5.6-luna` | `medium` | bounded evidence gathering |
-| `implementer` | `gpt-5.6-luna` | `high` | bounded implementation |
-| `code-reviewer` | `gpt-5.6-luna` | `high` | adversarial maintainability review |
-| `qa-auditor` | `gpt-5.6-luna` | `max` | acceptance and proof audit |
-
-For Claude Code, preserve the same capability split with provider-native
-values. Claude's `model` field accepts the current family aliases `opus`,
-`sonnet`, `haiku`, and `fable`, a full model ID, or `inherit`; `effort` is a
-separate field. Recommend this starting profile:
-
-| Role | Claude model / effort | Purpose |
-| --- | --- | --- |
-| `frontend-architect` | `opus` / `low` | UI and integration design |
-| `backend-architect` | `opus` / `low` | contracts and state ownership |
-| `researcher` | `sonnet` / `low` | bounded evidence gathering |
-| `implementer` | `sonnet` / `high` | bounded implementation |
-| `code-reviewer` | `sonnet` / `high` | adversarial maintainability review |
-| `qa-auditor` | `opus` / `medium` | acceptance and proof audit |
-
-These are recommended starting points, not permanent policy. Before approval,
-resolve the current host-supported alias or full model ID from the Claude model
-picker or Anthropic's official model documentation/API; use the provider-native
-value rather than copying a Codex ID. `inherit` remains the safe non-pinned
-fallback when no model pin is approved. Users may adjust or hotswap values, and
-audit/retune preserves existing values.
+On every explicit initialize, audit, retune, add, or update invocation, read and
+apply `references/model-selection.md` in full before proposing writes. It owns
+the family recommendations, role/effort split, current supported model-ID
+discovery, and existing-profile/deprecation comparison for both hosts. Recommend
+the latest supported Sol/Luna for Codex and Opus/Sonnet for Claude; these are
+families, not slugs to write. Claude's `opus`, `sonnet`, `haiku`, and `fable`
+aliases may resolve differently by host/provider; `inherit` is an explicit
+user-approved alternative, never an automatic fallback.
 
 Claude can match a role automatically from its `description`, but the main
 thread should name the selected role in its bounded dispatch prompt. Use
@@ -106,21 +82,25 @@ The bundled `maintainable-code` skill is model-invoked for implementation and
 review. Implementers use its implementation branch; `code-reviewer` uses its
 review branch before `qa-auditor` checks acceptance, proof, and documentation.
 
-Use the role-aware starting profile above as the host-specific recommendation
-only after verifying the exact current host-supported values. The current Codex
-examples are full Codex IDs, not `sol`/`luna` aliases; Claude examples use
-provider-native aliases or full IDs. Model and reasoning/effort choices remain
+Use the reference's role-aware families only after verifying exact current
+provider-native, host-supported IDs and effort values; `sol`/`luna` are not Codex
+slugs. Model and reasoning/effort choices remain
 user-owned and adjustable. The installers do not call provider APIs or require
 credentials; the setup proposal performs the lookup and passes the approved
 values to the adapter.
 
-Label the proposal as a recommended starting point, not a permanent team policy. The installers use the role-aware recommendation when no common override is supplied; an explicit common pair remains available for a reproducible baseline. Audit and retune preserve tuned values unless the user explicitly approves a change. Evaluate cheaper settings by accepted first-pass work and remediation cost, not nominal price alone.
+Label the proposal as a recommended starting point, not a permanent team policy.
+Group approved roles by exact model/effort when calling the existing adapters;
+both values are required when creating or changing a profile. The adapters have
+no bundled model-version fallback. Audit and retune preserve tuned values unless
+the user approves a change. Evaluate cheaper settings by accepted first-pass
+work and remediation cost, not nominal price alone.
 
 ## Operations
 
 - **Initialize:** create only approved missing roles from the six shared archetypes in `templates/agents/`. On Codex, use `scripts/install_agent_team.py` for local TOML/config setup. On Claude Code, use `scripts/install_claude_agent_team.py` for local Markdown subagents; it makes no global settings change and adds `@AGENTS.md` to `CLAUDE.md` so Claude loads the shared project guidance. Generate host guidance from the selected roles. When propagation is approved, include the root `.gitignore` patch and `.worktreeinclude` in the same proposal. Existing roles require an explicit initialize replacement approval before `--replace`. If the user explicitly invokes initialization again, audit the managed host guidance and offer `--update-agents --refresh-agents` as a guidance-only update; it does not replace roles or config. An older unmarked section requires the exact dry-run plus `--replace-agents-guidance`, and only that managed section may be replaced.
 - **Audit:** read-only compare project agents, the repository-local router, and current repository docs; report stale facts, router or host-guidance schema drift, a missing Claude `@AGENTS.md` import, overlap, missing boundaries, required-field gaps, model/reasoning/effort/sandbox/permission drift, and capability gaps. Audit never needs `--replace` and never writes. A detected mismatch produces a proposed refresh, not an automatic overwrite. A later explicit initialization is the consent boundary for applying an approved guidance refresh.
-- **Retune:** preserve every existing role field, including model, reasoning/effort, sandbox/permission, permissions, MCP, custom fields, and instructions. Use `--fill-missing` only to add absent required fields; it never overwrites a present value. Use `--update-instructions` only when the approved proposal explicitly changes the instruction field. Use `--update-profile` with explicit approved host-native model and reasoning/effort values to change only those profile fields; it does not replace role instructions or permissions.
+- **Retune / Update:** first check current model availability and deprecation under `references/model-selection.md`, including older API IDs. Preserve every existing role field unless its change is approved. Use `--fill-missing` only to add absent required fields; it never overwrites a present value. Use `--update-instructions` only when the approved proposal changes instructions. For an approved replacement, use `--update-profile` with the resolved exact host-native model and supported reasoning/effort values; this changes only those fields, not instructions or permissions. A newer recommendation alone never authorizes replacing an active approved model.
 - **Add:** add one specialist only for a demonstrated need; do not create a role for every technical layer.
 
 Before approval, resolve current model values from the active host or the
