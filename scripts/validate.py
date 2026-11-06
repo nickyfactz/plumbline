@@ -481,8 +481,8 @@ def validate_hooks(errors: list[str]) -> None:
             error(errors, f"hooks/hooks.json: {event} must have one matcher group")
             continue
         group = groups[0]
-        if event == "SessionStart" and group.get("matcher") != "^(resume|compact)$":
-            error(errors, "hooks/hooks.json: SessionStart must match only resume and compact")
+        if event == "SessionStart" and group.get("matcher") != "^(startup|resume|clear|compact)$":
+            error(errors, "hooks/hooks.json: SessionStart must match startup, resume, clear, and compact")
         handlers = group.get("hooks")
         if not isinstance(handlers, list) or len(handlers) != 1:
             error(errors, f"hooks/hooks.json: {event} must have one command handler")
@@ -506,6 +506,8 @@ def validate_hooks(errors: list[str]) -> None:
         "Completed worker instances are retired",
         "fresh instance",
         r'fork_turns=\"none\"',
+        "Plumbline front door:",
+        "CLAUDE_PLUGIN_ROOT",
     ):
         if marker not in source:
             error(errors, f"hooks/plumbline-session.js: missing marker {marker}")
