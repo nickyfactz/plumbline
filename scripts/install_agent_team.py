@@ -77,7 +77,7 @@ ROLE_DESCRIPTIONS = {
 
 
 def _agent_section(roles: tuple[str, ...]) -> str:
-    role_lines = "\n".join(f"- `{role}` for {ROLE_DESCRIPTIONS[role]}." for role in roles)
+    role_lines = "\n".join(f"- `{role}` for {ROLE_DESCRIPTIONS[role]}." for role in ROLES if role in roles)
     return f"""{AGENT_GUIDANCE_START}
 ## Local agent team
 
@@ -423,6 +423,24 @@ def _replace_guidance_section(text: str, heading: str, replacement: str) -> str:
     return result.rstrip() + "\n"
 
 
+def _grow_managed_roles(text: str, heading: str, roles: tuple[str, ...], render) -> str | None:
+    """Add newly installed roles to an unedited managed section, or return None.
+
+    Teams are installed one model/effort group per call, so later calls must extend
+    the role list the first call wrote. Edited or stale sections still need an
+    explicit --refresh-agents.
+    """
+    if not _guidance_has_markers(text, heading):
+        return None
+    bounds = _guidance_block_bounds(text, heading)
+    block = text[bounds[0] : bounds[1]]
+    listed = tuple(role for role in ROLES if f"- `{role}` for " in block)
+    merged = tuple(role for role in ROLES if role in listed or role in roles)
+    if merged == listed or block.strip() != render(listed).strip():
+        return None
+    return _replace_guidance_section(text, heading, render(merged))
+
+
 def _prepare_agents_guidance(
     repo: Path,
     roles: tuple[str, ...],
@@ -436,7 +454,8 @@ def _prepare_agents_guidance(
     if not section:
         return target, text.rstrip() + "\n\n" + _agent_section(roles), False, None
     if not refresh:
-        return target, text, False, None
+        grown = _grow_managed_roles(text, AGENT_GUIDANCE_HEADING, roles, _agent_section)
+        return target, grown or text, False, None
 
     replacement = _agent_section(roles)
     has_managed_markers = _guidance_has_markers(text, AGENT_GUIDANCE_HEADING)

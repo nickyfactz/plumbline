@@ -253,6 +253,23 @@ def main() -> None:
         audit = install(plugin_root, root, mode="audit", roles=("researcher",))
         assert any("Codex/OpenAI value" in finding for finding in audit.findings)
 
+    # Teams are installed one model/effort group per call; guidance must list every
+    # installed role, keep hand edits, and pass its own audit.
+    with tempfile.TemporaryDirectory() as raw_root:
+        root = Path(raw_root)
+        (root / ".git" / "info").mkdir(parents=True)
+        groups = ((("code-reviewer", "implementer"), "sonnet-fixture", "high"), (("researcher",), "sonnet-fixture", "low"), (("qa-auditor",), "opus-fixture", "medium"))
+        for roles, model, effort in groups:
+            install(plugin_root, root, roles=roles, model=model, effort=effort, update_agents=True)
+        installed = ("researcher", "implementer", "code-reviewer", "qa-auditor")
+        agents_md = (root / "AGENTS.md").read_text(encoding="utf-8")
+        assert all(f"- `{role}` for " in agents_md for role in installed)
+        assert agents_md.count("## Local Claude agent team") == 1
+        assert install(plugin_root, root, mode="audit", roles=installed).findings == ()
+        (root / "AGENTS.md").write_text(agents_md.replace("Keep the orchestrator thin.", "Keep the orchestrator thin (edited)."), encoding="utf-8")
+        install(plugin_root, root, roles=("backend-architect",), model="opus-fixture", effort="low", update_agents=True)
+        assert "- `backend-architect` for " not in (root / "AGENTS.md").read_text(encoding="utf-8")
+
     print("claude-agent-team-installer-smoke=passed")
 
 

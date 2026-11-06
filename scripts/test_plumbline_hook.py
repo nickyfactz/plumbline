@@ -16,10 +16,12 @@ HOOK = ROOT / "hooks" / "plumbline-session.js"
 RELAY_HOOK = ROOT / "hooks" / "plumbline-relay-signal.js"
 
 
-def run_hook(payload: dict[str, object], state_root: Path) -> str:
+def run_hook(payload: dict[str, object], state_root: Path, plugin_root: bool = True) -> str:
     environment = os.environ.copy()
     environment["PLUGIN_DATA"] = str(state_root)
-    environment["CLAUDE_PLUGIN_ROOT"] = str(ROOT)
+    environment.pop("CLAUDE_PLUGIN_ROOT", None)
+    if plugin_root:
+        environment["CLAUDE_PLUGIN_ROOT"] = str(ROOT)
     completed = subprocess.run(
         ["node", str(HOOK)],
         cwd=ROOT,
@@ -96,6 +98,31 @@ def main() -> None:
         # Explicit closeout/offboarding clears the reminder for this session.
         assert run_hook({**base, "hook_event_name": "UserPromptSubmit", "prompt": "$plumbline-closeout"}, state_root) == ""
         assert run_hook({**base, "hook_event_name": "SessionStart", "source": "compact"}, state_root) == ""
+
+        # A routed checkout gets the live front-door path at session start (Claude Code
+        # hides user-only skill paths), including from a subdirectory; unrouted ones do not.
+        routed = root / "routed"
+        (routed / ".git").mkdir(parents=True)
+        router = routed / ".agents/skills/plumbline-router/SKILL.md"
+        router.parent.mkdir(parents=True)
+        router.write_text("router", encoding="utf-8")
+        (routed / "src").mkdir()
+        front_door = str(ROOT / "skills" / "plumbline" / "SKILL.md")
+        for cwd in (routed, routed / "src"):
+            started = run_hook({"session_id": "s", "cwd": str(cwd), "hook_event_name": "SessionStart", "source": "startup"}, state_root)
+            context = json.loads(started)["hookSpecificOutput"]["additionalContext"]
+            assert f"Plumbline front door: {front_door}" in context
+            assert "explicitly activated" not in context
+        assert run_hook({"session_id": "s", "cwd": str(routed), "hook_event_name": "SessionStart", "source": "startup"}, state_root, plugin_root=False) == ""
+        # The router search stops at the checkout boundary.
+        nested = routed / "nested"
+        (nested / ".git").mkdir(parents=True)
+        assert run_hook({"session_id": "s", "cwd": str(nested), "hook_event_name": "SessionStart", "source": "startup"}, state_root) == ""
+        # An armed routed session gets both the path and the continuity reminder after compaction.
+        routed_base = {"session_id": "s", "cwd": str(routed)}
+        run_hook({**routed_base, "hook_event_name": "UserPromptSubmit", "prompt": "/plumbline:plumbline go"}, state_root)
+        context = json.loads(run_hook({**routed_base, "hook_event_name": "SessionStart", "source": "compact"}, state_root))["hookSpecificOutput"]["additionalContext"]
+        assert "Plumbline front door:" in context and "explicitly activated" in context
 
         # Stop is inert unless this exact repository task belongs to an active relay.
         relay_root = root / "relay"
