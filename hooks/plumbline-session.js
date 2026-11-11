@@ -10,6 +10,26 @@ const MAX_STATE_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 const REMINDER =
   "Plumbline was explicitly activated earlier in this session. This is a continuity reminder, not a new invocation: read the active plan or resume record, preserve its lifecycle owner and phase, restore delegation_roles and delegation_status, and dispatch matching local roles before the main thread repeats bounded work. Completed worker instances are retired; reuse one only for the exact same unfinished assignment, otherwise dispatch a fresh instance through the no-history fresh-child path (Codex fork_turns=\"none\" or multi_agent_v1__spawn_agent fork_context=false when exposed). Never combine fork_context=true full-history with agent_type; that pair is rejected by the router. Main-owned decisions, joins, singleton operations, and tiny coupled actions may remain direct; otherwise record the capability fallback. Do not rerun setup or start a new phase unless the user asks.";
 
+const ROUTER = path.join(".agents", "skills", "plumbline-router", "SKILL.md");
+
+// Claude Code hides disable-model-invocation skills, including their paths, from
+// the model, so an approved router cannot discover the front door on its own.
+// Advertise the live installation's front door only inside a routed checkout.
+function frontDoorContext(input) {
+  const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
+  if (!pluginRoot || typeof input.cwd !== "string" || !input.cwd.trim()) return "";
+  let dir = path.resolve(input.cwd);
+  for (;;) {
+    if (fs.existsSync(path.join(dir, ROUTER))) {
+      const frontDoor = path.join(path.resolve(pluginRoot), "skills", "plumbline", "SKILL.md");
+      return `Plumbline front door: ${frontDoor}\nThis is the live installation path for this checkout's approved Plumbline router. It is not an invocation; the router decides when to read it.`;
+    }
+    const parent = path.dirname(dir);
+    if (parent === dir || fs.existsSync(path.join(dir, ".git"))) return "";
+    dir = parent;
+  }
+}
+
 function stateRoot() {
   return (
     process.env.PLUGIN_DATA ||
@@ -113,12 +133,12 @@ function isArmed(input) {
   }
 }
 
-function emitReminder() {
+function emitContext(additionalContext) {
   process.stdout.write(
     JSON.stringify({
       hookSpecificOutput: {
         hookEventName: "SessionStart",
-        additionalContext: REMINDER,
+        additionalContext,
       },
     })
   );
@@ -134,12 +154,11 @@ async function main() {
     return;
   }
 
-  if (
-    input.hook_event_name === "SessionStart" &&
-    /^(resume|compact)$/i.test(input.source || "") &&
-    isArmed(input)
-  ) {
-    emitReminder();
+  if (input.hook_event_name === "SessionStart") {
+    const parts = [frontDoorContext(input)];
+    if (/^(resume|compact)$/i.test(input.source || "") && isArmed(input)) parts.push(REMINDER);
+    const context = parts.filter(Boolean).join("\n\n");
+    if (context) emitContext(context);
   }
 }
 

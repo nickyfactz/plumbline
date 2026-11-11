@@ -108,7 +108,7 @@ Initialization is always explicit. Run `$plumbline-init` in Codex or `/plumbline
 - No silent setup: Plumbline does not install global agents or settings, create an external tracker, invent a custom worktree system, or silently create branches.
 - You own the product choices. The main conversation owns plans, integration, Git, and one-owner operations such as builds, deployments, restarts, migrations, and publishing.
 - Team roles stay bounded. Researchers, architects, code-reviewers, and QA auditors are report-only and receive no write set; an implementer changes only its approved files; workers do not spawn children. Read-only and plan permissions express intent, not hard isolation when the parent task is writable.
-- The optional continuity hook is inert until you enable it and explicitly invoke Plumbline. It can restore a short reminder after a resumed or compacted session, but it never chooses a phase, runs setup, edits the repository, or dispatches agents.
+- The optional continuity hook is inert until you enable it and explicitly invoke Plumbline. It can restore a short reminder after a resumed or compacted session and, in a Claude Code checkout with an approved router, tells the model where the live front door is (Claude Code hides user-only skills and their paths from the model), but it never chooses a phase, runs setup, edits the repository, or dispatches agents.
 
 ## Learn more
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.17 - 2026-11-06
+
+- Fix router activation on Claude Code and Claude desktop: Claude hides `disable-model-invocation` skills and their paths from the model, so the router could neither call nor resolve the front door and blocked every routed prompt. The session hook now injects the live front-door path (from `CLAUDE_PLUGIN_ROOT`) at session start inside a checkout with an approved router, and the router accepts that path for `resolve_front_door.py`. Existing routers need an approved `install_router.py --replace` to pick up the template change.
+- Fix grouped team installs (one installer call per model/effort): later calls now add their roles to an unedited managed `AGENTS.md` section instead of leaving only the first group listed; edited sections still require `--refresh-agents`. Applies to both the Codex and Claude installers.
+- Fix the Claude guidance audit always reporting a missing `model aliases` marker that the generated text never contained.
+
 ## 0.1.16 - 2026-10-15
 
 - Make initialized routers recover an unavailable named front door from one validated active Plumbline installation, using current visible skill paths and a read-only resolver.
