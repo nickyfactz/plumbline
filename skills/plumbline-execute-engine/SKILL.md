@@ -217,6 +217,11 @@ For each checkpoint:
    `references/runtime-value-testing.md`. A focused test, static check,
    deterministic probe, manual UAT, targeted review, or justified no-test
    decision can be valid evidence.
+   For a material shared boundary, arrange the earliest practical focused check
+   of the joined interface or behavior using the repository's tools. If a shared
+   resource delays it, batch compatible checks under its owner and record the
+   pending check; continue independent work without treating source review as
+   executable proof.
    Compare the result with the checkpoint's proof obligations before stopping.
    The orchestrator assesses newly discovered behavior against the accepted
    contract before adding a proof obligation. For checks introduced or materially changed by this
