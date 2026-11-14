@@ -56,8 +56,37 @@ Diagnose. Execute and Closeout require all required checkpoints to be complete,
 and a new successor objective requires acceptance or explicit user-approved
 defer/abandonment.
 
+Long-horizon progress is bounded without retry counts:
+
+- Each checkpoint closes on its own behavior. Product-wide performance,
+  quality, platform, and packaging targets sit in one final checkpoint, and
+  `Complete — carried` hands a remaining item to a named later checkpoint.
+- Proof is scoped to paths (`proof_commit` plus `proof_scope`), so commits
+  outside that scope never stale it. HEAD orients a resume but is not part of
+  the fingerprint.
+- A user message that changes scope or acceptance becomes a dated Decision in
+  the plan and outranks earlier spec text; only safety boundaries outrank the
+  user's current instruction.
+- Progress-based stall triggers stop correction on one checkpoint while
+  independent work continues. When nothing can move, Execute emits one stall
+  report offering keep, narrow, or defer. It is the only pause continuous
+  Execute makes on its own.
+- A non-trivial specification carries a written Design section before Plan
+  cuts checkpoints. Briefs point to that design rather than restating it, and a
+  design change updates it first.
+- Recurring or product-wide problems get a step-back design review from a
+  fresh, high-effort architect with whole-path read freedom. Removing code is a
+  valid correction, and investigative reports end in `Root cause:` or
+  `Evidence gap:`.
+- Agent-supplied numeric targets are `proposed` until the user confirms them.
+  Model-output quality is a gate only with an explicit threshold and sample
+  size.
+- `scripts/lint_plan.py` enforces the plan's frontmatter keys and size budget.
+
 Plans may explicitly select `execution_mode: checkpoint_relay`. Missing mode
-means `continuous`, preserving the existing full-plan Execute behavior. Relay
+means `continuous`, preserving the existing full-plan Execute behavior. Plan
+offers Relay once for a large plan and records only the user's answer; it never
+switches modes on its own. Relay
 uses the same host-neutral checkpoint and evidence rules but stops after one
 completed checkpoint and durable handoff. A host with automatic fresh-root
 capability may start the successor; other hosts use a supported manual boundary.
@@ -183,6 +212,7 @@ role-file generation, preservation behavior, and dry-run safety:
 python scripts/validate.py
 python scripts/test_install_agent_team.py
 python scripts/test_install_claude_agent_team.py
+python scripts/test_lint_plan.py
 git diff --check
 ```
 

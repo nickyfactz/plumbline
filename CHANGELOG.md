@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.1.18 - 2026-11-14
+
+- Add a progress-based stall report: two churn checks or two expensive gates with no advancement, correction work past twice the size estimate, a third same-symptom correction with no design change, or repeated unchanged waits stop correction on that checkpoint. Independent work continues. When nothing can move, one report offers keep, narrow, or defer. It is the only pause continuous Execute makes on its own; there is still no universal retry count.
+- Make checkpoints closable on their own behavior. Product-wide performance, quality, platform, and packaging targets go in one final checkpoint, and `Complete — carried: <item> → CP-nn` closes a checkpoint whose remaining item a named later checkpoint owns.
+- Scope proof by path: proof stays valid while `git diff --name-only <proof_commit>..HEAD -- <proof_scope>` is empty, which defines the smallest affected cone. HEAD is orientation only and leaves the resume fingerprint.
+- Let the user's current instruction outrank the approved spec and plan. A change to scope, acceptance, or a gate becomes a dated Decision in the plan, and the continuity hook now amends the plan before resuming.
+- Require a written `## Design` section for non-trivial specifications before Plan cuts checkpoints. Make the design note the durable home for design decisions that briefs point to.
+- Add a step-back design review to Diagnose for product-wide properties and recurring symptoms: one fresh, high-effort architect with whole-path read freedom asks whether the design is the cause and what to delete. Investigative reports end in `Root cause:` or `Evidence gap:`, and measurements alone are inconclusive.
+- Bound workers by role: implementers by write set and goal; architects, auditors, and investigators by an effort budget with open investigations. A second opinion is a fresh-context reviewer on the same model. Performance diagnosis and design synthesis join the high-effort list.
+- Treat removal as a first-class fix: same candidate means same objective and accepted behavior, not the same code. Corrections report net lines and any new guard, retry, or observability code.
+- Add a `## Non-Deterministic Outputs` spec section. Acceptance checks delivered input and output handling, and QA grades output quality only against an explicit threshold and sample size in the final checkpoint.
+- Label agent-supplied numeric targets `proposed` until the user confirms them at plan approval.
+- Offer Checkpoint Relay once at plan creation for large plans, with a recommendation; continuous stays the default, and the mode never changes without the user's answer.
+- Review once per checkpoint stable delta; corrections get focused checks.
+- Add `scripts/lint_plan.py` (allowed frontmatter keys, one-line values, Proof-cell and plan size budgets, long-hex flagging, Done-when rows) with unit tests, plus long-horizon progress eval scenarios.
+
 ## 0.1.17 - 2026-11-06
 
 - Fix router activation on Claude Code and Claude desktop: Claude hides `disable-model-invocation` skills and their paths from the model, so the router could neither call nor resolve the front door and blocked every routed prompt. The session hook now injects the live front-door path (from `CLAUDE_PLUGIN_ROOT`) at session start inside a checkout with an approved router, and the router accepts that path for `resolve_front_door.py`. Existing routers need an approved `install_router.py --replace` to pick up the template change.

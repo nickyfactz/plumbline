@@ -9,8 +9,13 @@ description: Internal Plumbline engine. Use only after the Plumbline router or a
 
 Create or adopt one controlling product specification for the current task. A
 specification is complete when it states the product outcome, users/workflows,
-scope, non-goals, required behavior, constraints, acceptance/proof direction,
-and remaining assumptions or residual questions clearly enough for planning.
+scope, non-goals, required behavior, a written design, constraints,
+acceptance/proof direction, and remaining assumptions or residual questions
+clearly enough for planning. For a non-trivial feature the design (components
+and owners, data and control flow along the main paths, boundary shapes,
+hot-path cost) is part of sufficiency; a feature list alone is not sufficient.
+The design is a technical choice the agent makes from repository evidence; it
+is not a product question for the user.
 
 ## Adopt the strongest source
 
@@ -51,7 +56,9 @@ and use a safe Markdown extraction when committing the original is unsafe.
 Ask only blocking product questions, one at a time, with a recommendation. Technical
 choices belong to the agent and should come from repository evidence, research,
 conventions, and safe defaults. Record product amendments explicitly and keep
-the approved source's intent intact.
+the approved source's intent intact. Label any numeric target the user did not
+supply as `proposed`, with its source, and ask the user to confirm or drop it
+with the rest of the specification.
 
 When the controlling artifact is sufficient for the next phase, report the
 adoption or companion recommendation once and direct the user to

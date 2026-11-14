@@ -14,16 +14,29 @@ Planning is artifact-agnostic. Accept a sufficient external plan or work order
 without forcing it into Plumbline's file shape.
 
 Use `execution_mode: continuous` for a new Plumbline plan unless the user
-explicitly selects Checkpoint Relay. A missing mode in an imported plan also
-means continuous. When Relay is selected, record
+selects Checkpoint Relay. A missing mode in an imported plan also means
+continuous. When the plan is large enough that one orchestrator thread is
+likely to compact repeatedly (roughly six or more material checkpoints, or
+checkpoints expected to span several sessions), offer Relay once when
+presenting the plan, using the standard question shape: Recommendation,
+Alternatives, Tradeoff, Default. Say plainly that Relay starts a fresh session
+per checkpoint and that continuous mode keeps one orchestrator thread with
+subagents. The default when the user does not choose is continuous. Never
+switch modes without the user's answer. When Relay is selected, record
 `execution_mode: checkpoint_relay`, load `references/checkpoint-relay.md`, and
-plan explicit durable checkpoint boundaries. Do not infer Relay from plan size,
-host capability, or checkpoint count, and do not put host transport details in
-the shared plan.
+plan explicit durable checkpoint boundaries. Do not put host transport details
+in the shared plan.
 
 Planning is complete when one controlling plan records the outcome, scope,
-non-goals, checkpoint dependency order, proof, current checkpoint, lifecycle
-owner, and one safe next action. Stop after planning; the user or router selects
+non-goals, the design note it executes, checkpoint dependency order, proof,
+current checkpoint, lifecycle owner, and one safe next action.
+
+Do not cut checkpoints for a non-trivial feature from a specification that has
+no written design (the specification's `## Design` section or a design note it
+links). A feature list is not a design. Write or request the design first: the
+components and their owners, data and control flow along the main paths,
+boundary shapes, and the expected cost of the hot paths. Small local changes
+need no design note. Stop after planning; the user or router selects
 the explicit `plumbline-execute` phase when implementation is wanted.
 
 Plans cannot override Plumbline lifecycle invariants. A failed acceptance result
@@ -73,6 +86,22 @@ unlocks, and keep it minimal. For broad refactors, use expand, migrate in
 bounded batches, then contract. Never split or merge work merely to satisfy a
 planning label. Do not split a coherent outcome only to narrate proof steps.
 
+Every checkpoint must be closable on its own work. Its `Done when` references
+only behavior that checkpoint delivers. Product-wide performance, latency,
+size, cost, output-quality, platform, and packaging targets go in one final
+checkpoint, after the features that produce them work end to end; earlier
+checkpoints carry them only as regression guards ("no worse than before"), never
+as their own closeout gate. When a later checkpoint owns part of an earlier
+item, close the earlier checkpoint as `Complete — carried: <item> → <checkpoint>`.
+
+Any numeric target the user did not supply (a latency, throughput, size,
+coverage, or score threshold) is labelled `proposed`, with one line on where the
+number came from, and is confirmed or dropped when the user approves the plan.
+An unconfirmed proposed target is a residual, not a gate.
+
+Give each checkpoint a rough size estimate (small, medium, large, or an
+expected count of worker dispatches). Execute uses it to detect stalls.
+
 Map every acceptance criterion to a checkpoint. Mark shared contracts and
 shared files so false parallelism is visible. Within that topology, identify
 ready independent research, architecture, review, or implementation work and
@@ -118,7 +147,16 @@ Carry that matrix into the implementer and QA briefs when it exists. For a
 material checkpoint, make the checkpoint card or matrix sufficient to form a
 transient dispatch contract: outcome, invariants and owners, operation or
 partial-failure boundary, edge behavior, proof, write set, non-goals, and
-assumptions. Keep it in the prompt; it is not a new durable artifact.
+assumptions. The dispatch contract itself is prompt content, but every design
+decision behind it lives in the design note, so briefs point to the note rather
+than restating a design that would vanish with the prompt. A design change
+updates the note first, then re-plans the affected checkpoints.
+
+When acceptance depends on output from a model or another non-deterministic
+external system, the checkpoint proves what was sent to it and how its output
+was handled (parsed, validated, rejected, stored, or shown). The quality of that
+output is a gate only when the specification gives an explicit threshold and
+sample size, and then only in the final checkpoint.
 
 Identify known proof obligations before implementation from acceptance criteria,
 invariants, contracts, and meaningful regression risks. The accepted spec and
@@ -139,8 +177,9 @@ does not end the goal or create a competing plan.
 
 ## Maintain resumable state
 
-Use statuses `Pending`, `In Progress`, `Blocked`, `Complete`, `Reopened`, and
-`Superseded` when the plan is Plumbline-managed. Keep the compact resume fields
+Use statuses `Pending`, `In Progress`, `Blocked`, `Complete`,
+`Complete — carried: <item> → <checkpoint>`, `Reopened`, and `Superseded` when
+the plan is Plumbline-managed. Keep the compact resume fields
 and the body synchronized. Before saving a plan update, verify exactly one
 current checkpoint, matching frontmatter status, and a `next_safe_action` that
 points to it. Classify unresolved items as Acceptance blocker, Residual risk,
@@ -191,6 +230,10 @@ main-thread commit before a dependent checkpoint begins. Keep `optional` for
 trivial direct work and use `forbidden` only after explicit user opt-out. This
 is a recovery and context-hydration boundary, not a reason to commit every
 diagnostic command or generated output.
+
+A user decision that changes scope, acceptance, or priority is recorded in the
+plan's Decisions list with its date and replaces the text it supersedes; it
+outranks the specification's earlier wording.
 
 Unless the user explicitly requests checkpoint-by-checkpoint execution or a
 checkpoint contains a deliberate approval gate, the checkpoint sequence is the

@@ -8,3 +8,5 @@ These fixtures exercise the consent boundary and phase classification without re
 - `expected/` describes the allowed outcome and forbidden side effects.
 - `prompts/resume-and-ownership.md` and its expected file cover evidence reuse, source drift, stale local integration, controller ownership, delegation reporting, bounded worker context, and proportional closeout.
 - `prompts/routing.md` and its expected file cover contract-complete direct work and the optional Shape prototype offer.
+
+- `prompts/long-horizon-progress.md` and its expected file cover checkpoint closability, scoped proof, mid-run steering, stall reports, the Relay offer, design before planning, and the step-back design review.

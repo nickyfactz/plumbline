@@ -201,6 +201,16 @@ CONTRACT_MARKERS = {
         "worker instances are disposable",
         "fresh instance",
         "exact same unfinished assignment",
+        "## Stall report",
+        "progress-based, not retry counts",
+        "keep",
+        "narrow",
+        "defer",
+        "proof_scope",
+        "orientation only",
+        "dated Decision",
+        "not the same code",
+        "once\n   per checkpoint stable delta",
     ),
     "plumbline-diagnose-engine": (
         "same candidate",
@@ -215,6 +225,10 @@ CONTRACT_MARKERS = {
         "diagnostic tests and probes",
         "durable regression",
         "disposable working material",
+        "Step-back design review",
+        "simplest design that meets the target",
+        "including what to\ndelete",
+        "`Root cause:` or\n`Evidence gap:`",
     ),
     "plumbline-diagnose": (
         "minimum sufficient root cause",
@@ -251,6 +265,13 @@ CONTRACT_MARKERS = {
         "replaces and prunes",
         "idempotence",
         "rehydration",
+        "offer Relay once",
+        "Never\nswitch modes without the user's answer",
+        "closable on its own work",
+        "one final\ncheckpoint",
+        "labelled `proposed`",
+        "A feature list is not a design",
+        "size estimate",
     ),
     "plumbline-plan-adoption-engine": (
         "smallest companion live plan",
@@ -674,14 +695,21 @@ def validate_references_and_templates(errors: list[str]) -> None:
         "@agent-<role>",
         "--agent <role>",
         "do not copy either provider",
+        "Bound workers by role",
+        "open investigation with a budget",
+        "Evidence gap:",
+        "same model",
+        "net lines",
     ):
         if marker.lower() not in orchestration.lower():
             error(errors, f"references/subagent-orchestration.md: missing {marker}")
     reference_markers = {
         "work-classification.md": ("semantic implementation", "focused validation", "administrative-only", "smallest affected cone"),
         "runtime-value-testing.md": ("behavioral proof obligations", "test count and coverage"),
-        "plan-schema.md": ("behavioral proof obligations", "test-count or coverage", "current-state projection", "append-only diary", "replace-and-prune", "no attempt chronology", "idempotence", "rehydration"),
-        "qa-audit.md": ("proof obligation", "main thread decides deletion", "material quality findings", "revisit trigger"),
+        "specification-template.md": ("## Design", "## Non-Deterministic Outputs", "explicit\nthreshold and sample size", "`proposed`"),
+        "qa-audit.md": ("proof obligation", "main thread decides deletion", "material quality findings", "revisit trigger", "once per checkpoint stable delta", "does not grade output quality"),
+        "product-autonomy.md": ("outranks the approved specification and plan", "dated Decision", "stall report"),
+        "plan-schema.md": ("Complete — carried", "proof_scope", "## Decisions", "(proposed:", "scripts/lint_plan.py", "behavioral proof obligations", "test-count or coverage", "current-state projection", "append-only diary", "replace-and-prune", "no attempt chronology", "idempotence", "rehydration"),
         "artifact-lifecycle.md": ("durable state", "working material by default", "future consumer", "failed result is not automatically"),
         "worktree-readiness.md": ("on-demand refresh", "existing worktrees need this explicit refresh"),
         "model-selection.md": ("Every invocation", "deprecated-but-usable", "retired", "unknown", "preserve existing approved values", "--mode retune --update-profile", "no bundled version"),
@@ -787,6 +815,8 @@ def validate_scripts(errors: list[str]) -> None:
         "test_install_claude_agent_team.py",
         "test_plumbline_hook.py",
         "test_checkpoint_relay.py",
+        "lint_plan.py",
+        "test_lint_plan.py",
     ):
         path = ROOT / "scripts" / name
         try:

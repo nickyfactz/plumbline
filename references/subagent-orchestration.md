@@ -16,6 +16,21 @@ Do not make the main thread reproduce a worker's exploration after it returns;
 inspect only the exact facts needed for product judgment, integration, safety,
 or resolving a contradiction.
 
+A thin orchestrator still owns the design. It does not re-explore, but it reads
+the design note and keeps briefs consistent with it; a worker's design finding
+becomes part of the note, not just of one prompt.
+
+## Bound workers by role
+
+Implementers are bounded by a write set and a goal. Architects, auditors,
+code-reviewers, and root-cause investigators are bounded by an effort budget
+instead: they start fresh, with no plan history, and may read whatever the
+question needs across the repository, including callers, owners, and the whole
+path a property depends on. Give them an **open investigation with a budget**:
+the question, the design note, the starting pointers, the budget (for example a
+turn or time estimate), and the required report ending. Do not hand them a file
+list that presumes the answer. Their result is still a decision packet.
+
 Keep a task direct when the target and answer are already known, the read is a
 small coupled part of a main-owned integration or Git action, or dispatch would
 cost more context than the work. Main-thread capability is not itself a reason
@@ -130,8 +145,15 @@ necessary integration and the spec/plan's live-product verification as soon as
 the workflow is safely testable, rather than polishing intermediate code or
 building test scaffolding for deferred findings. Follow-up review checks repairs
 and affected behavior; materially new evidence can justify broader review. This
-is an internal decision check, not a lifecycle state, counter, artifact, user pause, or
-mandatory final-gate rule.
+is an internal decision check, not a lifecycle state or artifact.
+
+The check also asks whether the design is the cause: if the same area has been
+corrected for the same symptom before, or the target is a product-wide property
+(performance, size, cost, output quality), dispatch the step-back design review
+from the Diagnose engine instead of another correction. Repeated checks with no
+status change, repeated waits with unchanged state, or correction work beyond
+twice the checkpoint's size estimate trigger the stall report in the Execute
+engine. Those are progress signals, not retry counters.
 
 ## Delegation when it pays
 
@@ -208,7 +230,9 @@ material code, artifact, deployment, restart, or failure-state change.
 Give each worker a context-bounded brief containing:
 
 - the checkpoint outcome and acceptance criteria;
-- the exact read set, anchored sections, and disjoint write set;
+- for implementers, the exact read set, anchored sections, and disjoint write
+  set; for investigative roles, starting pointers and an effort budget instead;
+- the design note path, when the plan names one;
 - relevant contract and repository paths;
 - the current diff or last verified commit only when relevant;
 - expected validation and report format;
@@ -222,13 +246,17 @@ successful command logs. The main thread passes only the relevant packet fields
 into downstream briefs; workers still return to the main thread and never
 delegate further.
 
-For an implementer dispatch involving material behavior, include a compact contract capsule derived from the anchored specification and plan sections: the observable outcome, invariants and owners, operation or partial-failure boundary, applicable edge behavior, proof, bounded write set, non-goals, and recorded assumptions. This is prompt content only; do not create a new handoff artifact. The capsule is a design envelope, not an implementation recipe: the implementer chooses mechanics inside it, resolves ordinary technical ambiguity with existing conventions and a safe reversible default, and does not invent observable product behavior or ask the user to choose implementation details. Return a contract gap to the main thread when the missing choice would change observable behavior, contradict the approved plan, or affect a shared boundary between owners.
+For an implementer dispatch involving material behavior, include a compact contract capsule derived from the anchored specification and plan sections: the observable outcome, invariants and owners, operation or partial-failure boundary, applicable edge behavior, proof, bounded write set, non-goals, and recorded assumptions. The capsule is prompt content; the design decisions it carries live in the plan's design note, so the brief points to that note instead of restating a design that disappears with the prompt. When a worker's finding changes the design, the main thread updates the note before the next dispatch. The capsule is a design envelope, not an implementation recipe: the implementer chooses mechanics inside it, resolves ordinary technical ambiguity with existing conventions and a safe reversible default, and does not invent observable product behavior or ask the user to choose implementation details. Return a contract gap to the main thread when the missing choice would change observable behavior, contradict the approved plan, or affect a shared boundary between owners.
 
 For a material shared boundary, carry the relevant architect findings into the implementer briefs: producer and consumer owners, actual accessible interfaces and data shapes or explicitly proposed ones, their dependencies, and the applicable success and failure scenarios. Anchor existing interfaces to the inspected revision and distinguish them from proposals. If a worker finds that the brief and current source disagree, report the mismatch to the main thread before relying on an incompatible assumption; the main thread resolves it with the relevant owner. Local implementation choices remain with the implementer.
 
-For a corrective dispatch caused by a blocker, regression, repeated failure, or failed expensive gate, add a minimum sufficient root-cause capsule to that brief: exact symptom and reproduction, relevant caller-to-callee or state-owner path, violated contract or invariant, root cause or explicit evidence gap, fix boundary, proof, and exclusions. Point to a relevant verified prior fix or existing helper when it applies; do not assume similar symptoms have the same cause. The implementer may contain an immediate safety risk, but a patch that only suppresses the reported error is not a complete correction. The main thread widens the trace only when the evidence points to another shared caller, contract, or state transition.
+For a corrective dispatch caused by a blocker, regression, repeated failure, or failed expensive gate, add a minimum sufficient root-cause capsule to that brief: exact symptom and reproduction, relevant caller-to-callee or state-owner path, violated contract or invariant, root cause or explicit evidence gap, fix boundary, proof, and exclusions. Point to a relevant verified prior fix or existing helper when it applies; do not assume similar symptoms have the same cause. The implementer may contain an immediate safety risk, but a patch that only suppresses the reported error is not a complete correction. Every corrective brief asks whether removing or restructuring existing code fixes the cause, and the correction report states net lines added or removed and any new guard, retry, fallback, wrapper, or observability code with its justification. The main thread widens the trace when the evidence points to another shared caller, contract, or state transition, and starts from the design rather than a local trace when the symptom is non-local, product-wide, or has recurred in the same area.
 
-Do not pass full conversation history or ask workers to reread entire instruction, plan, or documentation trees when the brief and unchanged artifacts already answer the question. Begin with the active plan's compact current-state capsule, exact checkpoint, anchored contract sections, and prior evidence pointers. Treat legacy attempt chronology as stale context: omit it from briefs and have the main thread compact it out at the next meaningful plan update. A worker may widen its read set only when it identifies a concrete missing fact and reports why. Keep normal reasoning at the configured medium level; reserve high effort for a named ABI, security, persistence, concurrency, ownership, or other material risk. Never let dispatch overwrite a user's project-local role values; rereading a manual profile edit is not an installer retune.
+Do not pass full conversation history or ask workers to reread entire instruction, plan, or documentation trees when the brief and unchanged artifacts already answer the question. Begin with the active plan's compact current-state capsule, exact checkpoint, anchored contract sections, and prior evidence pointers. Treat legacy attempt chronology as stale context: omit it from briefs and have the main thread compact it out at the next meaningful plan update. An implementer may widen its read set only when it identifies a concrete missing fact and reports why; investigative roles explore within their budget. Keep normal reasoning at the configured medium level; reserve high effort for a named ABI, security, persistence, concurrency, ownership, performance diagnosis, design synthesis, step-back review, or other material risk.
+
+A report from an investigative role ends with exactly one of `Root cause: <cause, ranked by estimated impact when several>` or `Evidence gap: <the missing fact and how to get it>`. Measurements, timings, or inventories without that ending are inconclusive and do not close the question.
+
+A second opinion is a fresh-context, high-effort dispatch of the same or another local role on the same model, given the question and the design note but no plan history or prior conclusions. Never assume a different model or provider is available. Never let dispatch overwrite a user's project-local role values; rereading a manual profile edit is not an installer retune.
 
 For a checkpoint involving material state, persistence, concurrency, security, a public contract, or cross-language ownership transfer, give the applicable architect a compact risk-contract brief before implementation. Ask for only the relevant identities and ownership, state transitions and terminal precedence, failure/recovery/cancellation or shutdown behavior, compatibility constraints, proof seams, and unresolved assumptions. Require the report to end with `Contract status: complete`, `safe assumption recorded`, or `product decision required`, followed by applicable scenario/proof rows and assumptions. The architect owns technical design; do not ask the user to choose implementation mechanisms. This is a conditional completeness check, not a universal checklist; do not dispatch an architect merely to fill it for mechanical or low-risk work.
 

@@ -7,6 +7,7 @@ For a blank repository, begin the live plan with:
 status: active
 feature: <name>
 specification: <relative path>
+design: <relative path or specification section, or null for small local work>
 source: <relative path or null>
 base_commit: <initial or recovery-boundary sha, or null>
 git_policy: required | optional | forbidden
@@ -22,6 +23,10 @@ ready_for_acceptance: false
 ---
 ```
 
+These are the only frontmatter keys a Plumbline-managed plan uses. Do not add
+keys for operations, sessions, leases, receipts, or attempts; that state belongs
+in a linked working file or nowhere. Each value is one line.
+
 `git_policy` defaults to `required` for material multi-step work when the
 checkout is Git-controlled, and to `optional` for trivial direct work. Use
 `forbidden` only when the user explicitly opts out. A sufficient imported plan
@@ -30,8 +35,9 @@ field.
 
 `execution_mode` is optional for imported or older plans. A missing value means
 `continuous`, which preserves full-plan traversal. Use `checkpoint_relay` only
-when the user explicitly selects fresh root-conversation boundaries between
-checkpoints. Do not infer it from plan size or silently change it. Resolve the
+when the user selects fresh root-conversation boundaries between checkpoints.
+Plan offers Relay once for a large plan (see the Plan engine) and records the
+user's answer; never infer the mode from plan size or change it silently. Resolve the
 automatic or manual host boundary through `checkpoint-relay.md`; the shared
 plan contains no host transport details.
 
@@ -39,13 +45,29 @@ For a Plumbline-managed feature, keep one controlling feature and one plan. A su
 
 ```markdown
 ## CP-01: <Meaningful outcome>
-**Status:** Pending | In Progress | Blocked | Complete | Reopened | Superseded
+**Status:** Pending | In Progress | Blocked | Complete | Complete — carried: <item> → CP-nn | Reopened | Superseded
 | Boundary | <write, ownership, and risk boundary> |
 | Acceptance | <proof that makes the outcome complete> |
-| Done when | <observable completion condition> |
-| Proof | <compact accepted result and useful pointer; pending while unresolved> |
+| Done when | <observable completion condition this checkpoint alone can meet> |
+| Size | <small, medium, large, or expected worker dispatches> |
+| Proof | <accepted result; proof_commit <short sha>; proof_scope <paths>; pending while unresolved> |
 | Next action | <one safe next step> |
 ```
+
+`Done when` names only behavior this checkpoint delivers. Product-wide
+performance, latency, size, cost, output-quality, platform, and packaging
+targets belong to one final checkpoint; earlier cards may list them as
+regression guards only. `Complete — carried` closes a checkpoint whose remaining
+item is explicitly owned by a named later checkpoint; it counts as complete.
+
+A numeric target the user did not supply is written as
+`<target> (proposed: <where the number came from>)` until the user confirms it
+at plan approval. An unconfirmed proposed target is a residual, not a gate.
+
+A plan keeps one `## Decisions` list. Each entry is one dated line recording a
+user decision that changed scope, acceptance, priority, or a gate, and the text
+it supersedes is edited in the same change. A Decision outranks the
+specification's earlier wording; only safety boundaries outrank it.
 
 Expand the card with Outcome, Specification coverage, Dependencies, Execution topology, Shared ownership, Likely files and seams, Runtime protection, Verification, Canonical documentation impact, Completion criterion, Completion evidence, and Current material deviations only when a security, schema, rollback, public-contract, process-owner, irreversible, or similarly material boundary needs the detail. Execution topology may identify ready independent work, dependency edges, disjoint scopes, and a main-thread join condition; it does not name a fixed role map or create a scheduler artifact.
 
@@ -125,7 +147,7 @@ proof pointers, and next action without reading superseded events.
 
 In `continuous` mode, the current checkpoint is the resume location, not an implicit Execute stop. Unless the user explicitly selects checkpoint-by-checkpoint control or the plan names a user approval gate, Execute advances through the remaining dependency order automatically and may batch ready independent work into main-mediated parallel waves. In explicit `checkpoint_relay` mode, complete the current checkpoint, establish the durable handoff defined by `checkpoint-relay.md`, and stop before the successor starts in the same root conversation. For delegated checkpoints, `delegation_roles` and `delegation_status` preserve the dispatch obligation across compaction; use `not-applicable` for checkpoints with no useful delegated unit. `Ready for Acceptance` is a final-plan state after every required checkpoint is complete, not a per-checkpoint status.
 
-Treat checkout/worktree identity, HEAD/last_verified_commit, the plan-record hash, the applicable host configuration hash, and selected project-local role-file hashes as the resume fingerprint. For Codex, the applicable files include `.codex/config.toml` and selected role TOMLs; for Claude Code, they include selected `.claude/agents/*.md` files. Treat last_verified_commit and checkpoint completion evidence as the baseline until that fingerprint or a material contract/evidence input changes. A task resume, compaction, or conversational reminder alone does not invalidate it. At the next checkpoint, inspect the current delta and referenced paths first. Reuse unchanged evidence instead of rereading whole documents or rerunning broad checks. A role/config hash change alone is a dispatch-profile refresh: update the fingerprint and use current values for new workers without automatically invalidating checkpoint evidence or reopening the plan. Reassess when a changed config affects capability or permission materially, a new or failed check matters, a contract boundary changes, a defect appears, or the prior evidence may be stale.
+Treat checkout/worktree identity, the plan-record hash, the applicable host configuration hash, and selected project-local role-file hashes as the resume fingerprint. For Codex, the applicable files include `.codex/config.toml` and selected role TOMLs; for Claude Code, they include selected `.claude/agents/*.md` files. HEAD and last_verified_commit orient a resume but are not part of the fingerprint. Checkpoint proof is scoped: it stays valid while `git diff --name-only <proof_commit>..HEAD -- <proof_scope>` is empty, so later commits outside its scope never stale it. Treat checkpoint completion evidence as the baseline until that scope, the fingerprint, or a material contract/evidence input changes. A task resume, compaction, or conversational reminder alone does not invalidate it. At the next checkpoint, inspect the current delta and referenced paths first. Reuse unchanged evidence instead of rereading whole documents or rerunning broad checks. A role/config hash change alone is a dispatch-profile refresh: update the fingerprint and use current values for new workers without automatically invalidating checkpoint evidence or reopening the plan. Reassess when a changed config affects capability or permission materially, a new or failed check matters, a contract boundary changes, a defect appears, or the prior evidence may be stale.
 
 A trusted host continuity hook may reintroduce a compact reminder after resume or compaction. It is not a new invocation and never replaces this resume record, changes the lifecycle owner, or advances the checkpoint; read the record and current delta first.
 
@@ -159,6 +181,21 @@ Whenever the plan is written, verify that exactly one current checkpoint is name
 
 Do not require this frontmatter or checkpoint format for an external artifact that already provides sufficient scope, boundaries, proof, and next action. If a companion plan improves recovery, recommend it; do not block execution solely because it is absent.
 
-Label unresolved items as Acceptance blocker, Residual risk, Operational follow-up, or Future enhancement. Keep unfinished accepted requirements in their required checkpoints, including later planned integration; never reclassify them as optional residuals. An Acceptance blocker or an unresolved `Blocked`/`Reopened` checkpoint prevents Ready for Acceptance. Preserve non-blocking categories using the residual guidance in `references/qa-audit.md`, not as an automatic next work queue or mandatory cleanup phase.
+Label unresolved items as Acceptance blocker, Residual risk, Operational follow-up, or Future enhancement. Keep unfinished accepted requirements in their required checkpoints, including later planned integration; never reclassify them as optional residuals. Carrying an item to a named later checkpoint with `Complete — carried` is not reclassification, and deferring one needs a dated user Decision, usually from a stall report. An Acceptance blocker or an unresolved `Blocked`/`Reopened` checkpoint prevents Ready for Acceptance. Preserve non-blocking categories using the residual guidance in `references/qa-audit.md`, not as an automatic next work queue or mandatory cleanup phase.
 
-Rolling telemetry is sample evidence, not automatically durable truth. Record the observation date or generation/window and stable assertions separately from changing counts; do not rewrite acceptance merely because a live count moved.
+Rolling telemetry is sample evidence, not automatically durable truth. Keep samples in a linked working file with their observation date or window; the plan records only the stable assertion and the accepted conclusion. Do not rewrite acceptance merely because a live count moved.
+
+## Plan size and lint
+
+`scripts/lint_plan.py <plan>` checks a Plumbline-managed plan:
+
+- frontmatter keys are only those listed above, each value one line of at most
+  200 characters;
+- each checkpoint `Proof` cell is at most 300 characters;
+- the whole plan stays within 600 lines and 48 KB;
+- hex strings of 16 or more characters are flagged; cite short commit IDs and
+  point to files instead of pasting hashes, receipts, or digests;
+- every checkpoint card has a `Done when` row.
+
+A lint failure is a plan-hygiene defect: compact the plan in place before the
+next dispatch. Imported plans that Plumbline does not manage are not linted.

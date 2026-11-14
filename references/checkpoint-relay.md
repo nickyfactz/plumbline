@@ -15,6 +15,10 @@ acceptance.
   work begins.
 - Never infer Relay from plan size, checkpoint count, or host availability, and
   never silently change an existing plan's mode.
+- Plan may recommend Relay for a large plan and offers it once when presenting
+  the plan, stating that Relay starts a fresh session per checkpoint while
+  continuous mode keeps one orchestrator thread with subagents. The mode is set
+  only by the user's answer; with no answer, the plan stays `continuous`.
 
 ## Capability resolution
 
@@ -50,7 +54,7 @@ manual boundary; it does not make the plan invalid or mutate the mode.
 
 A Relay checkpoint may hand off only when:
 
-1. the current checkpoint is `Complete`;
+1. the current checkpoint is `Complete` (a `Complete — carried` status counts);
 2. its required proof is recorded;
 3. downstream-relevant decisions, corrections, assumptions, constraints, and
    discovered invariants exist in authoritative artifacts;
@@ -79,8 +83,8 @@ repeat settled context.
 
 ## Fail-closed states
 
-`Blocked`, `Reopened`, failed or inconclusive proof, an approval gate, ambiguous
-current state, an invalid dependency transition, or an unavailable recovery
+`Blocked`, `Reopened`, failed or inconclusive proof, an approval gate, a stall
+report, ambiguous current state, an invalid dependency transition, or an unavailable recovery
 boundary pauses Relay. A pause never advances the plan or starts another root
 conversation. Ordinary continuous Execute remains unchanged.
 

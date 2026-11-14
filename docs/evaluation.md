@@ -8,7 +8,10 @@ Run:
 python scripts/validate.py
 python scripts/test_install_agent_team.py
 python scripts/test_install_claude_agent_team.py
+python scripts/test_lint_plan.py
 ```
+
+`scripts/lint_plan.py <plan>` lints a live Plumbline plan against the size and frontmatter budget in `references/plan-schema.md`; `test_lint_plan.py` covers it with synthetic plans.
 
 It checks the manifests, both marketplaces, 20 skill manifests, public/engine invocation policies, reference set, router word budget, project-agent template fields, local multi-agent defaults, worktree patterns, and helper-script syntax. These are static configuration/workflow-intent checks; they do not prove effective permissions in a spawned session. The Codex and Claude installer smoke tests prove that approved setup creates host-local roles, guidance, the Claude `@AGENTS.md` instruction pointer when applicable, ignore rules, and propagation manifests without touching global files; their dry-run paths prove the same manifests without writes. Router and host-guidance drift audits are report-only and never overwrite customized integration files.
 
@@ -110,6 +113,7 @@ The compact prompts in `evals/prompts/` cover the consent boundary and latest-sa
 72. Material code review dispatches a fresh report-only `code-reviewer` before `qa-auditor`; the reviewer owns maintainability and design findings while QA owns acceptance, proof, and documentation alignment.
 73. Setup recommends the latest supported model families and role-aware efforts from `references/model-selection.md`, resolves exact available IDs and supported effort levels before approval, and passes them explicitly to the adapters. No bundled release silently fills an unresolved model. The adjustable Codex concurrency recommendation remains 12.
 74. Every explicit team audit/update checks current model availability and lifecycle evidence. Older active pins remain approved; deprecated/retired/unavailable IDs receive an evidence-bound proposal, not an automatic rewrite. Unavailable discovery preserves current configuration. Approved profile-only retunes preserve instructions, permissions, and custom fields; ordinary feature work never upgrades models.
+75. `evals/prompts/long-horizon-progress.md` and its expected file cover closable checkpoints, the final-checkpoint home for product-wide targets, `proposed` targets, scoped proof reuse, mid-run steering recorded as a dated Decision, progress-based stall reports, the Relay offer for large plans, design before checkpoints, the step-back design review, and focused re-checks for corrections.
 
 ## User UAT
 

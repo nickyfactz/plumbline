@@ -13,7 +13,8 @@ stop. Normal Execute is full-plan mode; checkpoint-by-checkpoint mode exists
 only when the user explicitly requests one checkpoint, a named pause, or
 approval at each boundary.
 
-Execute is complete only when every required checkpoint is `Complete`, the
+Execute is complete only when every required checkpoint is `Complete` (including
+`Complete — carried: <item> → <checkpoint>`, see `references/plan-schema.md`), the
 stable delta has focused/full proof, the plan says `Ready for Acceptance`, and
 the main thread has reported the remaining risk. The main thread assesses
 `CHANGES_REQUIRED` and `INCONCLUSIVE` reports under `references/qa-audit.md`;
@@ -21,6 +22,10 @@ confirmed acceptance blockers, `Blocked`/`Reopened` checkpoints, and missing
 required proof remain unresolved work and never satisfy completion. Execute may
 clean clearly task-owned superseded diagnostic/build scratch as it works. Accepted-work
 Closeout owns specification/plan retirement, integration cleanup, and publishing.
+
+Execute stops before completion only through a stall report (below), an
+explicit user gate, or a safety boundary. A stall report is the one user pause
+continuous Execute makes on its own; it is not a failure of the plan.
 
 Resolve `execution_mode` before traversal. A missing value means `continuous`.
 **Checkpoint Relay:** when the plan explicitly sets `checkpoint_relay`, load
@@ -32,8 +37,9 @@ recovery, and acceptance. Continuous mode follows the execution loop below.
 
 At task start or resume, read the controlling plan's compact resume record,
 external work order, or supplied execution artifact first. Use checkout/
-worktree identity, HEAD or `last_verified_commit`, the artifact/plan-record
-hash, and relevant local agent hashes as the resume fingerprint.
+worktree identity, the artifact/plan-record hash, and relevant local agent
+hashes as the resume fingerprint. Record HEAD or `last_verified_commit` for
+orientation only; a new commit alone never invalidates evidence.
 
 When the fingerprint is unchanged, read the compact record, Git delta, and next
 action. At each checkpoint, read the exact checkpoint, its referenced contract
@@ -43,7 +49,12 @@ material trigger requires them. Resolve the Plumbline installation root once
 at phase entry and use that root for all reference paths.
 
 Reuse prior completion evidence when referenced inputs and the fingerprint are
-unchanged. Reassess after a relevant source, specification, or plan change; a
+unchanged. Each accepted proof records a `proof_commit` and a `proof_scope` (the
+paths, contracts, and configuration it depends on). The proof stays valid while
+`git diff --name-only <proof_commit>..HEAD -- <proof_scope>` is empty; commits
+outside that scope, including later checkpoint commits and plan edits, do not
+invalidate it. The smallest affected cone is the set of checkpoints whose
+`proof_scope` intersects the changed paths; replay only those. Reassess after a relevant source, specification, or plan change; a
 config or agent change that materially affects capability or permission; a
 failed or newly relevant check; a contract-boundary change; a defect; or stale-
 evidence concern. A new session, compaction, or conversational resume alone
@@ -105,11 +116,18 @@ the topology permits, while a blocked or reopened checkpoint waits for its
 resolution. A failed checkpoint attempt returns to Diagnose, then correction
 of the same active candidate and checkpoint, followed by review. Do not revert
 a candidate, close the objective, or select a successor merely because a
-review found a defect or evidence is inconclusive.
+review found a defect or evidence is inconclusive. The same candidate means the
+same objective and accepted behavior, not the same code: deleting, replacing, or
+restructuring code written earlier in the plan is a valid correction and is
+often the right one.
 
 Once an approved specification and plan are active, they are product-scope
 authority for execution, but they cannot override Plumbline lifecycle
-invariants. The main orchestrator resolves ordinary in-scope
+invariants. The user's current instruction outranks both: when a user message
+changes scope, acceptance, priority, or a gate, record it as a dated Decision in
+the plan (and in the specification when it changes behavior) before continuing,
+then stop citing the superseded text. Only safety boundaries outrank the user's
+current instruction. The main orchestrator resolves ordinary in-scope
 ambiguity from the approved outcome, repository evidence, and a safe reversible
 default, then records the decision, assumption, or residual risk. A worker's
 `Shape question` label is an internal escalation; it does not itself invoke
@@ -128,7 +146,10 @@ project-local role with a bounded question when it can return a bounded result
 that materially reduces main-thread context or improves quality; keep small,
 tightly coupled, and inherently main-owned work direct. Use its decision packet
 to select the next action; inspect only integration-critical facts rather than
-repeating its exploration.
+repeating its exploration. Implementers are bounded by write set and goal;
+architects, auditors, and root-cause investigators get an open investigation
+with an effort budget instead of a file list (see
+`references/subagent-orchestration.md`).
 
 Before dispatching or performing each material work unit, apply the action
 classification in `references/work-classification.md`. Semantic implementation
@@ -212,7 +233,12 @@ For each checkpoint:
    minimum sufficient failure-path trace before correction. Choose the smallest
    complete solution: avoid
    speculative abstractions and dependencies while retaining required behavior,
-   companion surfaces, failure/recovery paths, compatibility, and proof.
+   companion surfaces, failure/recovery paths, compatibility, and proof. Smallest
+   means the smallest resulting system, not the smallest diff: prefer removing or
+   restructuring code over adding guards, retries, wrappers, or observability.
+   Implementer briefs point to the design note named by the plan; a correction
+   that would change the design updates the design note first and re-plans the
+   affected checkpoints.
 3. Run the narrowest meaningful checks and apply
    `references/runtime-value-testing.md`. A focused test, static check,
    deterministic probe, manual UAT, targeted review, or justified no-test
@@ -229,7 +255,10 @@ For each checkpoint:
    consolidated, or were diagnostic-only; test count and coverage are signals,
    not completion criteria.
 4. Integrate worker changes at the main thread. For material code, obtain a
-   fresh report-only `code-reviewer` verdict before `qa-auditor` acceptance;
+   fresh report-only `code-reviewer` verdict before `qa-auditor` acceptance once
+   per checkpoint stable delta. Corrections to that delta get focused checks of
+   the corrected findings, not a new full review, unless the correction changes
+   the design, contract, or ownership;
    apply `references/qa-audit.md` to disposition findings before dispatching
    remediation, returning only fix-now blockers to the implementer first. Record
    only the durable conclusion, useful pointers, residuals, and deviations in the
@@ -259,12 +288,38 @@ not batch independent symptom patches before the shared cause and fix boundary
 are understood.
 
 When repeated correction cycles or an expensive acceptance/evidence gate produce
-no checkpoint advancement, perform the internal acceptance-churn check from
+no checkpoint advancement, perform the acceptance-churn check from
 `references/subagent-orchestration.md` before another corrective dispatch or
-expensive gate. Continue the approved objective automatically when safe; do not
-treat the check as a stop, user gate, or new lifecycle state. Confirmed current
-acceptance blockers require correction; legitimate non-blocking findings need
-not interrupt dependency-safe implementation and integrated-product testing.
+expensive gate. Confirmed current acceptance blockers require correction;
+legitimate non-blocking findings need not interrupt dependency-safe
+implementation and integrated-product testing.
+
+## Stall report
+
+Stall triggers are progress-based, not retry counts. A checkpoint is stalled
+when any of these holds:
+
+- two acceptance-churn checks on it pass with no status change;
+- two expensive gates on it run with no checkpoint advancement;
+- its correction work exceeds twice the checkpoint's size estimate;
+- a third correction targets the same area for the same symptom (run the
+  step-back design review from the Diagnose engine first; the checkpoint is
+  stalled only if that review finds no design change to make);
+- repeated bounded waits on it return unchanged state and no independent work
+  remains.
+
+A stalled checkpoint stops receiving correction cycles. Other dependency-safe
+checkpoints keep moving. When nothing else can move, Execute stops and emits one
+stall report: the checkpoint, the unmet Done-when item, one line per approach
+tried, the leading cause or evidence gap, and three options with a
+recommendation:
+
+- **keep**, with the specific change that makes the next attempt different;
+- **narrow**, with the reduced Done-when;
+- **defer**, carrying the item to a named later checkpoint or a residual.
+
+The user's answer is a dated Decision in the plan. Never emit a stall report
+for one ordinary failed attempt.
 
 Reuse a build, package, deployment, or proof result while its relevant source,
 configuration, environment, contract, and candidate identity remain valid. A
@@ -288,7 +343,8 @@ Before an expensive live check, run the cheapest applicable prerequisite probes
 and state a bounded observation window plus an environment-appropriate
 escalation condition. Stop when a prerequisite fails, the artifact is wrong, a
 named stop condition occurs, or further observations add no evidence. Diagnose
-instead of retrying indefinitely; never use a universal retry count.
+instead of retrying indefinitely; never use a universal retry count. The stall
+triggers above bound total effort on a checkpoint instead.
 
 ## Classify evidence before stopping
 
@@ -303,12 +359,14 @@ unrelated baseline failure may be recorded and bypassed when it does not
 affect the plan. None of these states abandons the candidate or objective.
 Severity controls urgency, not terminality. A successor objective requires
 accepted work or explicit user-approved defer/abandonment; a worker or plan
-clause cannot authorize it.
+clause cannot authorize it. In continuous mode the stall report is the path to
+that approval.
 
 Before advancing or saving plan state, verify exactly one current checkpoint,
 matching status, and a `next_safe_action` for it. Record rolling telemetry as
-timestamped sample evidence and keep stable acceptance separate from changing
-counts. Use a compact state/transition line only when phase, owner, evidence,
+timestamped sample evidence in a linked working file, not in the plan, and keep
+stable acceptance separate from changing counts; the plan holds only the
+accepted conclusion. Use a compact state/transition line only when phase, owner, evidence,
 or next action changes; unchanged resumes do not need repeated route,
 doctrine, lifecycle, or checkpoint narration. If a correction produces a new
 failure before the relevant contract and owner path are validated, return to
